@@ -146,8 +146,7 @@ Data were collecated by the EPA on 38 models of car. The variables are
 library(ggplot2) #loads the package
 ```
 
-```{r, echo=F}
-mpg <- data.frame(mpg)
+```{r}
 str(mpg)
 ```
 
@@ -183,7 +182,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
              axis.text=element_text(size=15)) #center all titles and and axis lines
 ```
 
-```{r, out.width = "68%", eval=T, cache=FALSE, fig.asp = 0.7, warning=F}
+```{r, out.width = "68%", eval=T, cache=FALSE, fig.asp = 0.7, warning=F, fig.align="center"}
 
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x=displ, y=hwy))
@@ -197,7 +196,7 @@ mpg$year <- as.factor(mpg$year)
 
 # Adding `color`
 
-```{r, out.width = "80%", fig.asp = 0.7, warning=F}
+```{r, out.width = "80%", fig.asp = 0.7, warning=F, fig.align="center"}
 ggplot(data=mpg) + 
   geom_point(aes(x=displ, y=hwy, color=class))
 ```
@@ -207,7 +206,7 @@ ggplot(data=mpg) +
 
 # Adding `size`
 
-```{r, out.width = "70%", fig.asp = 0.7, warning=F}
+```{r, out.width = "70%", fig.asp = 0.7, warning=F, fig.align="center"}
 ggplot(data=mpg) + 
   geom_point(aes(x=displ, y=hwy, size=class))
 ```
@@ -217,34 +216,40 @@ ggplot(data=mpg) +
 
 # Adding `shape`
 
-```{r, out.width = "60%", fig.asp = 0.7, warning=T}
+```{r, out.width = "60%", fig.asp = 0.7, warning=T, fig.align="center"}
 ggplot(data=mpg) + 
   geom_point(aes(x=displ, y=hwy, shape=class))
 ```
 
 ---
 
-# Modifying the appearance of the plot
+# Adding transparency
 #### `alpha` controls transparency
 
 Editing arguments outside of `aes` will modify the all observations
 
 ```{r out.width = "65%", fig.asp = 0.7, fig.width=8, warning=F}
-ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
-  geom_point(aes(size=year), alpha=0.5) 
+ggplot(mpg) + 
+  geom_point(aes(x=displ, y=hwy, color=class, size=year), alpha=0.5) 
 ```
 
 ---
 
-# `theme` & axis labels
+# Aspect & axis labels
 
-```{r out.width = "80%", fig.asp = 0.7, fig.width=8, warning=F}
-ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
-  geom_point(aes(size=year)) +
+```{r out.width = "80%", fig.asp = 0.7, fig.width=8, warning=F, fig.align="center"}
+ggplot(mpg) + 
+  geom_point(aes(x=displ, y=hwy, color=class, size=year)) +
   theme(aspect.ratio = 0.5) + 
   xlab("Engine size") + ylab("Miles per gallon")
 ```
 
+---
+class: inverse, middle
+
+# Excercise 2B
+
+## Polish your scatterplots
 
 ---
 
@@ -252,57 +257,57 @@ ggplot(mpg, aes(x=displ, y=hwy, color=class)) +
 
 Use `facet_wrap` to split your plot into facets that each display a subset of the data.
 
-```{r out.width = "70%", fig.asp = 0.7, fig.width=8, warning=F}
-ggplot(mpg, aes(x=displ, y=hwy)) + 
-  geom_point(aes(color=year)) +
+```{r out.width = "70%", fig.asp = 0.7, fig.width=8, warning=F, fig.align="center"}
+ggplot(mpg) + 
+  geom_point(aes(x=displ, y=hwy, color=year)) +
   facet_wrap(~class, nrow=2)
 ```
-
 ---
 
-class: center, middle, inverse
+# Other geometries
 
-# Adding layers 
+### Fisher's iris data
 
----
-
-# Fisher's iris data
-
-The iris flower dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
 
 ```{r}
 head(iris)
 ```
 
+
+.foot[https://en.wikipedia.org/wiki/Iris_flower_data_set]
+
 ---
 
 # Look at your base-layer first
 
-```{r out.width = "65%", fig.asp = 0.7}
-ggplot(iris, aes(x=Petal.Length, y=Petal.Width)) +
-  geom_point(aes(color = Species, shape = Species), size = 3) + 
+```{r out.width = "65%", fig.asp = 0.7, fig.align="center"}
+ggplot(iris) +
+  geom_point(aes(x=Petal.Length, y=Petal.Width, color = Species, shape = Species), size = 3) + 
   xlab("Petal length") + ylab("Petal width")
 ```
 
 ---
 
-# Test other geometries: `geom_smooth`
+# A smoother
 
-```{r out.width = "70%", fig.asp = 0.7, warning=F, message=F}
+The smooth geometry: `geom_smooth`
+
+```{r out.width = "70%", fig.asp = 0.7, warning=F, message=F, fig.align="center"}
 ggplot(iris) + 
   geom_smooth(aes(x=Petal.Length, y=Petal.Width, 
                  color = Species), size = 1) +
     xlab("Petal length") + ylab("Petal width")
 ```
 
+By default uses a local regression (`loess`) smoother.
 ---
 
 # Combining geometries
 
-```{r out.width = "60%", fig.asp = 0.7, warning=F, message=F}
-ggplot(iris, aes(Petal.Length, Petal.Width)) +
-  geom_smooth(color = "black") + 
-  geom_point(aes(color = Species, shape = Species), size = 3) +
+```{r out.width = "60%", fig.asp = 0.7, warning=F, message=F, fig.align="center"}
+ggplot(iris) +
+  geom_smooth(color = "black", aes(x=Petal.Length, y=Petal.Width)) + 
+  geom_point(aes(x=Petal.Length, y=Petal.Width, color = Species, shape = Species), size = 3) +
     xlab("Petal length") + ylab("Petal width")
 ```
 
@@ -312,20 +317,20 @@ Note that the order you give the geometries affects the order they are plotted.
   
 # Smooth by group
 
-```{r out.width = "75%", fig.asp = 0.7, warning=F, message=F}
-ggplot(iris, aes(Petal.Length, Petal.Width)) + 
-  geom_smooth(aes(group = Species), color = "black") + 
-  geom_point(aes(color = Species, shape = Species), size = 3)
+```{r out.width = "75%", fig.asp = 0.7, warning=F, message=F, fig.align="center"}
+ggplot(iris) + 
+  geom_smooth(aes(x=Petal.Length, y=Petal.Width, group = Species), color = "black") + 
+  geom_point(aes(x=Petal.Length, y=Petal.Width, color = Species, shape = Species), size = 3)
 ```
 
 ---
 
-# Use a linear model instead of a smooth
+# Use a linear model instead 
 
-```{r out.width = "75%", fig.asp = 0.7, message=F}
-ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + 
-   geom_point(aes(shape = Species), size = 3) +
-  geom_smooth(aes(group = Species), color="black", method="lm") 
+```{r out.width = "75%", fig.asp = 0.7, message=F, fig.align="center"}
+ggplot(iris) + 
+   geom_point(aes(x=Petal.Length, y=Petal.Width, shape = Species, color=Species), size = 3) +
+  geom_smooth(aes(x=Petal.Length, y=Petal.Width, group = Species), color="black", method="lm") 
  
 ```
 
@@ -345,13 +350,15 @@ knitr::include_graphics("https://paulvanderlaken.files.wordpress.com/2017/09/sim
 
 ---
 
-class: center, middle, inverse
+class: middle, inverse
 
-# Numerical response, categorical covariate
+#Excercise 2C
+
+## Combining geometries
 
 ---
-
 # The boxplot
+## Numerical response, categorical covariate
 
 **The box** - first, second (median), and third quartiles
 
@@ -369,15 +376,17 @@ knitr::include_graphics("https://miro.medium.com/max/11700/1*2c21SkzJMf3frPXPAR_
 # The `geom_boxplot` geometry
 
 ```{r out.width = "75%", fig.asp = 0.7}
-ggplot(iris, aes(x=Species, y=Petal.Width)) +
-  geom_boxplot(aes(fill=Species))
+ggplot(iris) +
+  geom_boxplot(aes(x=Species, y=Petal.Width, fill=Species))
 ```
 
 ---
 
-class: center, middle, inverse
+class: middle, inverse
 
-# Categorical data
+# Excercise 2D
+
+## Build a boxplot
 
 ---
 # A single categorical variable
@@ -390,8 +399,7 @@ ggplot(data=mpg) +
 ```
 
 ---
-
-# Stacked bar charts for multiple categorical variables
+# Multiple categorical variables
 
 ```{r, out.width = "90%", fig.asp = 0.5}
 ggplot(data=mpg) + 
@@ -402,7 +410,7 @@ ggplot(data=mpg) +
 
 ---
 # Proportions
-Use `position="fill"` to make proportions
+Use `position="fill"` to turn counts into proportions
 ```{r, out.width = "80%", fig.asp = 0.7}
 ggplot(data=mpg) + 
   geom_bar(aes(x=manufacturer, fill=class), position="fill") +
@@ -416,7 +424,7 @@ ggplot(data=mpg) +
 
  *1.* Build your `ggplot`
 ```{r, out.width="80%", fig.asp=0.7, cache=FALSE}
-p <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species, shape = Species)) + geom_point(size = 3)
+p <- ggplot(iris) + geom_point(aes(x=Petal.Length, y=Petal.Width, color=Species, shape = Species), size = 3)
 ```
  *2.* convert your ggplot to plotly
 ```{r, cache=FALSE, warning=F, message=F}
@@ -441,14 +449,6 @@ ggplotly(width = 700, height = 300)
 - [Using color brewer palettes](http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually#use-rcolorbrewer-palettes)
 
 - [Publication Ready Plots](http://www.sthda.com/english/rpkgs/ggpubr/)
-
----
-
-class: center, middle, inverse
-
-# Two last points from my experience
-
----
 
 
 
