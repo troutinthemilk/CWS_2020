@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 2: Visualizing your data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+    <script src="libs/plotly-binding-4.9.2/plotly.js"></script>
+    <script src="libs/typedarray-0.1/typedarray.min.js"></script>
+    <script src="libs/jquery-1.11.3/jquery.min.js"></script>
+    <link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+    <script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+    <link href="libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="Title.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 2: Visualizing your data
+### Jake Ferguson
+
+---
+
+class: inverse
+
+
+
+# Workshop goals
+
+&lt;br&gt;
+
+
+1. Present data visually.
+
+2. Understand ggplot syntax
+
+3. Identify approach figure types for your datatype
+
+---
+# R's package system
+ 
+Base R can be extended using a package. One popular collection of packages is the tidyverse.  
+
+*"The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."*
+
+The tidyverse is designed for "wrangling" and presenting your data. 
+
+--
+
+We are going to use the grammar of graphics package from the tidyverse
+
+---
+  
+# What does *gg* in ggplot2 stand for?
+  
+--
+  
+### It stands for __Grammar of Graphics__:
+  
+--
+  
+```
+ggplot(data = &lt;DATA&gt;) + 
+  &lt;GEOM_FUNCTION&gt;(
+    mapping = aes(&lt;MAPPINGS&gt;),
+    stat = &lt;STAT&gt;, 
+    position = &lt;POSITION&gt;
+  ) +
+  &lt;COORDINATE_FUNCTION&gt; +
+  &lt;FACET_FUNCTION&gt;
+```
+
+--
+  
+&lt;/br&gt;
+  
+#### You can uniquely describe any plot as a combination of these 7 parameters.
+  
+---
+  
+# Why use ggplot2?
+  
+&lt;/br&gt;
+  
+
+- Easily add colors, size, shape, to illustrate multiple factors.
+
+- Easy superposition, facetting, etc.
+
+- Good animation package
+
+- Automatic legends
+
+---
+  
+# Why not use ggplot2?
+  
+&lt;/br&gt;
+  
+- Syntax differs from base R
+
+- Colors, size, shape can also be modified in base R
+
+- For publication quality graphics both ggplot2 and base graphics will often require significant coding
+
+- Default theme sucks
+
+---
+
+# Different plots for different thoughts
+
+### Keep in mind
+
+some plot characteristics will require **categorical** variables (color, faceting)
+
+some plot charateristics will require **continuous** variables (y-axis)
+
+some plot characteristics can be **either** continuous or categorical (point/line size, x-axis)
+
+&lt;br&gt;
+
+How you choose to display your information affects the types of conclusions that a reader will draw from the data.
+
+---
+
+# The car mpg dataset
+
+
+Data were collecated by the EPA on 38 models of car. The variables are 
+- **displ**, the car's engine size in liters and 
+- **hwy**, a cars fuel efficiency
+- **class**, the type of car
+- **year**, the model year
+
+
+
+
+
+```
+## 'data.frame':	234 obs. of  11 variables:
+##  $ manufacturer: chr  "audi" "audi" "audi" "audi" ...
+##  $ model       : chr  "a4" "a4" "a4" "a4" ...
+##  $ displ       : num  1.8 1.8 2 2 2.8 2.8 3.1 1.8 1.8 2 ...
+##  $ year        : int  1999 1999 2008 2008 1999 1999 2008 1999 1999 2008 ...
+##  $ cyl         : int  4 4 4 4 6 6 6 4 4 4 ...
+##  $ trans       : chr  "auto(l5)" "manual(m5)" "manual(m6)" "auto(av)" ...
+##  $ drv         : chr  "f" "f" "f" "f" ...
+##  $ cty         : int  18 21 20 21 16 18 18 18 16 20 ...
+##  $ hwy         : int  29 29 31 30 26 26 27 26 25 28 ...
+##  $ fl          : chr  "p" "p" "p" "p" ...
+##  $ class       : chr  "compact" "compact" "compact" "compact" ...
+```
+
+---
+# Plotting miles per gallon 
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-4-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 2A
+
+## Build a scatterplot
+
+---
+# Theming your plot
+
+
+```r
+library(ggthemes) #an R library with more ggplot themes
+theme_set(theme_tufte()) # a simple theme I like.
+```
+
+
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x=displ, y=hwy))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-7-1.png" width="68%" /&gt;
+
+
+
+---
+
+# Adding `color`
+
+
+```r
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, color=class))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-9-1.png" width="80%" /&gt;
+
+
+---
+
+# Adding `size`
+
+
+```r
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, size=class))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-10-1.png" width="70%" /&gt;
+
+
+---
+
+# Adding `shape`
+
+
+```r
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, shape=class))
+```
+
+```
+## Warning: The shape palette can deal with a maximum of 6 discrete values because
+## more than 6 becomes difficult to discriminate; you have 7. Consider
+## specifying shapes manually if you must have them.
+```
+
+```
+## Warning: Removed 62 rows containing missing values (geom_point).
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-11-1.png" width="60%" /&gt;
+
+---
+
+# Modifying the appearance of the plot
+#### `alpha` controls transparency
+
+Editing arguments outside of `aes` will modify the all observations
+
+
+```r
+ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
+  geom_point(aes(size=year), alpha=0.5) 
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-12-1.png" width="65%" /&gt;
+
+---
+
+# `theme` &amp; axis labels
+
+
+```r
+ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
+  geom_point(aes(size=year)) +
+  theme(aspect.ratio = 0.5) + 
+  xlab("Engine size") + ylab("Miles per gallon")
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-13-1.png" width="80%" /&gt;
+
+
+---
+
+# Faceting (multipanel figures)
+
+Use `facet_wrap` to split your plot into facets that each display a subset of the data.
+
+
+```r
+ggplot(mpg, aes(x=displ, y=hwy)) + 
+  geom_point(aes(color=year)) +
+  facet_wrap(~class, nrow=2)
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-14-1.png" width="70%" /&gt;
+
+---
+
+class: center, middle, inverse
+
+# Adding layers 
+
+---
+
+# Fisher's iris data
+
+The iris flower dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
+
+
+```r
+head(iris)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
+```
+
+---
+
+# Look at your base-layer first
+
+
+```r
+ggplot(iris, aes(x=Petal.Length, y=Petal.Width)) +
+  geom_point(aes(color = Species, shape = Species), size = 3) + 
+  xlab("Petal length") + ylab("Petal width")
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-16-1.png" width="65%" /&gt;
+
+---
+
+# Test other geometries: `geom_smooth`
+
+
+```r
+ggplot(iris) + 
+  geom_smooth(aes(x=Petal.Length, y=Petal.Width, 
+                 color = Species), size = 1) +
+    xlab("Petal length") + ylab("Petal width")
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-17-1.png" width="70%" /&gt;
+
+---
+
+# Combining geometries
+
+
+```r
+ggplot(iris, aes(Petal.Length, Petal.Width)) +
+  geom_smooth(color = "black") + 
+  geom_point(aes(color = Species, shape = Species), size = 3) +
+    xlab("Petal length") + ylab("Petal width")
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-18-1.png" width="60%" /&gt;
+
+Note that the order you give the geometries affects the order they are plotted. 
+
+---
+  
+# Smooth by group
+
+
+```r
+ggplot(iris, aes(Petal.Length, Petal.Width)) + 
+  geom_smooth(aes(group = Species), color = "black") + 
+  geom_point(aes(color = Species, shape = Species), size = 3)
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-19-1.png" width="75%" /&gt;
+
+---
+
+# Use a linear model instead of a smooth
+
+
+```r
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + 
+   geom_point(aes(shape = Species), size = 3) +
+  geom_smooth(aes(group = Species), color="black", method="lm") 
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-20-1.png" width="75%" /&gt;
+
+---
+
+# An important application
+
+### Simpson's Paradox
+
+&lt;br&gt;
+
+![](https://paulvanderlaken.files.wordpress.com/2017/09/simpsonsparadox.png?w=1080)&lt;!-- --&gt;
+
+.footnote[Source: https://goo.gl/GycYod]
+
+---
+
+class: center, middle, inverse
+
+# Numerical response, categorical covariate
+
+---
+
+# The boxplot
+
+**The box** - first, second (median), and third quartiles
+
+**The whiskers** - "The upper whisker extends from the hinge to the largest value no further than 1.5 * IQR from the hinge (where IQR is the inter-quartile range, or distance between the first and third quartiles). The lower whisker extends from the hinge to the smallest value at most 1.5 * IQR of the hinge. Data beyond the end of the whiskers are called "outlying" points and are plotted individually."
+
+
+&lt;img src="https://miro.medium.com/max/11700/1*2c21SkzJMf3frPXPAR_gZA.png" width="60%" /&gt;
+
+.footnote[Source: https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51]
+
+---
+
+# The `geom_boxplot` geometry
+
+
+```r
+ggplot(iris, aes(x=Species, y=Petal.Width)) +
+  geom_boxplot(aes(fill=Species))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-23-1.png" width="75%" /&gt;
+
+---
+
+class: center, middle, inverse
+
+# Categorical data
+
+---
+# A single categorical variable
+### bar charts: `geom_bar()`
+
+
+```r
+ggplot(data=mpg) + 
+  geom_bar(aes(x=class)) + 
+  xlab("Vehicle class") + ylab("Number of vehicles tested")
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-24-1.png" width="65%" /&gt;
+
+---
+
+# Stacked bar charts for multiple categorical variables
+
+
+```r
+ggplot(data=mpg) + 
+  geom_bar(aes(x=class, fill=manufacturer)) + 
+  xlab("Vehicle class") + ylab("Number of vehicles tested") + 
+  theme(axis.text.x = element_text(size = 8))
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-25-1.png" width="90%" /&gt;
+
+---
+# Proportions
+Use `position="fill"` to make proportions
+
+```r
+ggplot(data=mpg) + 
+  geom_bar(aes(x=manufacturer, fill=class), position="fill") +
+  xlab("Manufacturer") + ylab("Number of vehicles tested") +
+  theme(axis.text.x = element_text(size = 8), aspect.ratio=0.5) 
+```
+
+&lt;img src="Module2_files/figure-html/unnamed-chunk-26-1.png" width="80%" /&gt;
+
+---
+
+# Interactive plots
+
+ *1.* Build your `ggplot`
+
+```r
+p &lt;- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species, shape = Species)) + geom_point(size = 3)
+```
+ *2.* convert your ggplot to plotly
+
+```r
+library(plotly, quietly=F)
+ggplotly(width = 700, height = 300) 
+```
+
+<div id="htmlwidget-e608a6c6a2b1916fa5d4" style="width:700px;height:300px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e608a6c6a2b1916fa5d4">{"x":{"data":[{"x":[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5,1.5,1.6,1.4,1.1,1.2,1.5,1.3,1.4,1.7,1.5,1.7,1.5,1,1.7,1.9,1.6,1.6,1.5,1.4,1.6,1.6,1.5,1.5,1.4,1.5,1.2,1.3,1.4,1.3,1.5,1.3,1.3,1.3,1.6,1.9,1.4,1.6,1.4,1.5,1.4],"y":[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1,0.2,0.2,0.1,0.1,0.2,0.4,0.4,0.3,0.3,0.3,0.2,0.4,0.2,0.5,0.2,0.2,0.4,0.2,0.2,0.2,0.2,0.4,0.1,0.2,0.2,0.2,0.2,0.1,0.2,0.2,0.3,0.3,0.2,0.6,0.4,0.3,0.2,0.2,0.2,0.2],"text":["Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.7<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.1<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.1<br />Species: setosa<br />Species: setosa","Petal.Length: 1.1<br />Petal.Width: 0.1<br />Species: setosa<br />Species: setosa","Petal.Length: 1.2<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.7<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.7<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.0<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.7<br />Petal.Width: 0.5<br />Species: setosa<br />Species: setosa","Petal.Length: 1.9<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.1<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.2<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.1<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.3<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.6<br />Species: setosa<br />Species: setosa","Petal.Length: 1.9<br />Petal.Width: 0.4<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.3<br />Species: setosa<br />Species: setosa","Petal.Length: 1.6<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.5<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa","Petal.Length: 1.4<br />Petal.Width: 0.2<br />Species: setosa<br />Species: setosa"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":11.3385826771654,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"setosa","legendgroup":"setosa","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[4.7,4.5,4.9,4,4.6,4.5,4.7,3.3,4.6,3.9,3.5,4.2,4,4.7,3.6,4.4,4.5,4.1,4.5,3.9,4.8,4,4.9,4.7,4.3,4.4,4.8,5,4.5,3.5,3.8,3.7,3.9,5.1,4.5,4.5,4.7,4.4,4.1,4,4.4,4.6,4,3.3,4.2,4.2,4.2,4.3,3,4.1],"y":[1.4,1.5,1.5,1.3,1.5,1.3,1.6,1,1.3,1.4,1,1.5,1,1.4,1.3,1.4,1.5,1,1.5,1.1,1.8,1.3,1.5,1.2,1.3,1.4,1.4,1.7,1.5,1,1.1,1,1.2,1.6,1.5,1.6,1.5,1.3,1.3,1.3,1.2,1.4,1.2,1,1.3,1.2,1.3,1.3,1.1,1.3],"text":["Petal.Length: 4.7<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.9<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.0<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.6<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.7<br />Petal.Width: 1.6<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.3<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.6<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.9<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.5<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.2<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.0<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.7<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.6<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.4<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.1<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.9<br />Petal.Width: 1.1<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.8<br />Petal.Width: 1.8<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.0<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.9<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.7<br />Petal.Width: 1.2<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.3<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.4<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.8<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 5.0<br />Petal.Width: 1.7<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.5<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.8<br />Petal.Width: 1.1<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.7<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.9<br />Petal.Width: 1.2<br />Species: versicolor<br />Species: versicolor","Petal.Length: 5.1<br />Petal.Width: 1.6<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.5<br />Petal.Width: 1.6<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.7<br />Petal.Width: 1.5<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.4<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.1<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.0<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.4<br />Petal.Width: 1.2<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.6<br />Petal.Width: 1.4<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.0<br />Petal.Width: 1.2<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.3<br />Petal.Width: 1.0<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.2<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.2<br />Petal.Width: 1.2<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.2<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.3<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor","Petal.Length: 3.0<br />Petal.Width: 1.1<br />Species: versicolor<br />Species: versicolor","Petal.Length: 4.1<br />Petal.Width: 1.3<br />Species: versicolor<br />Species: versicolor"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":11.3385826771654,"symbol":"triangle-up","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"versicolor","legendgroup":"versicolor","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[6,5.1,5.9,5.6,5.8,6.6,4.5,6.3,5.8,6.1,5.1,5.3,5.5,5,5.1,5.3,5.5,6.7,6.9,5,5.7,4.9,6.7,4.9,5.7,6,4.8,4.9,5.6,5.8,6.1,6.4,5.6,5.1,5.6,6.1,5.6,5.5,4.8,5.4,5.6,5.1,5.1,5.9,5.7,5.2,5,5.2,5.4,5.1],"y":[2.5,1.9,2.1,1.8,2.2,2.1,1.7,1.8,1.8,2.5,2,1.9,2.1,2,2.4,2.3,1.8,2.2,2.3,1.5,2.3,2,2,1.8,2.1,1.8,1.8,1.8,2.1,1.6,1.9,2,2.2,1.5,1.4,2.3,2.4,1.8,1.8,2.1,2.4,2.3,1.9,2.3,2.5,2.3,1.9,2,2.3,1.8],"text":["Petal.Length: 6.0<br />Petal.Width: 2.5<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 1.9<br />Species: virginica<br />Species: virginica","Petal.Length: 5.9<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 5.8<br />Petal.Width: 2.2<br />Species: virginica<br />Species: virginica","Petal.Length: 6.6<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 4.5<br />Petal.Width: 1.7<br />Species: virginica<br />Species: virginica","Petal.Length: 6.3<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 5.8<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 6.1<br />Petal.Width: 2.5<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 5.3<br />Petal.Width: 1.9<br />Species: virginica<br />Species: virginica","Petal.Length: 5.5<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 5.0<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 2.4<br />Species: virginica<br />Species: virginica","Petal.Length: 5.3<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.5<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 6.7<br />Petal.Width: 2.2<br />Species: virginica<br />Species: virginica","Petal.Length: 6.9<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.0<br />Petal.Width: 1.5<br />Species: virginica<br />Species: virginica","Petal.Length: 5.7<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 4.9<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 6.7<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 4.9<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 5.7<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 6.0<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 4.8<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 4.9<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 5.8<br />Petal.Width: 1.6<br />Species: virginica<br />Species: virginica","Petal.Length: 6.1<br />Petal.Width: 1.9<br />Species: virginica<br />Species: virginica","Petal.Length: 6.4<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 2.2<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 1.5<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 1.4<br />Species: virginica<br />Species: virginica","Petal.Length: 6.1<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 2.4<br />Species: virginica<br />Species: virginica","Petal.Length: 5.5<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 4.8<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica","Petal.Length: 5.4<br />Petal.Width: 2.1<br />Species: virginica<br />Species: virginica","Petal.Length: 5.6<br />Petal.Width: 2.4<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 1.9<br />Species: virginica<br />Species: virginica","Petal.Length: 5.9<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.7<br />Petal.Width: 2.5<br />Species: virginica<br />Species: virginica","Petal.Length: 5.2<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.0<br />Petal.Width: 1.9<br />Species: virginica<br />Species: virginica","Petal.Length: 5.2<br />Petal.Width: 2.0<br />Species: virginica<br />Species: virginica","Petal.Length: 5.4<br />Petal.Width: 2.3<br />Species: virginica<br />Species: virginica","Petal.Length: 5.1<br />Petal.Width: 1.8<br />Species: virginica<br />Species: virginica"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":11.3385826771654,"symbol":"square","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"virginica","legendgroup":"virginica","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":33.0471841704719,"r":7.30593607305936,"b":67.1924726719247,"l":67.4138646741387},"font":{"color":"rgba(0,0,0,1)","family":"serif","size":26.5670402656704},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.705,7.195],"tickmode":"array","ticktext":["2","4","6"],"tickvals":[2,4,6],"categoryorder":"array","categoryarray":["2","4","6"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"serif","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":1.32835201328352,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Petal.Length","font":{"color":"rgba(0,0,0,1)","family":"serif","size":26.5670402656704}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.02,2.62],"tickmode":"array","ticktext":["0.0","0.5","1.0","1.5","2.0","2.5"],"tickvals":[0,0.5,1,1.5,2,2.5],"categoryorder":"array","categoryarray":["0.0","0.5","1.0","1.5","2.0","2.5"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"serif","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":1.32835201328352,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Petal.Width","font":{"color":"rgba(0,0,0,1)","family":"serif","size":26.5670402656704}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"serif","size":21.2536322125363},"y":0.811023622047244},"annotations":[{"text":"Species","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"serif","size":26.5670402656704},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":700,"height":300,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"266e7377187c":{"x":{},"y":{},"colour":{},"shape":{},"type":"scatter"}},"cur_data":"266e7377187c","visdat":{"266e7377187c":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Resources
+
+- [Cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf)
+
+- [Spatial Visualization](https://cran.r-project.org/web/packages/ggmap/index.html)
+
+- [Heatmaps](http://blog.aicry.com/r-heat-maps-with-ggplot2/)
+
+- [Cookbook for R - Graphs](http://www.cookbook-r.com/Graphs/)
+
+- [Top 50 ggplot2 Visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+
+- [Using color brewer palettes](http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually#use-rcolorbrewer-palettes)
+
+- [Publication Ready Plots](http://www.sthda.com/english/rpkgs/ggpubr/)
+
+---
+
+class: center, middle, inverse
+
+# Two last points from my experience
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
