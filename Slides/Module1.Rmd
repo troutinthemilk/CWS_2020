@@ -1,0 +1,233 @@
+---
+title: "Module 1: R basics"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
+    lib_dir: libs
+    includes:
+      after_body: logo.html
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+class: inverse
+
+```{r, echo=F, message=F, warning=F, eval=F}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Workshop goals
+
+<br>
+
+0. Navigate rstudio cloud
+
+1. Understand how data is stored and represented in R
+
+2. Read in datasets from files
+
+3. Run some basic mathematical and statistical operations on the data 
+
+4. View and summarize the datasets
+
+---
+# R, RStudio, and RStudio Cloud
+
+
+- "R is a free software environment for statistical computing and graphics". This is the software that actually does the work.
+
+  - download here: [https://cran.r-project.org/](https://cran.r-project.org/)
+  
+- "RStudio is an integrated development environment (IDE) for R, a programming language for statistical computing and graphics." This software is for interacting with R. 
+
+  - download here: [https://rstudio.com/](https://rstudio.com/). You must install R first.
+
+- "RStudio Cloud is a hosted version of RStudio in the cloud that makes it easy for professionals, hobbyists, trainers, teachers and students to do, share, teach and learn data science using R."
+
+  - No download necessary: [https://rstudio.cloud/](https://rstudio.cloud/)
+
+#### We will use RStudio Cloud exclusively in this course, but all work can reproduced in R and RStudio.
+
+---
+# `rstudio.cloud`
+
+---
+# Assigning values in R
+
+The arrow <- is an assignment operation. 
+
+The right-hand side is the value you assign
+
+The left-hand side is the variable you assign a value to.
+
+
+```{r}
+x <- 3.14 #x is a number
+y <- "CWS" #y is a character string
+```
+
+Anytime we refer to `x` and `y` in the future these values will be available.
+```{r}
+x
+y
+```
+
+
+---
+# Math operations
+
+```{r}
+x + 3
+
+x*10
+
+x/2
+
+```
+
+but not on characters
+```{r, error=T}
+y*2
+```
+
+Note that errors in R can be difficult to interpret. Cut and paste into **google** to decipher!
+---
+# Collections of values
+
+A vector is a collection of values, `c()` combines values into a vector.
+
+```{r}
+x <- c(1, 2, 3, 4, 5, 6)  #this is a numeric vector
+y <- c('yes', 'no', 'yes', 'no', 'yes', 'no') #this is a vector of characters 
+```
+
+we can do the math operations on numeric vectors
+
+```{r}
+x*3
+x*x
+```
+
+these operations go elementwise, recycling values where appropriate.
+
+
+---
+# Functions
+
+A function takes an argument does some stuff to it, then provides some output. 
+
+```{r}
+print(x) #function to print an object
+mean(x) #calculate the mean of a vector
+log(x) #calcuate the natural log of a vector
+```
+
+---
+# Functions for creating vectors
+
+R has some commands to create common vectors quickly that we will use.
+
+```{r}
+1:6 #create a sequence of integers with :
+seq(from=1, to=6, by=0.5) #more complex sequences
+rep(3.14, times=10) #repeat a value
+```
+
+---
+class: inverse, middle
+
+# Excercise 1A
+
+## variables and vectors
+
+---
+# Data frames
+
+We can collect vectors into a data frame. These vectors can be of different types.
+
+```{r}
+choice.dat <- data.frame(Number=x, Choice=y)
+choice.dat
+```
+
+---
+# Extracting and subsetting dataframes
+
+We can access specific rows and columns of dataframes
+
+```{r}
+choice.dat[3:5,]
+
+choice.dat[,2]
+
+choice.dat[3:5,2]
+```
+
+or access columns by name with the `$` operator.
+
+```{r}
+choice.dat$Choice
+```
+
+---
+# Reading in data from a file
+
+Data files are often in the `csv` format (comma-seperated values). We'll learn later about excel files
+```{r, eval=F}
+bass.dat <- read.csv(file="BassGrowthOto.csv")
+```
+
+```{r, echo=F}
+bass.dat <- read.csv(file="../Data/BassGrowthOto.csv")
+```
+
+The argument file is a string that points to the file you want to load. The above command assumed that the file was in the current working directory (where R loads up). This will always be the case on RStudio Cloud.
+
+If the data file is in a different location, as it often is if you are working on RStudio on your computer, you tell R the filepath:
+```{r,eval=F}
+bass.dat <- read.csv(file="C::\\Users\Jake\BassGrowthOto.csv") #A windows path
+
+bass.dat <- read.csv(file="/Users/Jake/BassGrowthOto.csv") #A mac or linux path
+
+```
+
+---
+# Looking at your dataframe
+
+Print the first 6 lines of the dataset (printing a large dataframe can freeze your machine)
+```{r}
+head(bass.dat)
+```
+
+Structure of the dataframe
+```{r}
+str(bass.dat)
+```
+
+---
+class: inverse, middle
+
+# Excercise 1B
+
+## Reading in data
+
+
+

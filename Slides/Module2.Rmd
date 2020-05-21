@@ -1,0 +1,454 @@
+---
+title: "Module 2: Visualizing your data"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
+    lib_dir: libs
+    includes:
+      after_body: logo.html
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+class: inverse
+
+```{r, echo=F, message=F, warning=F, eval=F}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Workshop goals
+
+<br>
+
+
+1. Present data visually.
+
+2. Understand ggplot syntax
+
+3. Identify approach figure types for your datatype
+
+---
+# R's package system
+ 
+Base R can be extended using a package. One popular collection of packages is the tidyverse.  
+
+*"The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."*
+
+The tidyverse is designed for "wrangling" and presenting your data. 
+
+--
+
+We are going to use the grammar of graphics package from the tidyverse
+
+---
+  
+# What does *gg* in ggplot2 stand for?
+  
+--
+  
+### It stands for __Grammar of Graphics__:
+  
+--
+  
+```
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+    mapping = aes(<MAPPINGS>),
+    stat = <STAT>, 
+    position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+```
+
+--
+  
+</br>
+  
+#### You can uniquely describe any plot as a combination of these 7 parameters.
+  
+---
+  
+# Why use ggplot2?
+  
+</br>
+  
+
+- Easily add colors, size, shape, to illustrate multiple factors.
+
+- Easy superposition, facetting, etc.
+
+- Good animation package
+
+- Automatic legends
+
+---
+  
+# Why not use ggplot2?
+  
+</br>
+  
+- Syntax differs from base R
+
+- Colors, size, shape can also be modified in base R
+
+- For publication quality graphics both ggplot2 and base graphics will often require significant coding
+
+- Default theme sucks
+
+---
+
+# Different plots for different thoughts
+
+### Keep in mind
+
+some plot characteristics will require **categorical** variables (color, faceting)
+
+some plot charateristics will require **continuous** variables (y-axis)
+
+some plot characteristics can be **either** continuous or categorical (point/line size, x-axis)
+
+<br>
+
+How you choose to display your information affects the types of conclusions that a reader will draw from the data.
+
+---
+
+# The car mpg dataset
+
+
+Data were collecated by the EPA on 38 models of car. The variables are 
+- **displ**, the car's engine size in liters and 
+- **hwy**, a cars fuel efficiency
+- **class**, the type of car
+- **year**, the model year
+
+
+```{r, warning=FALSE, message=FALSE, cache=FALSE, echo=F}
+library(ggplot2) #loads the package
+```
+
+```{r, echo=F}
+mpg <- data.frame(mpg)
+str(mpg)
+```
+
+---
+# Plotting miles per gallon 
+
+```{r, out.width = "80%", fig.asp = 0.7, warning=F, fig.align="center"}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+---
+class: inverse, middle
+
+# Excercise 2A
+
+## Build a scatterplot
+
+---
+# Theming your plot
+
+```{r, warning=F}
+library(ggthemes) #an R library with more ggplot themes
+theme_set(theme_tufte()) # a simple theme I like.
+```
+
+```{r, echo=F}
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+```{r, out.width = "68%", eval=T, cache=FALSE, fig.asp = 0.7, warning=F}
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x=displ, y=hwy))
+```
+
+```{r,echo=F}
+mpg$year <- as.factor(mpg$year)
+```
+
+---
+
+# Adding `color`
+
+```{r, out.width = "80%", fig.asp = 0.7, warning=F}
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, color=class))
+```
+
+
+---
+
+# Adding `size`
+
+```{r, out.width = "70%", fig.asp = 0.7, warning=F}
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, size=class))
+```
+
+
+---
+
+# Adding `shape`
+
+```{r, out.width = "60%", fig.asp = 0.7, warning=T}
+ggplot(data=mpg) + 
+  geom_point(aes(x=displ, y=hwy, shape=class))
+```
+
+---
+
+# Modifying the appearance of the plot
+#### `alpha` controls transparency
+
+Editing arguments outside of `aes` will modify the all observations
+
+```{r out.width = "65%", fig.asp = 0.7, fig.width=8, warning=F}
+ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
+  geom_point(aes(size=year), alpha=0.5) 
+```
+
+---
+
+# `theme` & axis labels
+
+```{r out.width = "80%", fig.asp = 0.7, fig.width=8, warning=F}
+ggplot(mpg, aes(x=displ, y=hwy, color=class)) + 
+  geom_point(aes(size=year)) +
+  theme(aspect.ratio = 0.5) + 
+  xlab("Engine size") + ylab("Miles per gallon")
+```
+
+
+---
+
+# Faceting (multipanel figures)
+
+Use `facet_wrap` to split your plot into facets that each display a subset of the data.
+
+```{r out.width = "70%", fig.asp = 0.7, fig.width=8, warning=F}
+ggplot(mpg, aes(x=displ, y=hwy)) + 
+  geom_point(aes(color=year)) +
+  facet_wrap(~class, nrow=2)
+```
+
+---
+
+class: center, middle, inverse
+
+# Adding layers 
+
+---
+
+# Fisher's iris data
+
+The iris flower dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
+
+```{r}
+head(iris)
+```
+
+---
+
+# Look at your base-layer first
+
+```{r out.width = "65%", fig.asp = 0.7}
+ggplot(iris, aes(x=Petal.Length, y=Petal.Width)) +
+  geom_point(aes(color = Species, shape = Species), size = 3) + 
+  xlab("Petal length") + ylab("Petal width")
+```
+
+---
+
+# Test other geometries: `geom_smooth`
+
+```{r out.width = "70%", fig.asp = 0.7, warning=F, message=F}
+ggplot(iris) + 
+  geom_smooth(aes(x=Petal.Length, y=Petal.Width, 
+                 color = Species), size = 1) +
+    xlab("Petal length") + ylab("Petal width")
+```
+
+---
+
+# Combining geometries
+
+```{r out.width = "60%", fig.asp = 0.7, warning=F, message=F}
+ggplot(iris, aes(Petal.Length, Petal.Width)) +
+  geom_smooth(color = "black") + 
+  geom_point(aes(color = Species, shape = Species), size = 3) +
+    xlab("Petal length") + ylab("Petal width")
+```
+
+Note that the order you give the geometries affects the order they are plotted. 
+
+---
+  
+# Smooth by group
+
+```{r out.width = "75%", fig.asp = 0.7, warning=F, message=F}
+ggplot(iris, aes(Petal.Length, Petal.Width)) + 
+  geom_smooth(aes(group = Species), color = "black") + 
+  geom_point(aes(color = Species, shape = Species), size = 3)
+```
+
+---
+
+# Use a linear model instead of a smooth
+
+```{r out.width = "75%", fig.asp = 0.7, message=F}
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + 
+   geom_point(aes(shape = Species), size = 3) +
+  geom_smooth(aes(group = Species), color="black", method="lm") 
+ 
+```
+
+---
+
+# An important application
+
+### Simpson's Paradox
+
+<br>
+
+```{r, echo=FALSE}
+knitr::include_graphics("https://paulvanderlaken.files.wordpress.com/2017/09/simpsonsparadox.png?w=1080")
+```
+
+.footnote[Source: https://goo.gl/GycYod]
+
+---
+
+class: center, middle, inverse
+
+# Numerical response, categorical covariate
+
+---
+
+# The boxplot
+
+**The box** - first, second (median), and third quartiles
+
+**The whiskers** - "The upper whisker extends from the hinge to the largest value no further than 1.5 * IQR from the hinge (where IQR is the inter-quartile range, or distance between the first and third quartiles). The lower whisker extends from the hinge to the smallest value at most 1.5 * IQR of the hinge. Data beyond the end of the whiskers are called "outlying" points and are plotted individually."
+
+
+```{r, echo=FALSE, out.width="60%"}
+knitr::include_graphics("https://miro.medium.com/max/11700/1*2c21SkzJMf3frPXPAR_gZA.png")
+```
+
+.footnote[Source: https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51]
+
+---
+
+# The `geom_boxplot` geometry
+
+```{r out.width = "75%", fig.asp = 0.7}
+ggplot(iris, aes(x=Species, y=Petal.Width)) +
+  geom_boxplot(aes(fill=Species))
+```
+
+---
+
+class: center, middle, inverse
+
+# Categorical data
+
+---
+# A single categorical variable
+### bar charts: `geom_bar()`
+
+```{r out.width = "65%", fig.asp = 0.7}
+ggplot(data=mpg) + 
+  geom_bar(aes(x=class)) + 
+  xlab("Vehicle class") + ylab("Number of vehicles tested")
+```
+
+---
+
+# Stacked bar charts for multiple categorical variables
+
+```{r, out.width = "90%", fig.asp = 0.5}
+ggplot(data=mpg) + 
+  geom_bar(aes(x=class, fill=manufacturer)) + 
+  xlab("Vehicle class") + ylab("Number of vehicles tested") + 
+  theme(axis.text.x = element_text(size = 8))
+```
+
+---
+# Proportions
+Use `position="fill"` to make proportions
+```{r, out.width = "80%", fig.asp = 0.7}
+ggplot(data=mpg) + 
+  geom_bar(aes(x=manufacturer, fill=class), position="fill") +
+  xlab("Manufacturer") + ylab("Number of vehicles tested") +
+  theme(axis.text.x = element_text(size = 8), aspect.ratio=0.5) 
+```
+
+---
+
+# Interactive plots
+
+ *1.* Build your `ggplot`
+```{r, out.width="80%", fig.asp=0.7, cache=FALSE}
+p <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species, shape = Species)) + geom_point(size = 3)
+```
+ *2.* convert your ggplot to plotly
+```{r, cache=FALSE, warning=F, message=F}
+library(plotly, quietly=F)
+ggplotly(width = 700, height = 300) 
+```
+
+---
+
+# Resources
+
+- [Cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf)
+
+- [Spatial Visualization](https://cran.r-project.org/web/packages/ggmap/index.html)
+
+- [Heatmaps](http://blog.aicry.com/r-heat-maps-with-ggplot2/)
+
+- [Cookbook for R - Graphs](http://www.cookbook-r.com/Graphs/)
+
+- [Top 50 ggplot2 Visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+
+- [Using color brewer palettes](http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually#use-rcolorbrewer-palettes)
+
+- [Publication Ready Plots](http://www.sthda.com/english/rpkgs/ggpubr/)
+
+---
+
+class: center, middle, inverse
+
+# Two last points from my experience
+
+---
+
+
+
