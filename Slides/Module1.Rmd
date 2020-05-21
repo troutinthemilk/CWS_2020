@@ -34,7 +34,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
              axis.text=element_text(size=15)) #center all titles and and axis lines
 ```
 
-# Workshop goals
+# Module goals
 
 <br>
 
