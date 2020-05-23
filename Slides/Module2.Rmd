@@ -357,6 +357,16 @@ class: middle, inverse
 ## Combining geometries
 
 ---
+# The histogram
+## Single continuous variable
+
+Histograms pile observations into predetermined bins
+
+```{r}
+
+```
+
+---
 # The boxplot
 ## Numerical response, categorical covariate
 

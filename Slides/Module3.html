@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 3: Introduction to hypothesis testing</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 3: Introduction to hypothesis testing
+### Jake Ferguson
+
+---
+
+class: inverse
+
+
+
+# Module goals
+
+&lt;br&gt;
+
+
+1. Understand basic principles of hypothesis testing
+
+2. Introduce programming control-flow structures in R
+
+3. Introduce sampling with and without replacement
+
+
+---
+# Monte Carlo methods
+
+Any method that relies on repeated, **random** sampling with a computer to obtain a result.
+
+&lt;img src="https://c1.wallpaperflare.com/preview/6/487/674/various-business-gambling-money.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+# Why are we learning this?
+
+&lt;br&gt;
+
+- Improves intuition about NHT
+
+- Flexible approach that does not rely on any distributional assumptions (i.e., a nonparametric method)
+
+- Develop new programming skills
+
+---
+#Permutation tests
+
+
+**Question**: are two groups the same?
+
+**Solution**: What would the data look like if there were no differences between the groups.
+
+**How**: Randomly assign observations to each treatment
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Permutation_generation_algorithms.svg/1280px-Permutation_generation_algorithms.svg.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+.footnote[image source: [www.wikimedia.org/](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Permutation_generation_algorithms.svg/1280px-Permutation_generation_algorithms.svg.png)]
+
+.footnote[]
+---
+# Example
+
+Are Hawai'ian monk seals more responsive to researcher presence after a handling event?
+
+
+
+&lt;img src="https://apps-pifsc.fisheries.noaa.gov/hawaiian_monk_seal/news/img/kilo_being_released_on_laysan_island_med.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[image source: [fisheries.noaa.gov](https://apps-pifsc.fisheries.noaa.gov/hawaiian_monk_seal/news/img/kilo_being_released_on_laysan_island_med.jpg)]
+
+---
+# The data
+&lt;img src="Module3_files/figure-html/unnamed-chunk-5-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Since this is a **paired** study design, we can study the difference in each animals behavior 
+&lt;img src="Module3_files/figure-html/unnamed-chunk-6-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# The null hypothesis 
+
+What does the world look like if there is nothing interesting going on?
+
+`\(H_0\)`: no difference between the groups.
+
+--
+
+&lt;br&gt;
+
+How can we use our computer to create new datasets that we know are consistent with `\(H_0\)`, with the same statistical properties as the original dataset?
+ 
+--
+
+**Permute the data!**
+ 
+
+---
+# Permutation
+
+Randomly assign observations to before or after treatment
+
+```
+##       Before      After  Difference
+## 1 0.05263158 0.15151515  0.09888357
+## 2 0.04545455 0.00000000 -0.04545455
+## 3 0.08333333 0.05263158 -0.03070175
+## 4 0.00000000 0.00000000  0.00000000
+## 5 0.08000000 0.04000000 -0.04000000
+## 6 0.11111111 0.16666667  0.05555556
+```
+
+This is equivalent to randomly changing the sign of the difference (+/-)
+
+---
+# Randomization tests for paired data
+
+&lt;br&gt;
+
+* Calculate your statistic of interest (e.g., `\(\bar{x}_{Before} - \bar{x}_{After}\)`)
+
+&lt;br&gt;
+
+1. Randomly assign each observation to one of the treatments (Before/After) (for a paired t-test this equivalent to multiplying by +1 or -1 with equal probability)
+
+2. Calculate your new statistic of interest (e.g., `\(\bar{x}_{Before} - \bar{x}_{After}\)`) under `\(H_0\)`. Save result.
+
+3. Go back to 1.
+
+&lt;br&gt;
+
+* After doing 1-3 a bunch, use to construct `\(H_0\)`. Compare `\(H_0\)` to the original statistic.
+
+---
+# Generating random numbers
+
+How to randomly switch the sign of the observed difference?
+
+The `sample` function randomly draws values from a set of possibilities:
+
+
+```r
+sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1
+```
+
+```
+##  [1] -1  1  1 -1 -1  1 -1  1  1  1
+```
+
+Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
+
+---
+class: inverse, middle
+
+# Excercise 3A
+
+## Using the sample function
+
+---
+# The `for` loop
+
+###Loops are how we run a chunk of code a bunch of times.
+
+.pull-left[
+
+&lt;br&gt;
+
+
+syntax: 
+
+
+```r
+for (val in sequence)
+{
+  statement to do stuff.
+}
+```
+]
+.pull-right[
+
+&lt;br&gt;
+
+
+A simple example: 
+
+
+```r
+x &lt;- numeric(10) #an empty vector
+for(i in 1:5) {
+  print(i)
+}
+```
+
+```
+## [1] 1
+## [1] 2
+## [1] 3
+## [1] 4
+## [1] 5
+```
+]
+
+---
+class: inverse, middle
+
+# Excercise 3B
+
+## Your first for loop
+
+
+---
+# The null distribution
+
+
+
+```r
+obs.stat &lt;- mean(diff.dat$Difference) 
+
+null.vec &lt;- vector('numeric', 1e4)
+for(i in 1:length(null.vec)) {
+  multiplier &lt;- sample(x=c(-1,1), size=length(diff.dat$Difference), replace=TRUE)
+  null.vec[i] &lt;- mean(diff.dat$Difference*multiplier)
+}
+```
+
+&lt;img src="Module3_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# The p-value
+
+A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? `\(^1\)`
+
+&lt;br&gt;
+
+&lt;img src="Module3_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+
+
+.footnote[ 1. Your life will be improved if you memorize this definition]
+
+---
+# Getting the p-value
+
+
+```r
+p.val &lt;-sum(null.vec &lt; obs.stat)/length(null.vec) #proportion of values that are more extreme than the observation
+print(2*p.val) #double this for a two-sided test
+```
+
+```
+## [1] 0.2306
+```
+
+&lt;img src="Module3_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# The `\(\alpha\)`-level
+
+The p-value measures the consistency of your data with the null hypothesis. So at what point a p-value denote inconsistency with the null hypothesis?
+
+&lt;br&gt;
+
+The `\(\alpha\)`-level is a set value that denotes the researchers comfort with rejecting a difference that is true but rare. The standard level is `\(\alpha=0.05\)`. It is completely reasonable to use a different value.
+
+&lt;img src="Module3_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 3C
+
+## Paired-sample randomization test
+
+---
+# Two-sample randomization test
+
+If we have samples from two populations and want to compare them the recipe is a bit different
+
+
+* Calculate your statistic of interest
+
+&lt;br&gt;
+
+1. Randomly assign each observation to one of the populations keeping the sample sizes of each population the same
+
+2. Calculate your new statistic of interest under `\(H_0\)`. Save result.
+
+3. Go back to 1.
+
+&lt;br&gt;
+
+* After doing 1-3 a bunch, use to construct `\(H_0\)` and compare to the original statistic.
+
+---
+# Hotwings
+.pull-left[
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+![](https://cdn.pixabay.com/photo/2019/04/11/17/37/wings-4120271_1280.jpg)&lt;!-- --&gt;
+
+.footnote[Image:[https://cdn.pixabay.com](https://cdn.pixabay.com/photo/2019/04/11/17/37/wings-4120271_1280.jpg)]
+]
+
+.pull-right[
+
+```r
+hotwings.dat &lt;- read.csv(file="../Data/hotwings.csv")
+ggplot(data=hotwings.dat) +
+  geom_histogram(aes(x=Hotwings), bins=15, col="white") +
+  facet_wrap(~Sex, ncol=1)
+```
+
+![](Module3_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+]
+---
+# Get the randomization distribution
+
+.pull-left[
+
+```r
+obs.val &lt;- mean(hotwings.dat$Hotwings[1:14]) - mean(hotwings.dat$Hotwings[15:28])
+print(obs.val)
+```
+
+```
+## [1] -5.071429
+```
+
+```r
+null.vec &lt;- numeric(1e4)
+for(i in 1:1e4) {
+  index       &lt;- sample(1:28, 14, replace=F)
+  null.vec[i] &lt;- mean(hotwings.dat$Hotwings[index]) - mean(hotwings.dat$Hotwings[-index])
+}
+
+p.val &lt;- 2*sum(null.vec &lt; obs.val)/length(null.vec)
+
+print(p.val)
+```
+
+```
+## [1] 0.002
+```
+]
+
+.pull-right[
+&lt;br&gt;
+
+![](Module3_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+]
+--
+What do we conclude?
+---
+class: inverse, middle
+
+# Excercise 3D
+
+## Two-sample randomization test
+
+---
+# Summary: Permutation tests
+
+- Resamples data without replacement.
+
+- Analogs of two-sample t-test, ANOVA. Can create new tests as well
+
+- Doesn't make distribution assumptions, doesn't require balanced designs
+
+- Used to perform hypothesis test (calculate p-values).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

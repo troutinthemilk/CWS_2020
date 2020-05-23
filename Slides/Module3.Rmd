@@ -1,0 +1,412 @@
+---
+title: "Module 3: Introduction to hypothesis testing"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
+    lib_dir: libs
+    includes:
+      after_body: logo.html
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+class: inverse
+
+```{r, echo=F, message=F, warning=F, eval=T}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Module goals
+
+<br>
+
+
+1. Understand basic principles of hypothesis testing
+
+2. Introduce programming control-flow structures in R
+
+3. Introduce sampling with and without replacement
+
+
+---
+# Monte Carlo methods
+
+Any method that relies on repeated, **random** sampling with a computer to obtain a result.
+
+```{r, fig.align="center", out.width="90%", echo=F}
+knitr::include_graphics("https://c1.wallpaperflare.com/preview/6/487/674/various-business-gambling-money.jpg")
+```
+
+---
+# Why are we learning this?
+
+<br>
+
+- Improves intuition about NHT
+
+- Flexible approach that does not rely on any distributional assumptions (i.e., a nonparametric method)
+
+- Develop new programming skills
+
+---
+#Permutation tests
+
+
+**Question**: are two groups the same?
+
+**Solution**: What would the data look like if there were no differences between the groups.
+
+**How**: Randomly assign observations to each treatment
+
+```{r, fig.align="center", echo=F, out.width="65%"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Permutation_generation_algorithms.svg/1280px-Permutation_generation_algorithms.svg.png")
+```
+
+.footnote[image source: [www.wikimedia.org/](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Permutation_generation_algorithms.svg/1280px-Permutation_generation_algorithms.svg.png)]
+
+.footnote[]
+---
+# Example
+
+Are Hawai'ian monk seals more responsive to researcher presence after a handling event?
+
+
+
+```{r, echo=F, fig.align="center", out.width="80%"}
+knitr::include_graphics("https://apps-pifsc.fisheries.noaa.gov/hawaiian_monk_seal/news/img/kilo_being_released_on_laysan_island_med.jpg")
+```
+
+.footnote[image source: [fisheries.noaa.gov](https://apps-pifsc.fisheries.noaa.gov/hawaiian_monk_seal/news/img/kilo_being_released_on_laysan_island_med.jpg)]
+
+---
+# The data
+```{r, echo=F, fig.align="center", out.width="50%", warning=F, message=F, fig.asp=0.5}
+library(ggplot2)
+monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+new.dat <- rbind(data.frame(Proportion=monk.dat$Before, State="Before handling event"), data.frame(Proportion=monk.dat$After, State="After handling event"))
+ggplot(data=new.dat, aes(x=Proportion)) +
+  facet_wrap(~State) +
+  geom_histogram(bins=10, color="white") + xlab('Response to researcher') + ylab('Count')
+```
+
+Since this is a **paired** study design, we can study the difference in each animals behavior 
+```{r, echo=F, fig.align="center", out.width="50%", fig.asp=0.7, warning=F, message=F}
+ggplot(data=monk.dat, aes(x=AfterSector - BeforeSector)) +
+  geom_histogram(bins=10, color="white") + xlab('Difference in response') + ylab('Count')
+```
+
+---
+# The null hypothesis 
+
+What does the world look like if there is nothing interesting going on?
+
+$H_0$: no difference between the groups.
+
+--
+
+<br>
+
+How can we use our computer to create new datasets that we know are consistent with $H_0$, with the same statistical properties as the original dataset?
+ 
+--
+
+**Permute the data!**
+ 
+
+---
+# Permutation
+
+Randomly assign observations to before or after treatment
+```{r, echo=F}
+diff.dat <- data.frame(Before=monk.dat$Before, After=monk.dat$After, Difference=monk.dat$After-monk.dat$Before)
+head(diff.dat)
+```
+
+This is equivalent to randomly changing the sign of the difference (+/-)
+
+---
+# Randomization tests for paired data
+
+<br>
+
+* Calculate your statistic of interest (e.g., $\bar{x}_{Before} - \bar{x}_{After}$)
+
+<br>
+
+1. Randomly assign each observation to one of the treatments (Before/After) (for a paired t-test this equivalent to multiplying by +1 or -1 with equal probability)
+
+2. Calculate your new statistic of interest (e.g., $\bar{x}_{Before} - \bar{x}_{After}$) under $H_0$. Save result.
+
+3. Go back to 1.
+
+<br>
+
+* After doing 1-3 a bunch, use to construct $H_0$. Compare $H_0$ to the original statistic.
+
+---
+# Generating random numbers
+
+How to randomly switch the sign of the observed difference?
+
+The `sample` function randomly draws values from a set of possibilities:
+
+```{r}
+sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1
+```
+
+Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
+
+---
+class: inverse, middle
+
+# Excercise 3A
+
+## Using the sample function
+
+---
+# The `for` loop
+
+###Loops are how we run a chunk of code a bunch of times.
+
+.pull-left[
+
+<br>
+
+
+syntax: 
+
+```{r, eval=F}
+for (val in sequence)
+{
+  statement to do stuff.
+}
+```
+]
+.pull-right[
+
+<br>
+
+
+A simple example: 
+
+```{r}
+x <- numeric(10) #an empty vector
+for(i in 1:5) {
+  print(i)
+}
+```
+]
+
+---
+class: inverse, middle
+
+# Excercise 3B
+
+## Your first for loop
+
+
+---
+# The null distribution
+
+
+```{r, fig.align="center", out.width="70%", fig.asp=0.5}
+obs.stat <- mean(diff.dat$Difference) 
+
+null.vec <- vector('numeric', 1e4)
+for(i in 1:length(null.vec)) {
+  multiplier <- sample(x=c(-1,1), size=length(diff.dat$Difference), replace=TRUE)
+  null.vec[i] <- mean(diff.dat$Difference*multiplier)
+}
+```
+
+```{r, echo=F, warning=F, message=F, fig.align="center", fig.asp=0.7, outwidth="50%"}
+ggplot(data=data.frame(null.vec)) + 
+  geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") +
+  geom_vline(aes(xintercept=obs.stat), col='red')
+```
+
+---
+# The p-value
+
+A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? $^1$
+
+<br>
+
+```{r, echo=F, fig.align="center", fig.asp=0.7}
+T <- seq(-5, 5, length.out=1000)
+Tdat <- data.frame(T=T, Density=dt(x=T, df=1000))
+xseq <- c(1.42, seq(1.42, 5, length.out=998), 5)
+yseq <- c(0, dt(x=seq(1.42, 5, length.out=998), df=1000), 0)
+
+x2seq <- c(-1.42, seq(-1.42, -5, length.out=998), -5)
+y2seq <- c(0, dt(x=seq(-1.42, -5, length.out=998), df=1000), 0)
+
+ggplot(data=Tdat, aes(x=T, y=Density)) + 
+  geom_polygon(aes(x=xseq, y=yseq), fill="black") + 
+  geom_polygon(aes(x=x2seq, y=y2seq), fill="black") + 
+  geom_line(size=1.2)  + xlab("X")
+```
+
+
+.footnote[ 1. Your life will be improved if you memorize this definition]
+
+---
+# Getting the p-value
+
+```{r}
+p.val <-sum(null.vec < obs.stat)/length(null.vec) #proportion of values that are more extreme than the observation
+print(2*p.val) #double this for a two-sided test
+
+```
+
+```{r, echo=F, warning=F, message=F, fig.align="center", fig.asp=0.7, outwidth="50%"}
+ggplot(data=data.frame(null.vec)) + 
+  geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") +
+  geom_vline(aes(xintercept=obs.stat), col='red')
+```
+
+---
+# The $\alpha$-level
+
+The p-value measures the consistency of your data with the null hypothesis. So at what point a p-value denote inconsistency with the null hypothesis?
+
+<br>
+
+The $\alpha$-level is a set value that denotes the researchers comfort with rejecting a difference that is true but rare. The standard level is $\alpha=0.05$. It is completely reasonable to use a different value.
+
+```{r, echo=F, fig.align="center", fig.asp=0.6}
+T <- seq(-5, 5, length.out=1000)
+Tdat <- data.frame(T=T, Density=dt(x=T, df=1000))
+xseq <- c(1.92, seq(1.92, 5, length.out=998), 5)
+yseq <- c(0, dt(x=seq(1.92, 5, length.out=998), df=1000), 0)
+
+x2seq <- c(-1.92, seq(-1.92, -5, length.out=998), -5)
+y2seq <- c(0, dt(x=seq(-1.92, -5, length.out=998), df=1000), 0)
+
+ggplot(data=Tdat, aes(x=T, y=Density)) + 
+  geom_polygon(aes(x=xseq, y=yseq), fill="red") + 
+  geom_polygon(aes(x=x2seq, y=y2seq), fill="red") + 
+  geom_line(size=1.2)  + xlab("X")
+```
+
+---
+class: inverse, middle
+
+# Excercise 3C
+
+## Paired-sample randomization test
+
+---
+# Two-sample randomization test
+
+If we have samples from two populations and want to compare them the recipe is a bit different
+
+
+* Calculate your statistic of interest
+
+<br>
+
+1. Randomly assign each observation to one of the populations keeping the sample sizes of each population the same
+
+2. Calculate your new statistic of interest under $H_0$. Save result.
+
+3. Go back to 1.
+
+<br>
+
+* After doing 1-3 a bunch, use to construct $H_0$ and compare to the original statistic.
+
+---
+# Hotwings
+.pull-left[
+
+<br>
+
+<br>
+
+```{r, echo=F}
+knitr::include_graphics("https://cdn.pixabay.com/photo/2019/04/11/17/37/wings-4120271_1280.jpg")
+```
+
+.footnote[Image:[https://cdn.pixabay.com](https://cdn.pixabay.com/photo/2019/04/11/17/37/wings-4120271_1280.jpg)]
+]
+
+.pull-right[
+```{r}
+hotwings.dat <- read.csv(file="../Data/hotwings.csv")
+ggplot(data=hotwings.dat) +
+  geom_histogram(aes(x=Hotwings), bins=15, col="white") +
+  facet_wrap(~Sex, ncol=1)
+
+```
+]
+---
+# Get the randomization distribution
+
+.pull-left[
+```{r, warning=F}
+obs.val <- mean(hotwings.dat$Hotwings[1:14]) - mean(hotwings.dat$Hotwings[15:28])
+print(obs.val)
+
+null.vec <- numeric(1e4)
+for(i in 1:1e4) {
+  index       <- sample(1:28, 14, replace=F)
+  null.vec[i] <- mean(hotwings.dat$Hotwings[index]) - mean(hotwings.dat$Hotwings[-index])
+}
+
+p.val <- 2*sum(null.vec < obs.val)/length(null.vec)
+
+print(p.val)
+```
+]
+
+.pull-right[
+<br>
+
+```{r, echo=F, warning=F, message=F}
+ggplot() +
+  geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") + 
+  geom_vline(aes(xintercept=obs.val), col='red')
+```
+
+]
+--
+What do we conclude?
+---
+class: inverse, middle
+
+# Excercise 3D
+
+## Two-sample randomization test
+
+---
+# Summary: Permutation tests
+
+- Resamples data without replacement.
+
+- Analogs of two-sample t-test, ANOVA that will be discussed later. Can create new tests as well
+
+- Doesn't make distribution assumptions, doesn't require balanced designs
+
+- Used to perform hypothesis test (calculate p-values).
+
+
+

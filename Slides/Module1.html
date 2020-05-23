@@ -138,12 +138,21 @@ A vector is a collection of values, `c()` combines values into a vector.
 
 
 ```r
+w &lt;- numeric(10) #A vector of 0's
 x &lt;- c(1, 2, 3, 4, 5, 6)  #this is a numeric vector
 y &lt;- c('yes', 'no', 'yes', 'no', 'yes', 'no') #this is a vector of characters 
 ```
 
 we can do the math operations on numeric vectors
 
+
+```r
+w*1
+```
+
+```
+##  [1] 0 0 0 0 0 0 0 0 0 0
+```
 
 ```r
 x*3
@@ -169,6 +178,14 @@ these operations go elementwise, recycling values where appropriate.
 
 A function takes an argument does some stuff to it, then provides some output. 
 
+
+```r
+length(x) #returns the length of a vector
+```
+
+```
+## [1] 6
+```
 
 ```r
 print(x) #function to print an object
@@ -362,6 +379,11 @@ class: inverse, middle
 # Excercise 1B
 
 ## Reading in data
+
+---
+# Creating new variables
+
+It is often useful to create new variables ...
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

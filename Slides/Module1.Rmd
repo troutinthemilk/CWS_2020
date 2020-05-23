@@ -115,6 +115,7 @@ Note that errors in R can be difficult to interpret. Cut and paste into **google
 A vector is a collection of values, `c()` combines values into a vector.
 
 ```{r}
+w <- numeric(10) #A vector of 0's
 x <- c(1, 2, 3, 4, 5, 6)  #this is a numeric vector
 y <- c('yes', 'no', 'yes', 'no', 'yes', 'no') #this is a vector of characters 
 ```
@@ -122,6 +123,7 @@ y <- c('yes', 'no', 'yes', 'no', 'yes', 'no') #this is a vector of characters
 we can do the math operations on numeric vectors
 
 ```{r}
+w*1
 x*3
 x*x
 ```
@@ -135,6 +137,7 @@ these operations go elementwise, recycling values where appropriate.
 A function takes an argument does some stuff to it, then provides some output. 
 
 ```{r}
+length(x) #returns the length of  vector
 print(x) #function to print an object
 mean(x) #calculate the mean of a vector
 log(x) #calcuate the natural log of a vector
@@ -229,5 +232,7 @@ class: inverse, middle
 
 ## Reading in data
 
+---
+# Creating new variables
 
-
+It is often useful to create new variables ...
