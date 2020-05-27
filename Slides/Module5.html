@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 5: Linear regression and ANOVA</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 5: Linear regression and ANOVA
+### Jake Ferguson
+
+---
+
+
+
+
+# Module goals
+
+&lt;br&gt;
+  
+1. 
+
+---
+# Sleep in mammals
+
+Sleep is characterized by either slow wave (non-dreaming) or drapid eye movement (dreaming), with wide variability in theamount of both types of sleep.
+
+* Roe Deer sleep &lt; 3 hours/day
+* Little Brown bat sleeps close to 20 hours per day
+
+--
+
+Why? What is the purpose of sleep?
+
+* Memory consolidation
+* Energy conservation
+
+.footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
+
+---
+# Continuous response, continuous predictor
+
+Is the total amount of sleep related to an animals brain weight?
+
+
+```
+## Warning: Removed 4 rows containing missing values (geom_point).
+```
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+# The linear correlation coefficient
+
+**Correlation** is a measure of the strength and direction of linear association between two quantitative variables
+
+#### Properties and assumptions 
+
+`$$-1 \leq  \rho \leq 1$$`
+
+`\(0 &lt; \rho \leq 1\)` : positive association
+
+`\(\rho = 1\)`: no association
+
+`\(-1 \leq \rho &lt; 0\)`: negative association
+
+-----
+
+We denote the true correlation as `\(\rho\)`. The sample estimate of the correlation is `\(r\)`:
+
+$$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )}\sqrt{\sum (Y_i - \bar{Y})^2 )}}$$
+
+* Our estimate, `\(r\)`, assumes random sampling and independent samples
+---
+# Linear correlations and dependence
+
+
+- `\(r = 0\)` means no linear association. The variables could still be otherwise associated. Always plot your data!
+
+- Recall definition of statistical independence: `\(P(Y|X)=P(Y)\)`
+  - If `\(\rho \neq 0\)` then `\(X\)` and `\(Y\)` are **definitely not** independent
+  - If `\(\rho = 0\)` then `\(X\)` and `\(Y\)` **may be** independent
+
+&lt;br&gt;
+
+&lt;img src="https://imgs.xkcd.com/comics/correlation.png" style="display: block; margin: auto;" /&gt;
+
+.footnote[https://www.xkcd.com]
+
+---
+# Get `\(r\)` in R
+
+
+```r
+cor(sleep.dat$BrainWt, sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
+```
+
+```
+## [1] -0.33194
+```
+---
+# Correlations between multiple variables
+
+&lt;br&gt;
+
+The correlation matrix, `\(\boldsymbol{\Sigma}\)`, contains each pairwise correlation  between `\(X\)`, `\(Y\)`, and `\(Z\)`.
+
+`$$\boldsymbol{R}= \left[\begin{array}{cc}
+1 &amp; \rho_{XY} &amp;  \rho_{XZ} \\
+\rho_{YX} &amp; 1 &amp;  \rho_{YZ} \\
+\rho_{ZX} &amp; \rho_{ZY} &amp;  1 
+\end{array} \right]$$`
+
+We are often interested primarily in correlations between predictor and the response, but we will discuss correlations between predictors as well.
+
+---
+# Illustrating correlation matrices
+
+
+```r
+library(corrplot)
+```
+
+```
+## corrplot 0.84 loaded
+```
+
+```r
+M &lt;- cor(sleep.dat[,3:10], use="pairwise.complete") #extract numeric responses
+corrplot.mixed(M)
+```
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-5-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Calculating correlations
+
+---
+# Limitations of correlation
+
+&lt;br&gt;
+
+`\(r\)` tells us how strong a linear association is. It can't tell us how fast the response changes with changes in the predictor.
+
+&lt;br&gt;
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-6-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+# Simple linear regression
+
+fits a line to the data. Estimates the **intercept** and **slope**. 
+
+$$
+`\begin{align*}
+y &amp;= \beta_0 + \beta_1 x + \varepsilon \\
+\varepsilon &amp;\sim \mathrm{Norm}(0, \sigma^2)
+\end{align*}`
+$$
+
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-7-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+Fitting works by trying to minimize `\(\sigma^2\)`.
+
+---
+# Fitting `lm`'s in R
+
+
+```r
+sleep.lm &lt;- lm(TotalSleep ~ BrainWt, data=sleep.dat)
+summary(sleep.lm)
+```
+
+```
+## 
+## Call:
+## lm(formula = TotalSleep ~ BrainWt, data = sleep.dat)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.3641 -2.9410 -0.1412  2.2388  8.3291 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 11.572422   0.770543  15.019   &lt;2e-16 ***
+## BrainWt     -0.006194   0.002934  -2.111   0.0418 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 4.322 on 36 degrees of freedom
+##   (4 observations deleted due to missingness)
+## Multiple R-squared:  0.1102,	Adjusted R-squared:  0.08547 
+## F-statistic: 4.458 on 1 and 36 DF,  p-value: 0.04175
+```
+
+---
+# Lets go through the output
+
+`\(\beta_0\)`, `\(\beta_1\)` Parameter estimates:
+
+```
+##                 Estimate  Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) 11.572422384 0.770543402 15.018521 4.450444e-17
+## BrainWt     -0.006194472 0.002933888 -2.111352 4.175088e-02
+```
+
+df (degrees of freedom used in the t-tests, df=n-1-#betas)
+
+```
+## [1] 36
+```
+
+Residual standard error ($\sigma$, the standard deviation of the residuals)
+
+```
+## [1] 4.321744
+```
+
+
+Multiple R-squared (the squareroot of the correlation coefficient!)
+
+```
+## [1] 0.1101841
+```
+
+---
+#Diagnostic plots
+
+
+```r
+plot(sleep.lm, which=1)
+```
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# The quantile-quantile plot
+
+Do the residuals follow a normal distribution?
+
+```r
+plot(sleep.lm, which=2)
+```
+
+![](Module5_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+# Getting confidence intervals
+
+
+```r
+confint(sleep.lm)
+```
+
+```
+##                   2.5 %        97.5 %
+## (Intercept) 10.00968793 13.1351568339
+## BrainWt     -0.01214467 -0.0002442709
+```
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Simple linear regression
+
+---
+# Categorical predictors
+.pull-left[
+###Effects coding
+
+```r
+fish.dat &lt;- read.csv(file="../Data/ButterflyFish.csv")
+effects.lm &lt;- lm(Length ~ Sex, data=fish.dat)
+round(summary(effects.lm)$coef[,c(1,2,4)], 4)#effects coding
+```
+
+```
+##             Estimate Std. Error Pr(&gt;|t|)
+## (Intercept)  93.6875     1.8228   0.0000
+## SexMale       1.6250     2.5779   0.5332
+```
+
+```r
+head(model.matrix(effects.lm))
+```
+
+```
+##   (Intercept) SexMale
+## 1           1       1
+## 2           1       1
+## 3           1       1
+## 4           1       1
+## 5           1       1
+## 6           1       1
+```
+]
+.pull-right[
+###Means coding
+
+```r
+means.lm &lt;- lm(Length ~ Sex-1, data=fish.dat)
+round(summary(means.lm)$coef[,c(1,2,4)], 4)#means coding
+```
+
+```
+##           Estimate Std. Error Pr(&gt;|t|)
+## SexFemale  93.6875     1.8228        0
+## SexMale    95.3125     1.8228        0
+```
+
+```r
+head(model.matrix(means.lm))
+```
+
+```
+##   SexFemale SexMale
+## 1         0       1
+## 2         0       1
+## 3         0       1
+## 4         0       1
+## 5         0       1
+## 6         0       1
+```
+]
+
+There are other possible codings: https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+
+---
+#Effects coding
+
+&lt;br&gt;
+
+In the effects coding, the parameter estimate is the deviation from the intercept. 
+&lt;br&gt;
+
+If `\(x=0\)`, the effect is "off"
+
+$$E[y] = \beta_0 + \beta_1 \cdot 0 $$
+
+If `\(x=1\)`, the effect is "on"
+
+`$$E[y] = \beta_0 + \beta_1 \cdot 1$$`
+
+---
+# Multiple regression
+
+### Prices of Monet paintings
+
+.pull-left[
+
+
+
+```r
+monet.mod  &lt;- lm(PRICE ~ SIZE + HOUSE, data=monet.dat)
+summary(monet.mod)
+```
+
+```
+## 
+## Call:
+## lm(formula = PRICE ~ SIZE + HOUSE, data = monet.dat)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -6.273 -2.037 -1.012  0.662 27.126 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.3421516  0.6002300  -2.236   0.0259 *  
+## SIZE         0.0048434  0.0006022   8.043 9.59e-15 ***
+## HOUSE2       0.5508707  0.4006872   1.375   0.1699    
+## HOUSE3      -0.4420160  0.8725283  -0.507   0.6127    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.931 on 409 degrees of freedom
+## Multiple R-squared:  0.1486,	Adjusted R-squared:  0.1423 
+## F-statistic: 23.79 on 3 and 409 DF,  p-value: 3.262e-14
+```
+]
+
+.pull-right[
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Claude_Monet_-_Champ_de_bl%C3%A9.jpg/1119px-Claude_Monet_-_Champ_de_bl%C3%A9.jpg" width="85%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+---
+# Interpreting the output
+
+```r
+summary(monet.mod)$coef
+```
+
+```
+##                 Estimate   Std. Error    t value     Pr(&gt;|t|)
+## (Intercept) -1.342151602 0.6002300295 -2.2360621 2.588637e-02
+## SIZE         0.004843393 0.0006022223  8.0425343 9.594054e-15
+## HOUSE2       0.550870700 0.4006872066  1.3748148 1.699416e-01
+## HOUSE3      -0.442016004 0.8725282523 -0.5065922 6.127140e-01
+```
+
+Now the **intercept** parameter is the value when the `SIZE` of the painting is 0 and at the reference level (in this case auction house `HOUSE1`).
+
+The `HOUSE2` parameter tells us that the average price is higher for second auction house relative to the first
+
+The `HOUSE3` parameter tells us that the average price is lower for second auction house relative to the first
+
+The **SLOPE** parameter of `SIZE` tells us how fast the price increases with the size of the painting.
+
+---
+# Plotting the output
+
+
+```r
+library(sjPlot)
+plot_model(monet.mod, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
+```
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-22-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+# Interactions
+
+I the previous model the intercept varied by auction house. In this model **both** the intercept and slope vary.
+
+
+```r
+monet.mod2  &lt;- lm(PRICE ~ SIZE * HOUSE, data=monet.dat)
+coef(summary(monet.mod2))
+```
+
+```
+##                  Estimate   Std. Error    t value     Pr(&gt;|t|)
+## (Intercept) -1.1340749614 0.8288422480 -1.3682639 1.719843e-01
+## SIZE         0.0046046089 0.0008904523  5.1710899 3.658083e-07
+## HOUSE2      -0.1479775599 1.1259553086 -0.1314240 8.955048e-01
+## HOUSE3       0.9710124172 1.7922670931  0.5417789 5.882673e-01
+## SIZE:HOUSE2  0.0008386604 0.0012446358  0.6738199 5.008083e-01
+## SIZE:HOUSE3 -0.0025995930 0.0025613783 -1.0149196 3.107471e-01
+```
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-24-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Multiple linear regression
+
+---
+# Continuous response, discrete predictors
+
+The t-test compares the mean between two groups
+&lt;img src="Module5_files/figure-html/unnamed-chunk-25-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# What about more than 2 groups?
+
+&lt;img src="https://www.homestratosphere.com/wp-content/uploads/2018/02/types-of-beer-glasses.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[image: https://www.homestratosphere.com]
+
+---
+# Testing multiple groups
+
+&lt;br&gt; 
+
+- Do every pairwise comparison.
+
+--
+
+- Be clever. 
+
+
+&lt;img src="http://www.economics.soton.ac.uk/staff/aldrich/fisherguide/Doc1_files/image001.gif" width="40%" /&gt;
+
+.footnote[http://www.economics.soton.ac.uk/staff/aldrich/fisherguide]
+---
+
+# Example: Cuckoos
+
+- Cuckoo birds lay their eggs in the nests of other birds
+
+- When the cuckoo baby hatches, it kicks out all the original eggs/babies
+
+- If the cuckoo is lucky, the mother will raise the cuckoo as if it were her own
+
+- **Do cuckoo bird eggs found in nests of different species differ in size?**
+
+.footnote[https://opinionator.blogs.nytimes.com/2010/06/01/cuckoo-cuckoo]
+
+--
+
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+In other words, does the typical egg size vary by the type of nest?
+
+---
+# The eye test
+
+&lt;img src="Module5_files/figure-html/unnamed-chunk-28-1.png" style="display: block; margin: auto;" /&gt;
+
+--
+
+**Intuition**: If we remove a group from the population, does the overall variation in the data change?
+
+---
+# The ANOVA model
+
+`\(Y_1 \sim Norm(\mu_1,\sigma^2)\)`
+
+`\(Y_2 \sim Norm(\mu_2,\sigma^2)\)`
+
+`\(Y_3 \sim Norm(\mu_3,\sigma^2)\)`
+
+`\(Y_4 \sim Norm(\mu_4,\sigma^2)\)`
+
+
+&lt;br&gt;
+
+`\(H_0\)`: `\(\mu_1=\mu_2=\mu_3=\mu_4\)`?
+
+
+&lt;br&gt;
+
+*assumption*: same variance `\(\sigma^2\)` for all groups!
+---
+# Sums of squares
+
+Variation between groups `\((SS_\mathrm{groups})\)`: `\(\displaystyle \sum_j^G n_j (\bar{Y}_j-\bar{Y})^2\)`. 
+
+*distance from group mean to grand mean*
+
+`\(+\)` Variation within groups  `\((SS_\mathrm{error})\)`: `\(\displaystyle \sum_j^G \sum_i^{n_i} (Y_{i,j}-\bar{Y}_j)^2\)`. 
+
+*distance from each observation to the group mean*
+
+***
+
+= Total variability : `\(\sum(Y-\bar{Y})^2\)`
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+If group means are consistent then we expect that the **variation between groups will be equal to the variation within groups**.
+
+---
+# The F-test
+
+`\(\mathbf{H_0}\)`: No differences among groups. 
+
+
+`\(F=\frac{SS_\mathrm{groups}/df_{groups}}{SS_\mathrm{error}/df_{error}}\)`
+
+![](Module5_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
+           
+Now calculate the p-value.
+
+
+---
+# Implementing ANOVA in R
+
+
+```r
+summary(aov(egg_length ~ host_species, cuckoo.dat))
+```
+
+```
+##               Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+## host_species   5  42.94   8.588   10.39 3.15e-08 ***
+## Residuals    114  94.25   0.827                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Cool, there is a difference...
+
+---
+# Post tests
+
+Post (aka post-hoc) tests look at pairwise comparisons and attempt to control for the fact that you are making **lots of comparisons**. 
+
+The Tukey-test uses the t-statistic (mean/SE) but the p-value controls for the fact that you are making comparisons. It controls for 5% false positives for all tests, instead of per-test.
+
+
+
+```r
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tukey.jpg")
+```
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tukey.jpg" style="display: block; margin: auto 0 auto auto;" /&gt;
+
+.footnote[
+image: https://en.wikipedia.org/wiki/John_Tukey
+
+good wikipedia article: https://en.wikipedia.org/wiki/Tukey%27s_range_test
+]
+
+---
+# Tukey's Honest Significant Difference
+
+
+```r
+TukeyHSD(aov(egg_length ~ host_species, cuckoo.dat))
+```
+
+```
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = egg_length ~ host_species, data = cuckoo.dat)
+## 
+## $host_species
+##                                   diff          lwr         upr     p adj
+## Meadow Pipit-Hedge Sparrow -0.82253968 -1.629133605 -0.01594576 0.0428621
+## Pied Wagtail-Hedge Sparrow -0.21809524 -1.197559436  0.76136896 0.9872190
+## Robin-Hedge Sparrow        -0.54642857 -1.511003196  0.41814605 0.5726153
+## Tree Pipit-Hedge Sparrow   -0.03142857 -1.010892769  0.94803563 0.9999990
+## Wren-Hedge Sparrow         -1.99142857 -2.970892769 -1.01196437 0.0000006
+## Pied Wagtail-Meadow Pipit   0.60444444 -0.181375330  1.39026422 0.2324603
+## Robin-Meadow Pipit          0.27611111 -0.491069969  1.04329219 0.9021876
+## Tree Pipit-Meadow Pipit     0.79111111  0.005291337  1.57693089 0.0474619
+## Wren-Meadow Pipit          -1.16888889 -1.954708663 -0.38306911 0.0004861
+## Robin-Pied Wagtail         -0.32833333 -1.275604766  0.61893810 0.9155004
+## Tree Pipit-Pied Wagtail     0.18666667 -0.775762072  1.14909541 0.9932186
+## Wren-Pied Wagtail          -1.77333333 -2.735762072 -0.81090459 0.0000070
+## Tree Pipit-Robin            0.51500000 -0.432271433  1.46227143 0.6159630
+## Wren-Robin                 -1.44500000 -2.392271433 -0.49772857 0.0003183
+## Wren-Tree Pipit            -1.96000000 -2.922428738 -0.99757126 0.0000006
+```
+
+---
+# A word about anova
+
+With multiple predictors, `aov` performs “sequential” tests (where order of entry matters!)
+
+These tests are usually less appropriate than the t-tests from the summary function, especially for unbalanced designs.
+
+A more robust approach uses type II ANOVA. This is implemented as the function `Anova` in the `car` library (helpful with categorical variables with multiple levels).
+
+Even better is a randomization approach such as PERMANOVA  in the `vegan` package
+
+---
+# Summary
+
+- Fit continuous response data to one or more predictors using
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

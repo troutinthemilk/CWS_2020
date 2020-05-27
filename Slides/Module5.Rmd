@@ -1,0 +1,552 @@
+---
+title: "Module 5: Linear regression and ANOVA"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
+    lib_dir: libs
+    includes:
+      after_body: logo.html
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+
+```{r, echo=F, message=F, warning=F, eval=T}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Module goals
+
+<br>
+  
+1. 
+
+---
+# Sleep in mammals
+
+Sleep is characterized by either slow wave (non-dreaming) or drapid eye movement (dreaming), with wide variability in theamount of both types of sleep.
+
+* Roe Deer sleep < 3 hours/day
+* Little Brown bat sleeps close to 20 hours per day
+
+--
+
+Why? What is the purpose of sleep?
+
+* Memory consolidation
+* Energy conservation
+
+.footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
+
+---
+# Continuous response, continuous predictor
+
+Is the total amount of sleep related to an animals brain weight?
+
+```{r, echo=F, fig.align="center", out.width="70%", fig.asp=0.6}
+# Correlations with total sleep
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
+
+ggplot(data=sleep.dat) +
+  geom_point(aes(x=BrainWt, y=TotalSleep), size=4, alpha=0.5)
+```
+
+
+---
+# The linear correlation coefficient
+
+**Correlation** is a measure of the strength and direction of linear association between two quantitative variables
+
+#### Properties and assumptions 
+
+$$-1 \leq  \rho \leq 1$$
+
+$0 < \rho \leq 1$ : positive association
+
+$\rho = 1$: no association
+
+$-1 \leq \rho < 0$: negative association
+
+-----
+
+We denote the true correlation as $\rho$. The sample estimate of the correlation is $r$:
+
+$$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )}\sqrt{\sum (Y_i - \bar{Y})^2 )}}$$
+
+* Our estimate, $r$, assumes random sampling and independent samples
+---
+# Linear correlations and dependence
+
+
+- $r = 0$ means no linear association. The variables could still be otherwise associated. Always plot your data!
+
+- Recall definition of statistical independence: $P(Y|X)=P(Y)$
+  - If $\rho \neq 0$ then $X$ and $Y$ are **definitely not** independent
+  - If $\rho = 0$ then $X$ and $Y$ **may be** independent
+
+<br>
+
+```{r, fig.align="center", echo=F}
+knitr::include_graphics("https://imgs.xkcd.com/comics/correlation.png")
+```
+
+.footnote[https://www.xkcd.com]
+
+---
+# Get $r$ in R
+
+```{r}
+cor(sleep.dat$BrainWt, sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
+```
+---
+# Correlations between multiple variables
+
+<br>
+
+The correlation matrix, $\boldsymbol{\Sigma}$, contains each pairwise correlation  between $X$, $Y$, and $Z$.
+
+$$\boldsymbol{R}= \left[\begin{array}{cc}
+1 & \rho_{XY} &  \rho_{XZ} \\
+\rho_{YX} & 1 &  \rho_{YZ} \\
+\rho_{ZX} & \rho_{ZY} &  1 
+\end{array} \right]$$
+
+We are often interested primarily in correlations between predictor and the response, but we will discuss correlations between predictors as well.
+
+---
+# Illustrating correlation matrices
+
+```{r, fig.align="center", warning=F, messages=F, out.width="50%", fig.asp=0.8}
+library(corrplot)
+M <- cor(sleep.dat[,3:10], use="pairwise.complete") #extract numeric responses
+corrplot.mixed(M)
+```
+
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Calculating correlations
+
+---
+# Limitations of correlation
+
+<br>
+
+$r$ tells us how strong a linear association is. It can't tell us how fast the response changes with changes in the predictor.
+
+<br>
+
+```{r, echo=F, fig.align="center", out.width="60%", fig.asp=0.6, warning=F, messages=F}
+# Correlations with total sleep
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
+
+ggplot(data=sleep.dat) +
+  geom_point(aes(x=BrainWt, y=TotalSleep), size=4, alpha=0.5)
+```
+
+---
+# Simple linear regression
+
+fits a line to the data. Estimates the **intercept** and **slope**. 
+
+$$
+\begin{align*}
+y &= \beta_0 + \beta_1 x + \varepsilon \\
+\varepsilon &\sim \mathrm{Norm}(0, \sigma^2)
+\end{align*}
+$$
+
+
+```{r, echo=F, fig.align="center", out.width="60%", fig.asp=0.6, warning=F, messages=F}
+ggplot(data=sleep.dat) +
+  geom_point(aes(x=BrainWt, y=TotalSleep), size=4, alpha=0.5) + geom_smooth(method="lm", se=F, aes(x=BrainWt, y=TotalSleep), col="black")
+```
+
+Fitting works by trying to minimize $\sigma^2$.
+
+---
+# Fitting `lm`'s in R
+
+```{r}
+sleep.lm <- lm(TotalSleep ~ BrainWt, data=sleep.dat)
+summary(sleep.lm)
+```
+
+---
+# Lets go through the output
+
+$\beta_0$, $\beta_1$ Parameter estimates:
+```{r, echo=F}
+summary(sleep.lm)$coef
+```
+
+df (degrees of freedom used in the t-tests, df=n-1-#betas)
+```{r, echo=F}
+summary(sleep.lm)$df[2]
+```
+
+Residual standard error ($\sigma$, the standard deviation of the residuals)
+```{r, echo=F}
+summary(sleep.lm)$sigma
+```
+
+
+Multiple R-squared (the squareroot of the correlation coefficient!)
+```{r, echo=F}
+summary(sleep.lm)$r.squared
+```
+
+---
+#Diagnostic plots
+
+```{r, fig.align="center"}
+plot(sleep.lm, which=1)
+```
+
+---
+# The quantile-quantile plot
+
+Do the residuals follow a normal distribution?
+```{r, fig.aling="center", fig.asp=0.8}
+plot(sleep.lm, which=2)
+```
+
+---
+# Getting confidence intervals
+
+```{r}
+confint(sleep.lm)
+```
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Simple linear regression
+
+---
+# Categorical predictors
+.pull-left[
+###Effects coding
+```{r}
+fish.dat <- read.csv(file="../Data/ButterflyFish.csv")
+effects.lm <- lm(Length ~ Sex, data=fish.dat)
+round(summary(effects.lm)$coef[,c(1,2,4)], 4)#effects coding
+head(model.matrix(effects.lm))
+```
+]
+.pull-right[
+###Means coding
+```{r}
+means.lm <- lm(Length ~ Sex-1, data=fish.dat)
+round(summary(means.lm)$coef[,c(1,2,4)], 4)#means coding
+head(model.matrix(means.lm))
+```
+]
+
+There are other possible codings: https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/
+
+---
+#Effects coding
+
+<br>
+
+In the effects coding, the parameter estimate is the deviation from the intercept. 
+<br>
+
+If $x=0$, the effect is "off"
+
+$$E[y] = \beta_0 + \beta_1 \cdot 0 $$
+
+If $x=1$, the effect is "on"
+
+$$E[y] = \beta_0 + \beta_1 \cdot 1$$
+
+---
+# Multiple regression
+
+### Prices of Monet paintings
+
+.pull-left[
+```{r, echo=F}
+monet.dat       <- read.csv(file="../Data/monet.csv", header=TRUE)
+monet.dat$HOUSE <- as.factor(monet.dat$HOUSE)
+monet.dat <- subset(monet.dat, SIZE< 2000)
+```
+
+```{r}
+monet.mod  <- lm(PRICE ~ SIZE + HOUSE, data=monet.dat)
+summary(monet.mod)
+```
+]
+
+.pull-right[
+```{r, echo=F, out.width="85%", fig.align="right"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Claude_Monet_-_Champ_de_bl%C3%A9.jpg/1119px-Claude_Monet_-_Champ_de_bl%C3%A9.jpg")
+```
+]
+---
+# Interpreting the output
+```{r}
+summary(monet.mod)$coef
+```
+
+Now the **intercept** parameter is the value when the `SIZE` of the painting is 0 and at the reference level (in this case auction house `HOUSE1`).
+
+The `HOUSE2` parameter tells us that the average price is higher for second auction house relative to the first
+
+The `HOUSE3` parameter tells us that the average price is lower for second auction house relative to the first
+
+The **SLOPE** parameter of `SIZE` tells us how fast the price increases with the size of the painting.
+
+---
+# Plotting the output
+
+```{r, out.width="70%", fig.align="center", fig.asp=0.7}
+library(sjPlot)
+plot_model(monet.mod, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
+```
+
+---
+# Interactions
+
+I the previous model the intercept varied by auction house. In this model **both** the intercept and slope vary.
+
+```{r}
+monet.mod2  <- lm(PRICE ~ SIZE * HOUSE, data=monet.dat)
+coef(summary(monet.mod2))
+```
+
+```{r, echo=F, out.width="60%", fig.align="center", fig.asp=0.5}
+library(sjPlot)
+plot_model(monet.mod2, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
+```
+
+---
+class: inverse, middle
+
+# Excercise 5
+
+## Multiple linear regression
+
+---
+# Continuous response, discrete predictors
+
+The t-test compares the mean between two groups
+```{r, echo=F, fig.align="center", out.width="80%", fig.asp=0.7}
+glass.dat <- read.csv(file="../Data/BeerGlassShape.csv")
+
+ggplot(data=glass.dat) + 
+  geom_boxplot(aes(x=glassShape, y=drinkingMinutes))
+```
+
+---
+# What about more than 2 groups?
+
+```{r, echo=F, fig.align="center", out.width="80%"}
+knitr::include_graphics("https://www.homestratosphere.com/wp-content/uploads/2018/02/types-of-beer-glasses.jpg")
+```
+
+.footnote[image: https://www.homestratosphere.com]
+
+---
+# Testing multiple groups
+
+<br> 
+
+- Do every pairwise comparison.
+
+--
+
+- Be clever. 
+
+
+```{r, echo=FALSE, out.width= "40%"}
+knitr::include_graphics("http://www.economics.soton.ac.uk/staff/aldrich/fisherguide/Doc1_files/image001.gif")
+```
+
+.footnote[http://www.economics.soton.ac.uk/staff/aldrich/fisherguide]
+---
+
+# Example: Cuckoos
+
+- Cuckoo birds lay their eggs in the nests of other birds
+
+- When the cuckoo baby hatches, it kicks out all the original eggs/babies
+
+- If the cuckoo is lucky, the mother will raise the cuckoo as if it were her own
+
+- **Do cuckoo bird eggs found in nests of different species differ in size?**
+
+.footnote[https://opinionator.blogs.nytimes.com/2010/06/01/cuckoo-cuckoo]
+
+--
+
+
+<br>
+
+<br>
+
+In other words, does the typical egg size vary by the type of nest?
+
+---
+# The eye test
+
+```{r, echo=F, fig.width=7.4, fig.asp=0.7, fig.align="center"}
+library(RColorBrewer)
+cuckoo.dat <- read.csv(file="../Data/cuckooeggs.csv")
+
+ggplot(data=cuckoo.dat, aes(x=host_species, y=egg_length)) +
+  geom_boxplot(aes(fill=host_species)) +
+  geom_rangeframe() +
+  xlab("") +
+  ylab("Egg size") + 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + 
+  scale_fill_brewer(palette="RdYlBu")
+
+```
+
+--
+
+**Intuition**: If we remove a group from the population, does the overall variation in the data change?
+
+---
+# The ANOVA model
+
+$Y_1 \sim Norm(\mu_1,\sigma^2)$
+
+$Y_2 \sim Norm(\mu_2,\sigma^2)$
+
+$Y_3 \sim Norm(\mu_3,\sigma^2)$
+
+$Y_4 \sim Norm(\mu_4,\sigma^2)$
+
+
+<br>
+
+$H_0$: $\mu_1=\mu_2=\mu_3=\mu_4$?
+
+
+<br>
+
+*assumption*: same variance $\sigma^2$ for all groups!
+---
+# Sums of squares
+
+Variation between groups $(SS_\mathrm{groups})$: $\displaystyle \sum_j^G n_j (\bar{Y}_j-\bar{Y})^2$. 
+
+*distance from group mean to grand mean*
+
+$+$ Variation within groups  $(SS_\mathrm{error})$: $\displaystyle \sum_j^G \sum_i^{n_i} (Y_{i,j}-\bar{Y}_j)^2$. 
+
+*distance from each observation to the group mean*
+
+***
+
+= Total variability : $\sum(Y-\bar{Y})^2$
+
+<br>
+
+<br>
+
+If group means are consistent then we expect that the **variation between groups will be equal to the variation within groups**.
+
+---
+# The F-test
+
+$\mathbf{H_0}$: No differences among groups. 
+
+
+$F=\frac{SS_\mathrm{groups}/df_{groups}}{SS_\mathrm{error}/df_{error}}$
+
+```{r, echo=F, fig.width=4.5, fig.asp=0.7}
+F <- seq(0.0001, 10, length.out=1000)
+Fdat <- data.frame(F=F, Density=df(x=F, df1=19, df2=2))
+xseq <- c(7.29, seq(7.29, 10, length.out=998), 10)
+yseq <- c(0, df(x=seq(7.29, 10, length.out=998), df1=19, df2=2), 0)
+
+ggplot(data=Fdat, aes(x=F, y=Density)) + geom_rangeframe() + 
+  geom_polygon(aes(x=xseq, y=yseq), col="red", fill="red")+ geom_line() 
+
+```
+           
+Now calculate the p-value.
+
+
+---
+# Implementing ANOVA in R
+
+```{r}
+summary(aov(egg_length ~ host_species, cuckoo.dat))
+```
+
+Cool, there is a difference...
+
+---
+# Post tests
+
+Post (aka post-hoc) tests look at pairwise comparisons and attempt to control for the fact that you are making **lots of comparisons**. 
+
+The Tukey-test uses the t-statistic (mean/SE) but the p-value controls for the fact that you are making comparisons. It controls for 5% false positives for all tests, instead of per-test.
+```{r, echo=F}
+
+```
+
+```{r echo=F, fig.align="right"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tukey.jpg")
+```
+
+.footnote[
+image: https://en.wikipedia.org/wiki/John_Tukey
+
+good wikipedia article: https://en.wikipedia.org/wiki/Tukey%27s_range_test
+]
+
+---
+# Tukey's Honest Significant Difference
+
+```{r}
+TukeyHSD(aov(egg_length ~ host_species, cuckoo.dat))
+```
+
+---
+# A word about anova
+
+With multiple predictors, `aov` performs “sequential” tests (where order of entry matters!)
+
+These tests are usually less appropriate than the t-tests from the summary function, especially for unbalanced designs.
+
+A more robust approach uses type II ANOVA. This is implemented as the function `Anova` in the `car` library (helpful with categorical variables with multiple levels).
+
+Even better is a randomization approach such as PERMANOVA  in the `vegan` package
+
+---
+# Summary
+
+- Fit continuous response data to one or more predictors using 
+
+
+
+

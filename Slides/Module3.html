@@ -152,7 +152,7 @@ sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1
 ```
 
 ```
-##  [1] -1  1  1 -1 -1  1 -1  1  1  1
+##  [1]  1  1  1  1 -1 -1  1  1 -1 -1
 ```
 
 Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
@@ -236,14 +236,14 @@ for(i in 1:length(null.vec)) {
 ---
 # The p-value
 
-A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? `\(^1\)`
+A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? &lt;sup&gt;1&lt;/sup&gt;
 
 &lt;br&gt;
 
 &lt;img src="Module3_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
 
 
-.footnote[ 1. Your life will be improved if you memorize this definition]
+.footnote[[1] Your life will be improved if you memorize this definition]
 
 ---
 # Getting the p-value
@@ -255,7 +255,7 @@ print(2*p.val) #double this for a two-sided test
 ```
 
 ```
-## [1] 0.2306
+## [1] 0.2512
 ```
 
 &lt;img src="Module3_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
@@ -349,7 +349,7 @@ print(p.val)
 ```
 
 ```
-## [1] 0.002
+## [1] 0.0022
 ```
 ]
 
@@ -373,7 +373,7 @@ class: inverse, middle
 
 - Resamples data without replacement.
 
-- Analogs of two-sample t-test, ANOVA. Can create new tests as well
+- Analogs of two-sample t-test, ANOVA that will be discussed later. Can create new tests as well
 
 - Doesn't make distribution assumptions, doesn't require balanced designs
 

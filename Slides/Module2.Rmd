@@ -274,7 +274,7 @@ head(iris)
 ```
 
 
-.foot[https://en.wikipedia.org/wiki/Iris_flower_data_set]
+.footnote[https://en.wikipedia.org/wiki/Iris_flower_data_set]
 
 ---
 

@@ -1,0 +1,487 @@
+---
+title: "Module 4: Inference on a normal population"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+class: inverse
+
+```{r, echo=F, message=F, warning=F, eval=T}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Module goals
+
+<br>
+
+
+
+1. Introduce the central limit theorem
+
+2. Understand some basic operations on probability used in inference
+
+3. Calculate Wald confidence intervals of estimates
+
+4. Run one- and two-sample t-test
+
+---
+# Random variables
+
+<br>
+
+A variable whose outcome depends on a random phenomenon is called a **random variable**.
+
+<br>
+
+```{r, out.width="50%", echo=F, fig.align="center"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Two_red_dice_01.svg/1007px-Two_red_dice_01.svg.png")
+```
+
+
+.footer[image source: [wikimedia.org](https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Two_red_dice_01.svg/1007px-Two_red_dice_01.svg.png)]
+
+---
+# A random sample
+
+```{r}
+x <- sample(1:20, 100, replace=T)
+```
+
+```{r, echo=F, out.width="60%", fig.align="center", fig.asp=0.6}
+ggplot() + 
+  geom_histogram(aes(x=x), col="white", binwidth=1) + xlab("X") + ylab("Count") #+
+#geom_vline(aes(xintercept=mean(x)), col='red')
+```
+
+
+---
+# Sums of random variables
+
+Many measurements we make and statistics are  a sum of random variables. 
+
+```{r}
+x <- numeric(10000)
+for(i in 1:10000) {
+  x[i] <- sum(sample(1:20, 100, replace=T))
+}
+```
+
+```{r, fig.align="center", out.width="50%", fig.asp=0.7, echo=F, message=F, warning=F}
+suppressWarnings(ggplot() + geom_histogram(aes(x=x), col="white") + xlab("sum(X)") + ylab("Count"))
+```
+
+Collections of such variables display remarkable regularity properties. This is the **Central Limit Theorem** (CLT).
+
+The sum or mean of a large number of measurements randomly sampled from a populations is approximately normally distributed.
+
+---
+# The normal distribution
+
+$$f(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}$$
+```{r, fig.align="center", out.width="50%", fig.asp=0.7, echo=F, message=F, warning=F}
+T <- seq(-20, 20, length.out=1000)
+Tdat <- data.frame(T=T, Density=dnorm(x=T, mean=0, sd=5))
+
+ggplot(data=Tdat, aes(x=T, y=Density)) + 
+  geom_line() + xlab("X")
+
+```
+
+### $\mu$ is the mean
+
+### $\sigma$ is the standard deviation
+
+---
+# The mean and standard deviation
+
+The sample mean $(\bar{x})$ is the estimate of the population mean $(\mu)$. 
+
+$$\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$$
+<br>
+
+ The sample variance ( $s^2$) is the estimate of the population variance ( $\sigma^2$). 
+
+$$\bar{x} = \frac{1}{n-1} \sum_{i=1}^n \left( x_i - \mu \right)^2$$
+In R use the `mean` and `var` functions:
+```{r}
+mean(x)
+var(x)
+sd(x) #sqrt(var)
+```
+
+---
+class: inverse, middle
+
+# Excercise 4A
+
+## Estimating means and standard deviations
+
+---
+# The sampling distribution
+
+The sampling distribution describes the plausible values of the outcome if we conducted the sampling procedure again. It is a hypothetical construct.
+
+###Example: the 1918 flu 
+
+.pull-left[
+These are the deaths due to spanish flu in Switzerland
+```{r, fig.align="center", out.width="90%", echo=F, message=F, warning=F}
+spanishFlu <- read.csv(file="../Data/1918flu.csv") #deaths in switzerland from the spanish flu in 1918. THis is an (approximate) census so we can consider it to be the truth.
+
+#here I am just formatting the data. don't worry about this part...
+fluDeaths <- NULL
+for(i in 1:dim(spanishFlu)[1]) {
+  fluDeaths <- c(fluDeaths, rep(spanishFlu$age[i], spanishFlu$totalDeaths[i]))
+}
+#now plot the data
+ggplot() +
+  geom_bar(aes(x=fluDeaths), col="white") + xlab('Age at death')
+
+#barplot(table(fluDeaths), col="black", border="white", xlab="Age at death", main="The Spanish influenza")
+```
+]
+
+.pull-right[
+Repeatedly take samples of size 100 from the population to look at the distribution of the estimates
+```{r, fig.align="center", out.width="80%", echo=F, message=F, warning=F}
+true.age <- mean(fluDeaths) #this is the average age of death from the flu.
+
+#But what if our sample was smaller? Would we get the same answer?
+sample.size <- 100 #this is the number of deaths we pretend that we observed
+
+#every sample gives us a different answer. Let's do this a bunch of times, everytime we collect a different sample. 
+mean.sample <- vector(length=5000)
+for(i in 1:length(mean.sample)) {
+  mean.sample[i] <- mean(sample(fluDeaths, size=sample.size))
+}
+
+#hist(mean.sample, col="black", border="white", xlab="Estimated age at death", breaks=-1:100+0.5, freq=F, main="The sampling distribution")
+#x.vec <- seq(0, 100, length.out=1000)
+#lines(x.vec, dnorm(x.vec, mean=mean(mean.sample), sd=sd(mean.sample)), col='cornflowerblue', lwd=2)
+ggplot() +
+  geom_histogram(aes(x=mean.sample), col="white") + 
+  geom_vline(aes(xintercept=true.age), col='red')
+```
+]
+
+
+---
+# The standard error
+
+The standard deviation of the sampling distribution is so important that it has a special name, the **standard error** $(\sigma_\bar{x})$. 
+
+$$ \sigma_\bar{x}^2 = \frac{s^2}{n} $$
+
+$$ \sigma_\bar{x} = \frac{s}{\sqrt{n}} $$
+
+```{r, echo=F, fig.align="center", fig.asp=0.6, out.width="70%", echo=F, message=F, warning=F}
+n <- 5:100
+ggplot() +
+  geom_line(aes(x=n, y=10/sqrt(n))) + xlab('Sample size') + ylab("Standard error")
+```
+
+---
+class: inverse, middle
+
+# Excercise 4B
+
+## Simulating sampling distributions
+
+---
+# Inference with known $\sigma$
+
+We and estimate the mean horn length of a unicorn, $\bar{x}$. The standard error determines how much uncertainy is in $\bar{x}$. How confident can we be that the population horn average (i.e., the true value) is close to our estimate?
+
+A confidence interval gives a range of values that will contain the true value some specified proportion of the time. 
+
+A 95% confdence interval when the population variance is known, is $\bar{x} \pm 1.96 \cdot \sigma_\bar{X}$
+
+```{r, echo=F, fig.align="center", fig.asp=0.4, out.width="90%", echo=F, message=F, warning=F}
+mu <- 1
+T <- seq(-5, 5, length.out=1000) + mu
+Tdat <- data.frame(T=T, Density=dt(x=T-mu, df=1000))
+
+xseq <- c(-1.92, seq(-1.92, 1.92, length.out=998), 1.92) + mu
+yseq <- c(0, dt(x=seq(-1.92, 1.92, length.out=998), df=1000), 0)
+
+#x2seq <- c(-1.92, seq(-1.92, -5, length.out=998), -5)
+#y2seq <- c(0, dt(x=seq(-1.42, -5, length.out=998), df=1000), 0)
+
+ggplot(data=Tdat, aes(x=T, y=Density)) + 
+  geom_polygon(aes(x=xseq, y=yseq), fill="black") + 
+  geom_line(size=1.2)  + xlab("X")
+
+```
+
+---
+# Example in R
+
+The Hawai'ian monk seal data. Calculated the confidence interval of the behavior differences:
+
+```{r, echo=F}
+monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+diff.dat <- monk.dat$After - monk.dat$Before
+```
+
+.pull-left[
+```{r}
+xbar <- mean(diff.dat)
+n <- length(diff.dat)
+se <- sd(diff.dat)/sqrt(n)
+
+xbar - qnorm(0.975)*se
+xbar + qnorm(0.975)*se
+```
+]
+
+.pull-right[
+```{r, echo=F}
+knitr::include_graphics("https://www.staradvertiser.com/wp-content/uploads/2020/05/web1_PO2-Nohea---Credit-Hawaii-Marine-Animal-Response--HMAR--1.jpg")
+```
+
+.footnote[image: Hawaii Marine Animal Response]
+]
+
+---
+# The z-statistic
+
+Given a sample with mean $\bar{x}$ and standard error $\sigma_\bar{x}$, the z-statistic is normally distributed
+
+$$ Z = \frac{\bar{x} - \mu}{\sigma_\bar{x}}$$
+
+### Example
+
+Take a random sample of $n=80$ babies in the US and get a mean birth weight of 3370 g. This population is well studied and known to have a mean of $\mu=3339$ and standard devation of $\sigma=573$
+
+\begin{align}
+Z &= \frac{3370 - 3339}{573/\sqrt{80}} \\
+ &= 0.48
+\end{align}
+
+---
+# Getting p-values
+Now what is the probability that we could have drawn a sample with this average weight or larger from our population?
+
+\begin{align}
+P[Z > 0.48] = ? \\
+\end{align}
+
+
+```{r, echo=F, fig.align="center", fig.asp=0.4, out.width="90%", echo=F, message=F, warning=F}
+T <- seq(-5, 5, length.out=1000)
+Tdat <- data.frame(T=T, Density=dt(x=T, df=1000))
+
+xseq <- c(0.48, seq(0.48, 5, length.out=998), 5)
+yseq <- c(0, dnorm(x=seq(0.48, 5, length.out=998)), 0)
+
+#x2seq <- c(-1.92, seq(-1.92, -5, length.out=998), -5)
+#y2seq <- c(0, dt(x=seq(-1.42, -5, length.out=998), df=1000), 0)
+
+ggplot(data=Tdat, aes(x=T, y=Density)) + 
+  geom_polygon(aes(x=xseq, y=yseq), fill="black") + 
+  geom_line(size=1.2)  + xlab("X")
+```
+
+```{r}
+pnorm(q=0.48, lower.tail=F)
+```
+
+---
+class: inverse, middle
+
+# Excercise 4C
+
+## Calculating confidence intervals, z-scores, and p-values 
+
+---
+# Inference when $\sigma$ is unknown
+
+<br>
+
+<br>
+
+### When the variance is unknown, we need to account for the additional uncertainty due to estimating $\sigma$.
+---
+# The t-distribution
+
+$$t = \frac{\bar{x} - \mu}{s}$$
+
+
+```{r, echo=F, fig.align="center", fig.asp=0.4, out.width="90%", echo=F, message=F, warning=F}
+
+n <- c(2, 5, 20, 100)
+t.plot <- data.frame()
+xseq=seq(-5, 5, length.out=100)
+for(i in 1:length(n)) {
+  y <- dt(x=xseq, df=n[i]-1)  
+  
+  dat <- cbind(x=xseq, y=y, n=n[i])
+  t.plot <- rbind(t.plot, dat)
+}
+
+ggplot(data=t.plot) + 
+  geom_line(aes(x=x, y=dnorm(x=x)), col='red', size=2) +
+  geom_line(aes(x=x, y=y, group=n, color=n)) + xlab("t") + ylab("Density")
+```
+
+As the sample size increases, the t-distribution converges to the z-distribution
+
+---
+# Wald confidence intervals
+
+The additional uncertainty in the t-distribution influences the confidence interval. We need to specify the sample size used to estimate $s$ using an argument called the degrees of freedom.
+
+.pull-left[
+```{r}
+xbar <- mean(diff.dat)
+n <- length(diff.dat)
+se <- sd(diff.dat)/sqrt(n)
+
+xbar - qt(0.975, df=n-1)*se
+xbar + qt(0.975, df=n-1)*se
+```
+]
+
+.pull-right[
+```{r, echo=F}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/2/22/Hawaiian_monk_seal_%281%29.jpg")
+```
+
+.footnote[image: [USFWS](https://upload.wikimedia.org/wikipedia/commons/2/22/Hawaiian_monk_seal_%281%29.jpg)]
+]
+
+Compare this to the interval that assumes $s$ is known: (-0.0327, 0.0078)
+---
+class: inverse, middle
+
+# Excercise 4D
+
+## Calculating Wald confidence intervals
+
+---
+# The one-sample or paired t-test
+
+The Hawai'ian monk seal data. Test if the difference between treatments is 0.
+```{r, echo=F}
+monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+diff.dat <- monk.dat$After - monk.dat$Before
+```
+
+<br>
+
+.pull-left[
+
+Do this by hand
+
+```{r}
+xbar <- mean(diff.dat)
+xbar
+n <- length(diff.dat)
+se <- sd(diff.dat)/sqrt(n)
+t <- (mean(diff.dat) - 0)/se
+t
+2*pt(t, df=n-1)
+```
+]
+
+.pull-right[
+Or use the R function `t.test`:
+```{r}
+t.test(diff.dat)
+```
+]
+
+
+---
+# The two-sample t-test
+
+<br>
+
+<br>
+
+.pull-left[
+$$t = \frac{\bar{x}_1 - \bar{x}_2 - H_0}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$$
+
+$$ \mathrm{df} = \frac{\left( \frac{s_1^2}{n_1} + \frac{s_2^2}{n_2} \right)^2}{\frac{s_1^4}{n_1^2(n_1-1)} + \frac{s_2^4}{n_2^2(n_2-1)}}$$
+]
+.pull-right[
+```{r, echo=F, out.width="100%"}
+knitr::include_graphics("http://www.thirstyfortea.com/wp-content/uploads/2016/03/irish-tea-taste-test-12.jpg")
+```
+
+.footnote[image: http://thirstyfortea.com]
+]
+
+
+---
+# Example
+
+
+
+Does the shape of a glass affect the speed a beer is consumed?
+  
+```{r, echo=F, fig.align="center", out.width="80%"}
+glass.dat <- read.csv(file="../Data/BeerGlassShape.csv")
+
+knitr::include_graphics("https://journals.plos.org/plosone/article/figure/image?size=large&id=10.1371/journal.pone.0043007.g001")
+```
+
+.footnote[Attwood AS, Scott-Samuel NE, Stothart G, Munafò MR (2012) Glass Shape Influences Consumption Rate for Alcoholic Beverages. PLoS ONE 7(8): e43007. https://doi.org/10.1371/journal.pone.0043007]
+---
+# The data 
+```{r, echo=F, fig.align="center", out.width="80%", fig.asp=0.7}
+ggplot(data=glass.dat) + 
+  geom_boxplot(aes(x=glassShape, y=drinkingMinutes))
+```
+
+---
+# A two-sample `t.test`
+In R we define a response and predictor variables using formula: 
+
+`response ~ predictor`
+```{r}
+t.test(drinkingMinutes ~ glassShape, data=glass.dat)
+```
+
+---
+class: inverse, middle
+
+# Excercise 4E
+
+## One- and two-sample t-tests
+
+---
+#Summary
+
+- We used the CLT to determine the sampling distribution
+
+- We linked the sample to the population with confidence intervals
+
+- We tested whether the mean of a sample was equal to a specific value (the null hypothesis)
+
+- We looked at one- and two-sample tests
+
+
+

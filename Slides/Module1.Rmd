@@ -67,7 +67,8 @@ theme_update(plot.title = element_text(hjust = 0.5),
 #### We will use RStudio Cloud exclusively in this course, but all work can reproduced in R and RStudio.
 
 ---
-# `rstudio.cloud`
+# Navigating `rstudio.cloud`
+
 
 ---
 # Assigning values in R

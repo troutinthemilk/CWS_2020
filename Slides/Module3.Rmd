@@ -246,7 +246,7 @@ ggplot(data=data.frame(null.vec)) +
 ---
 # The p-value
 
-A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? $^1$
+A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? <sup>1</sup>
 
 <br>
 
@@ -266,7 +266,7 @@ ggplot(data=Tdat, aes(x=T, y=Density)) +
 ```
 
 
-.footnote[ 1. Your life will be improved if you memorize this definition]
+.footnote[[1] Your life will be improved if you memorize this definition]
 
 ---
 # Getting the p-value

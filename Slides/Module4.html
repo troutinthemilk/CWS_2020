@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 4: Inference on a normal population</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 4: Inference on a normal population
+### Jake Ferguson
+
+---
+
+class: inverse
+
+
+
+# Module goals
+
+&lt;br&gt;
+
+
+
+1. Introduce the central limit theorem
+
+2. Understand some basic operations on probability used in inference
+
+3. Calculate Wald confidence intervals of estimates
+
+4. Run one- and two-sample t-test
+
+---
+# Random variables
+
+&lt;br&gt;
+
+A variable whose outcome depends on a random phenomenon is called a **random variable**.
+
+&lt;br&gt;
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Two_red_dice_01.svg/1007px-Two_red_dice_01.svg.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+.footer[image source: [wikimedia.org](https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Two_red_dice_01.svg/1007px-Two_red_dice_01.svg.png)]
+
+---
+# A random sample
+
+
+```r
+x &lt;- sample(1:20, 100, replace=T)
+```
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-4-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Sums of random variables
+
+Many measurements we make and statistics are  a sum of random variables. 
+
+
+```r
+x &lt;- numeric(10000)
+for(i in 1:10000) {
+  x[i] &lt;- sum(sample(1:20, 100, replace=T))
+}
+```
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-6-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Collections of such variables display remarkable regularity properties. This is the **Central Limit Theorem** (CLT).
+
+The sum or mean of a large number of measurements randomly sampled from a populations is approximately normally distributed.
+
+---
+# The normal distribution
+
+`$$f(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}$$`
+&lt;img src="Module4_files/figure-html/unnamed-chunk-7-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+### `\(\mu\)` is the mean
+
+### `\(\sigma\)` is the standard deviation
+
+---
+# The mean and standard deviation
+
+The sample mean `\((\bar{x})\)` is the estimate of the population mean `\((\mu)\)`. 
+
+`$$\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$$`
+&lt;br&gt;
+
+ The sample variance ( `\(s^2\)`) is the estimate of the population variance ( `\(\sigma^2\)`). 
+
+`$$\bar{x} = \frac{1}{n-1} \sum_{i=1}^n \left( x_i - \mu \right)^2$$`
+In R use the `mean` and `var` functions:
+
+```r
+mean(x)
+```
+
+```
+## [1] 1050.252
+```
+
+```r
+var(x)
+```
+
+```
+## [1] 3345.862
+```
+
+```r
+sd(x) #sqrt(var)
+```
+
+```
+## [1] 57.84343
+```
+
+---
+class: inverse, middle
+
+# Excercise 4A
+
+## Estimating means and standard deviations
+
+---
+# The sampling distribution
+
+The sampling distribution describes the plausible values of the outcome if we conducted the sampling procedure again. It is a hypothetical construct.
+
+###Example: the 1918 flu 
+
+.pull-left[
+These are the deaths due to spanish flu in Switzerland
+&lt;img src="Module4_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+Repeatedly take samples of size 100 from the population to look at the distribution of the estimates
+&lt;img src="Module4_files/figure-html/unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+# The standard error
+
+The standard deviation of the sampling distribution is so important that it has a special name, the **standard error** `\((\sigma_\bar{x})\)`. 
+
+$$ \sigma_\bar{x}^2 = \frac{s^2}{n} $$
+
+$$ \sigma_\bar{x} = \frac{s}{\sqrt{n}} $$
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 4B
+
+## Simulating sampling distributions
+
+---
+# Inference with known `\(\sigma\)`
+
+We and estimate the mean horn length of a unicorn, `\(\bar{x}\)`. The standard error determines how much uncertainy is in `\(\bar{x}\)`. How confident can we be that the population horn average (i.e., the true value) is close to our estimate?
+
+A confidence interval gives a range of values that will contain the true value some specified proportion of the time. 
+
+A 95% confdence interval when the population variance is known, is `\(\bar{x} \pm 1.96 \cdot \sigma_\bar{X}\)`
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+# Example in R
+
+The Hawai'ian monk seal data. Calculated the confidence interval of the behavior differences:
+
+
+
+.pull-left[
+
+```r
+xbar &lt;- mean(diff.dat)
+n &lt;- length(diff.dat)
+se &lt;- sd(diff.dat)/sqrt(n)
+
+xbar - qnorm(0.975)*se
+```
+
+```
+## [1] -0.03272467
+```
+
+```r
+xbar + qnorm(0.975)*se
+```
+
+```
+## [1] 0.007792686
+```
+]
+
+.pull-right[
+![](https://www.staradvertiser.com/wp-content/uploads/2020/05/web1_PO2-Nohea---Credit-Hawaii-Marine-Animal-Response--HMAR--1.jpg)&lt;!-- --&gt;
+
+.footnote[image: Hawaii Marine Animal Response]
+]
+
+---
+# The z-statistic
+
+Given a sample with mean `\(\bar{x}\)` and standard error `\(\sigma_\bar{x}\)`, the z-statistic is normally distributed
+
+$$ Z = \frac{\bar{x} - \mu}{\sigma_\bar{x}}$$
+
+### Example
+
+Take a random sample of `\(n=80\)` babies in the US and get a mean birth weight of 3370 g. This population is well studied and known to have a mean of `\(\mu=3339\)` and standard devation of `\(\sigma=573\)`
+
+`\begin{align}
+Z &amp;= \frac{3370 - 3339}{573/\sqrt{80}} \\
+ &amp;= 0.48
+\end{align}`
+
+---
+# Getting p-values
+Now what is the probability that we could have drawn a sample with this average weight or larger from our population?
+
+`\begin{align}
+P[Z &gt; 0.48] = ? \\
+\end{align}`
+
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-16-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+
+```r
+pnorm(q=0.48, lower.tail=F)
+```
+
+```
+## [1] 0.3156137
+```
+
+---
+class: inverse, middle
+
+# Excercise 4C
+
+## Calculating confidence intervals, z-scores, and p-values 
+
+---
+# Inference when `\(\sigma\)` is unknown
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+### When the variance is unknown, we need to account for the additional uncertainty due to estimating `\(\sigma\)`.
+---
+# The t-distribution
+
+`$$t = \frac{\bar{x} - \mu}{s}$$`
+
+
+&lt;img src="Module4_files/figure-html/unnamed-chunk-18-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+As the sample size increases, the t-distribution converges to the z-distribution
+
+---
+# Wald confidence intervals
+
+The additional uncertainty in the t-distribution influences the confidence interval. We need to specify the sample size used to estimate `\(s\)` using an argument called the degrees of freedom.
+
+.pull-left[
+
+```r
+xbar &lt;- mean(diff.dat)
+n &lt;- length(diff.dat)
+se &lt;- sd(diff.dat)/sqrt(n)
+
+xbar - qt(0.975, df=n-1)*se
+```
+
+```
+## [1] -0.03367423
+```
+
+```r
+xbar + qt(0.975, df=n-1)*se
+```
+
+```
+## [1] 0.008742242
+```
+]
+
+.pull-right[
+![](https://upload.wikimedia.org/wikipedia/commons/2/22/Hawaiian_monk_seal_%281%29.jpg)&lt;!-- --&gt;
+
+.footnote[image: [USFWS](https://upload.wikimedia.org/wikipedia/commons/2/22/Hawaiian_monk_seal_%281%29.jpg)]
+]
+
+Compare this to the interval that assumes `\(s\)` is known: (-0.0327, 0.0078)
+---
+class: inverse, middle
+
+# Excercise 4D
+
+## Calculating Wald confidence intervals
+
+---
+# The one-sample or paired t-test
+
+The Hawai'ian monk seal data. Test if the difference between treatments is 0.
+
+
+&lt;br&gt;
+
+.pull-left[
+
+Do this by hand
+
+
+```r
+xbar &lt;- mean(diff.dat)
+xbar
+```
+
+```
+## [1] -0.01246599
+```
+
+```r
+n &lt;- length(diff.dat)
+se &lt;- sd(diff.dat)/sqrt(n)
+t &lt;- (mean(diff.dat) - 0)/se
+t
+```
+
+```
+## [1] -1.206046
+```
+
+```r
+2*pt(t, df=n-1)
+```
+
+```
+## [1] 0.2382623
+```
+]
+
+.pull-right[
+Or use the R function `t.test`:
+
+```r
+t.test(diff.dat)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  diff.dat
+## t = -1.206, df = 27, p-value = 0.2383
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  -0.033674225  0.008742242
+## sample estimates:
+##   mean of x 
+## -0.01246599
+```
+]
+
+
+---
+# The two-sample t-test
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+.pull-left[
+`$$t = \frac{\bar{x}_1 - \bar{x}_2 - H_0}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$$`
+
+$$ \mathrm{df} = \frac{\left( \frac{s_1^2}{n_1} + \frac{s_2^2}{n_2} \right)^2}{\frac{s_1^4}{n_1^2(n_1-1)} + \frac{s_2^4}{n_2^2(n_2-1)}}$$
+]
+.pull-right[
+&lt;img src="http://www.thirstyfortea.com/wp-content/uploads/2016/03/irish-tea-taste-test-12.jpg" width="100%" /&gt;
+
+.footnote[image: http://thirstyfortea.com]
+]
+
+
+---
+# Example
+
+
+
+Does the shape of a glass affect the speed a beer is consumed?
+  
+&lt;img src="https://www.homestratosphere.com/wp-content/uploads/2018/02/types-of-beer-glasses.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[image: https://www.homestratosphere.com]
+---
+# The data 
+&lt;img src="Module4_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# A two-sample `t.test`
+In R we define a response and predictor variables using formula: 
+
+`response ~ predictor`
+
+```r
+t.test(drinkingMinutes ~ glassShape, data=glass.dat)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  drinkingMinutes by glassShape
+## t = -3.5111, df = 13.637, p-value = 0.003585
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -11.802186  -2.837148
+## sample estimates:
+##   mean in group curved mean in group straight 
+##               7.593333              14.913000
+```
+
+---
+class: inverse, middle
+
+# Excercise 4E
+
+## One- and two-sample t-tests
+
+---
+#Summary
+
+- We used the CLT to determine the sampling distribution
+
+- We linked the sample to the population with confidence intervals
+
+- We tested whether the mean of a sample was equal to a specific value (the null hypothesis)
+
+- We looked at one- and two-sample tests
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
