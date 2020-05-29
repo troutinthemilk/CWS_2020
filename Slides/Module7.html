@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 7: Generalized linear models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 7: Generalized linear models
+### Jake Ferguson
+
+---
+
+  
+
+
+
+
+# Module goals
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+1. Generalize regression to count and categorical data
+
+2. Identify proper distribution to use for particular datasets
+
+3. Evaluate model quality
+
+---
+# Linear regression
+
+&lt;br&gt;
+
+### The lm framework: 
+
+`\begin{align*}
+\mu &amp;= \beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p \\
+Y &amp;\sim N(\mu,\, \sigma^2)\\
+\end{align*}`
+
+We assume that the residuals are normally distributed around the mean, `\(\mu\)`.
+
+---
+# Limitations of `lm`
+
+&lt;br&gt;
+
+Although linear models are a very useful framework, there are some situations where they are not appropriate
+
+- the range of `\(Y\)` is restricted (e.g. binary, count)
+
+- the variance of `\(Y\)` depends on the mean
+
+&lt;br&gt;
+
+--
+
+Generalized linear models (glms) extend the linear model framework to address both of these issues
+
+---
+# Generalized linear regression
+
+In a glm there is some transformation of the mean, `\(g(\mu)\)`, called the **link** function, that results in a linear model.
+
+`\begin{align*}
+g(\mu) &amp;= \beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p \\
+\mu &amp;= g^{-1}\left(\beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p\right) \\
+Y &amp;\sim f(\mu,\, \theta)
+\end{align*}`
+
+We assume that the residuals are distributed around the mean, `\(\mu\)`, following some distribution `\(f(\cdot)\)` (e.g., Binomial, Poisson, Negative Binomial). Where `\(\theta\)` is any relevant additional parameters needed to model the  variance. 
+
+&lt;br&gt; 
+
+By choosing an appropriate **link** function, `\(g( \cdot )\)`, we will ensure that the mean only takes on values that are supported by the distribution (for example only positive values for the Poisson or between 0 and 1 for the Binomial).
+
+
+---
+# Modeling counts: Poisson regression
+
+&lt;br&gt;
+
+Use the log-link function: `\(g(\mu) = ln(\mu)\)`. Then the the inverse links is `\(e^\cdot\)`.
+
+
+`\begin{align*}
+  \mu &amp;= e^{\beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p} \\
+  Y &amp;\sim \mathrm{Poisson}(\mu)
+\end{align*}`
+
+$$ E[Y] = \mu, \,\,\,\,\,\,\,\, Var[Y]=\mu $$
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-2-1.png" width="60%" /&gt;
+
+---
+# Continuous predictor variables
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-3-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+`\begin{align*}
+  \mu &amp;= e^{0.01 + 0.03\cdot X} \\
+  Y &amp;\sim \mathrm{Poisson}(\mu)
+\end{align*}`
+
+---
+# Using `glm`
+
+The syntax for `glm` follows `lm` closely:
+
+
+```r
+glm(RESPONSE ~ X1 + X2, data=data.csv, family=poisson(link="log"))
+```
+
+We've added the `family` argument to specify which distribution to use. We've also added `(link="log")` to specify the link function we use. 
+
+&lt;br&gt;
+
+----
+
+&lt;br&gt;
+  
+This website has a nice table of families and their link functions in `glm`: https://data.princeton.edu/R/GLMs
+
+---
+# `glm` model output
+
+
+
+
+```r
+summary(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+```
+
+```
+## 
+## Call:
+## glm(formula = Pheasants ~ grassCover, family = poisson, data = pheas.dat)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.1059  -0.7261  -0.1055   0.5581   2.2426  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) 0.029698   0.125016   0.238    0.812    
+## grassCover  0.029486   0.001648  17.896   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 484.156  on 100  degrees of freedom
+## Residual deviance:  94.911  on  99  degrees of freedom
+## AIC: 424.02
+## 
+## Number of Fisher Scoring iterations: 5
+```
+
+---
+# How to interpret `\(\beta_0\)` and `\(\beta_1\)`?
+
+```r
+coef(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+```
+
+```
+## (Intercept)  grassCover 
+##  0.02969773  0.02948565
+```
+
+--
+
+&lt;br&gt;
+
+----
+.pull-left[
+On the **link** scale parameters mean the same as in `lm`. 
+`$$\ln(\mu) = \beta_0 + \beta_1 X$$`
+
+`\(\beta_0\)`: intercept of the log-mean 
+
+`\(\beta_1\)`: slope of the log-mean
+]
+--
+
+.pull-right[
+On the **natural** scale they may mean something different:
+
+`\begin{align*}
+  \mu &amp;= e^{\beta_0 + \beta_1 X} \\
+  \mu &amp;= e^{\beta_0}\cdot e^{\beta_1 X} 
+\end{align*}`
+
+`\(\beta_0\)`: mean log-fecundity `\(at X=0\)`
+
+`\(\beta_1\)`: rate of change in fecundity with `\(X\)`
+]
+---
+# Deviance
+
+
+`    Null deviance: 484.156  on 100  degrees of freedom`
+
+`Residual deviance:  94.911  on  99  degrees of freedom`
+
+
+&lt;br&gt; 
+
+**Deviance** is a measure of model fit.
+
+**Null deviance** is the difference in fit between the saturated model and the intercept model
+
+- the *saturated* model has a parameter at each observation 
+
+- the intercept only has a single parameter 
+
+
+**Residual deviance** is the difference in fit between the saturated model and the fitted model
+
+
+---
+# Why Deviance?
+
+There is no `\(R^2\)` for glm's typically so we can instead use the proportion deviance explained (called the pseudo `\(R^2\)`).
+
+`$$R^2_\mathrm{pseudo} = 1 - \frac{\mathrm{Residual\,\, deviance}}{\mathrm{Null\,\, deviance}}$$`
+- **Null deviance** `\(\approx\)` equivalent of total sum of squares.
+
+- **Residual deviance** `\(\approx\)`quivalent of residual sum of squares.
+
+--
+
+&lt;br&gt;
+
+For the pheasant model, `\(R^2_{pseudo}=\)` 0.8.
+---
+class: inverse, middle
+
+# Excercise 7A
+-----
+## Fit a count model
+
+---
+# Offsets in Poisson regression
+
+Count data ( `\(Y\)`) are often collected:
+
+- over varying lengths of time
+- in sample units that have different areas
+
+&lt;br&gt;
+
+So we are often interested in modeling rates:
+
+`\begin{align*}
+Y/\mathrm{time}
+\end{align*}`
+
+or densities:
+
+`\begin{align*}
+Y/\mathrm{Area}
+\end{align*}`
+
+---
+# Modeling beaver densities in MN
+
+Each route is a different length.
+
+&lt;img src="BeavMap.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+# Beaver density `glm`
+
+Using route length as an **offset** controls for differences in survey effort. 
+
+
+```
+## 
+## Call:
+## glm(formula = num.col ~ rte.name + offset(log(rte.km)), family = poisson, 
+##     data = beav.dat)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -6.5792  -1.3366  -0.1332   1.3064   7.2427  
+## 
+## Coefficients:
+##                         Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)             -0.07145    0.02529  -2.826  0.00472 ** 
+## rte.nameC_st_louis      -0.62041    0.03196 -19.411  &lt; 2e-16 ***
+## rte.nameCass            -0.64000    0.03268 -19.584  &lt; 2e-16 ***
+## rte.nameCass_crow       -0.71424    0.03038 -23.507  &lt; 2e-16 ***
+## rte.nameEly_finger      -0.22439    0.03158  -7.106 1.19e-12 ***
+## rte.nameHay_kelliher    -0.84487    0.03514 -24.045  &lt; 2e-16 ***
+## rte.nameItasca          -0.83408    0.03774 -22.101  &lt; 2e-16 ***
+## rte.nameKabetogama       0.54214    0.02975  18.221  &lt; 2e-16 ***
+## rte.nameKanabec         -1.21305    0.04222 -28.734  &lt; 2e-16 ***
+## rte.nameKawishiwi       -0.68557    0.04620 -14.840  &lt; 2e-16 ***
+## rte.nameKooch_north     -0.18667    0.03528  -5.291 1.22e-07 ***
+## rte.nameNorthome        -0.46886    0.04084 -11.480  &lt; 2e-16 ***
+## rte.nameRed_lake        -1.19178    0.03661 -32.549  &lt; 2e-16 ***
+## rte.nameS_st_louis      -0.77329    0.03461 -22.341  &lt; 2e-16 ***
+## rte.nameSouthern_pine   -0.99222    0.03217 -30.847  &lt; 2e-16 ***
+## rte.nameWest_vermillion -0.48115    0.03794 -12.682  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 8121.2  on 320  degrees of freedom
+## Residual deviance: 1509.6  on 305  degrees of freedom
+##   (40 observations deleted due to missingness)
+## AIC: 3576.6
+## 
+## Number of Fisher Scoring iterations: 4
+```
+
+---
+# Model selection
+
+### Can use same tools as linear regression. 
+
+&lt;br&gt;
+
+- t-tests on parameter estimates
+
+- Confidence intervals (`confint`)
+
+- ANOVA (f-tests)
+
+- AIC
+
+
+---
+# Is the Poisson suitable?
+
+&lt;br&gt;
+
+An important assumption in the Poisson distribution is that the mean and variance are equal: `\(\mathrm{E}[Y] = \mathrm{Var}[Y]\)`.
+
+&lt;br&gt;
+
+How can we test this assumption?
+
+- Examine residual plots
+
+- Formal goodness of fit tests exist (Pearson's `\(\chi^2\)`, )
+
+- Fit model with overdispersion (next section) and compare via AIC
+
+---
+# Overdispersion
+
+**Reasons** data may be overdispersed
+
+- Omitted variables
+
+- Measurement error
+
+- Wrong distribution
+
+
+**Consequences** of overdispersion
+
+- Standard errors may underestimated
+
+- More complex models than necessary may be selected
+
+
+---
+# Negative Binomial
+
+The true variance is often higher (**overdispersion**) than the Poisson distribution. The Negative Binomial distribution allows for this overdispersion.
+
+`\begin{align*}
+\mathrm{E}[y] &amp;= \mu\\
+\mathrm{Var}[y] &amp;= \mu + \mu^2/\theta
+\end{align*}`
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-10-1.png" width="70%" /&gt;
+
+---
+
+# Negative binomial regression
+
+
+```r
+library(MASS)
+library(MuMIn)
+beaver.pois &lt;- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson)
+beaver.nb &lt;- glm.nb(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat)
+
+model.sel(list(beaver.pois, beaver.nb))
+```
+
+```
+## Model selection table 
+##      (Int) rte.nam off(log(rte.km))        family  class init.theta link df
+## 2 -0.07145       +                + NB(24.9368,l) negbin       24.9  log 17
+## 1 -0.07145       +                +          p(l)    glm                 16
+##      logLik   AICc  delta weight
+## 2 -1428.402 2892.8   0.00      1
+## 1 -1772.298 3578.4 685.56      0
+## Abbreviations:
+## family: NB(24.9368,l) = 'Negative Binomial(24.9368,log)', 
+##         p(l) = 'poisson(log)'
+## Models ranked by AICc(x)
+```
+
+Based on this output is **overdispersion** present?
+---
+# `glm.nb` output
+
+
+```r
+beaver.nb
+```
+
+```
+## 
+## Call:  glm.nb(formula = num.col ~ rte.name + offset(log(rte.km)), data = beav.dat, 
+##     init.theta = 24.93683249, link = log)
+## 
+## Coefficients:
+##             (Intercept)       rte.nameC_st_louis             rte.nameCass  
+##                -0.07145                 -0.62041                 -0.64000  
+##       rte.nameCass_crow       rte.nameEly_finger     rte.nameHay_kelliher  
+##                -0.71424                 -0.22439                 -0.84487  
+##          rte.nameItasca       rte.nameKabetogama          rte.nameKanabec  
+##                -0.83408                  0.54214                 -1.21305  
+##       rte.nameKawishiwi      rte.nameKooch_north         rte.nameNorthome  
+##                -0.68557                 -0.18667                 -0.46886  
+##        rte.nameRed_lake       rte.nameS_st_louis    rte.nameSouthern_pine  
+##                -1.19178                 -0.77329                 -0.99222  
+## rte.nameWest_vermillion  
+##                -0.48115  
+## 
+## Degrees of Freedom: 320 Total (i.e. Null);  305 Residual
+##   (40 observations deleted due to missingness)
+## Null Deviance:	    1781 
+## Residual Deviance: 325.4 	AIC: 2891
+```
+
+---
+class: inverse, middle
+
+# Excercise 7B
+-----
+## Negative binomial regression
+
+---
+
+# Modeling categorgies: Binomial (logistic) regression 
+
+
+We've covered: 
+
+1. Continuous response, continuous predictor (regression)
+
+2. Continuous response, discrete predictor (t-test, ANOVA)
+
+&lt;br&gt;
+
+Binomial regression has a **discrete response** with continuous or discrete predictors.
+
+
+&lt;br&gt;
+
+Examples: survival, annual recruitment, presence/absence, disease infection/recovery
+
+---
+# Logistic regression
+
+`\begin{align*}
+\mathrm{logit}(p) &amp;\equiv \ln\left( \frac{p}{1-p}\right) = \beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p\\
+p &amp;= \frac{e^{\beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p}}{1 + e^{\beta_0 + \beta_1\cdot x_1 + \dots + \beta_p x_p}} \\
+Y &amp;\sim \mathrm{binomial}(N,\, p)
+\end{align*}`
+
+&lt;br&gt;
+
+#### The binomial distribution properties:
+
+`\begin{align*}
+E[Y] &amp;= Np\\
+Var[Y] &amp;= Np(1-p)
+\end{align*}`
+
+
+
+---
+#Odds
+
+`\(\frac{p}{1-p}\)` is called the **odds** and gives the relative probability of success.  It is often used in betting. 
+
+.pull-left[
+&lt;br&gt;
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; p &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; odds &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; logit.log.odds. &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.11 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.75 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0.90 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.2 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;img src="Module7_files/figure-html/unnamed-chunk-14-1.png" width="100%" /&gt;
+]
+
+---
+# Interpreting parameters in logistic regression
+
+For a continuous predictor variable, `\(x_1\)` , the regression coefficient, `\(\beta_1\)` , represents the change in log-odds per unit change in `\(x_1\)` holding other predictors constant.
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-15-1.png" width="100%" /&gt;
+
+---
+# Interpreting parameters in logistic regression
+
+
+The intercept determines the probability at `\(x=0\)`: `\(p=\frac{e^{\beta_0}}{1 + e^{\beta_0}}=?\)`
+
+
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Response data in logistic regression
+
+We can have response data of 0 or 1...
+
+
+```r
+glm.fit  &lt;- glm(y ~ x, data=sim.dat, family=binomial)
+```
+
+.pull-left[
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -6.264538 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1.836433 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -8.356286 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.952808 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3.295078 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -8.204684 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4.874290 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7.383247 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5.757814 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+
+![](Module7_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+]
+
+---
+# Response data in logistic regression II
+
+... or the response data can be a vector of successes and failures
+
+
+```r
+glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial)
+```
+
+.pull-left[
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; successes &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; fails &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -6.264538 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.836433 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -8.356286 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15.952808 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.295078 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -8.204684 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.874290 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.383247 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.757814 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+
+
+![](Module7_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+]
+
+---
+# Example: Haleakalā silverswords
+
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Argyroxiphium_sandwicense_subsp._macrocephalum.png" width="34%" style="display: block; margin: auto;" /&gt;
+
+  
+  
+.footnote[Krushelnycky, P.D., et al, 2013. Climate‐associated population declines reverse recovery and threaten future of an iconic high‐elevation plant. Global Change Biology, 19(3)
+
+Image: wikimedia]
+
+---
+# Survival
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-25-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+# Modeling survival with `glm`
+
+
+```
+## 
+## Call:
+## glm(formula = cbind(Survive, Die) ~ Elev, family = binomial, 
+##     data = silver.dat)
+## 
+## Deviance Residuals: 
+##      Min        1Q    Median        3Q       Max  
+## -10.9712   -2.6427    0.1903    3.5485   12.7223  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -4.717e+00  1.410e-01  -33.45   &lt;2e-16 ***
+## Elev         2.031e-03  5.949e-05   34.13   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2074.36  on 30  degrees of freedom
+## Residual deviance:  794.65  on 29  degrees of freedom
+## AIC: 1005.2
+## 
+## Number of Fisher Scoring iterations: 3
+```
+
+
+---
+# How did we do?
+
+
+`\(R^2_{pseudo}=\)` 0.62
+
+&lt;img src="Module7_files/figure-html/unnamed-chunk-27-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, middle
+
+# Excercise 7C
+-----
+## Modeling categorical data
+
+---
+# What about overdispersion?
+
+The beta-binomial distribution allows for overdispersion
+$$
+`\begin{align*}
+E[Y] &amp;= N \mu, \\ 
+Var[Y] &amp;= N \mu \left(1 - \mu \right) + \rho N(N-1) \mu \left(1 - \mu \right)
+\end{align*}`
+$$
+&lt;img src="Module7_files/figure-html/unnamed-chunk-28-1.png" width="60%" /&gt;
+
+---
+# Beta-binomial regression
+
+
+```r
+library(VGAM) #contains beta-binomial regression
+model.bin &lt;- glm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=binomial)
+model.bb &lt;- vglm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=betabinomial)
+
+summary(model.bb)
+```
+
+```
+## 
+## Call:
+## vglm(formula = cbind(Survive, Die) ~ scale(Elev), family = betabinomial, 
+##     data = silver.dat)
+## 
+## Pearson residuals:
+##                    Min      1Q  Median     3Q   Max
+## logitlink(mu)  -1.8795 -0.5691 -0.1327 0.5302 2.663
+## logitlink(rho) -0.7086 -0.6495 -0.4718 0.1017 4.234
+## 
+## Coefficients: 
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept):1  0.27837    0.07451   3.736 0.000187 ***
+## (Intercept):2 -3.21794    0.26498 -12.144  &lt; 2e-16 ***
+## scale(Elev)    0.37971    0.07861   4.830 1.36e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Names of linear predictors: logitlink(mu), logitlink(rho)
+## 
+## Log-likelihood: -167.7275 on 59 degrees of freedom
+## 
+## Number of Fisher scoring iterations: 6 
+## 
+## No Hauck-Donner effect found in any of the estimates
+```
+
+---
+# Comparing parameter estimates
+
+&lt;br&gt;
+.pull-left[
+###Binomial model
+
+```r
+coef(model.bin)
+```
+
+```
+## (Intercept) scale(Elev) 
+##   0.2459422   0.5098857
+```
+
+```r
+confint(model.bin, method="profile")
+```
+
+```
+##                 2.5 %    97.5 %
+## (Intercept) 0.2203443 0.2716179
+## scale(Elev) 0.4807028 0.5392651
+```
+]
+.pull-right[
+###Beta-binomial model
+
+```r
+coef(model.bb)
+```
+
+```
+## (Intercept):1 (Intercept):2   scale(Elev) 
+##     0.2783720    -3.2179363     0.3797051
+```
+
+```r
+confintvglm(model.bb, method="profile")
+```
+
+```
+##                    2.5 %     97.5 %
+## (Intercept):1  0.1278870  0.4282708
+## (Intercept):2 -3.7124930 -2.6589521
+## scale(Elev)    0.2237321  0.5373084
+```
+]
+---
+# Comparing model fits
+
+
+```r
+print(c(AIC(model.bin), AIC(model.bb)))
+```
+
+```
+## [1] 1005.151  341.455
+```
+----
+&lt;img src="Module7_files/figure-html/unnamed-chunk-33-1.png" width="60%" /&gt;
+
+# Excercise 7D
+-----
+## Fit an overdispersed categorical model
+
+---
+#Summary 
+
+- GLM's extend the application of LM's beyond the normal distribution. 
+  - Often useful with biological data
+
+- Standard distributions in `glm` cannot handle overdisperison.
+
+- Overdispersion can have strong influences on SE's and p-values
+  - Not accounting for overdispersion can lead to overconfidence in estimates and model.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,626 @@
+---
+title: "Module 6: Linear models II"
+author: "Jake Ferguson"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+header-includes :
+  - \usepackage {amsmath}
+  - \usepackage{mathrsfs}
+---
+  
+```{r, echo=F, message=F, warning=F, eval=T}
+#setting up my ggplot defaults. Update with your own preferences
+library(ggplot2)#plotting functions
+library(ggthemes) #more themes!
+library(wesanderson)
+library(RColorBrewer)
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Module goals
+
+<br>
+  
+1. Diagnose and address multicollinearity 
+
+
+2. Select between alternate models
+
+3. Combine information from more than one model
+
+
+---
+# Collinearity versus multicollinearity
+
+<br>
+
+**Collinearity** - when one predictor variable, $X_1$, is correlated with another, $X_2$
+
+**Multicollinearity** - when multiple independent variables are correlated with each other.
+
+
+
+.footnote[Graham 2003. Confronting multicollinearity in ecological multiple
+regression. Ecology 84:2809-2815.]
+
+---
+# Examples of collinear predictors
+
+- A person's height and weight
+
+- Monthly average temperature and max/min temperatures
+
+- Mean annual temperature and annual rainfall.
+
+<br>
+
+Examples from your study systems?
+
+---
+# Type of collinearity
+
+- Variables that are collinear and each have their own separate “effect” on the response variable, Y
+  - Tigers avoid areas near human settlements and also areas
+with domestic animals
+  - Domestic animals tend to be found near human settlements
+  
+  
+- **Redundant** predictors have essentially the same meaning.
+  - various morphometric measures of body size (lengths, masses, ratios, areas)
+
+- **Compositional** variables have to sum to 1 (because last category is determined by others)
+  - percent cover of habitat types
+
+---
+# Symptoms of predictor collinearity
+
+- Variables may be significant in simple linear regression, but not in multiple regression
+
+- Large standard errors in multiple regression models
+
+- Large changes in coefficient estimates between full and reduced models
+
+---
+# Variance Inflation Factors
+
+Get the $R^2$ coefficient for variable $x_j$ as a function of other predictors:
+
+\begin{align*}
+R^2_{x_j} =  \mathrm{lm}(x_j \sim x_1 + x_2 + \ldots + x_{j-1} + x_{j+1} + \ldots +x_k) 
+\end{align*}
+
+Multicollinearity is then measured using the **variance inflation factor** (VIF): 
+
+$$VIF(\hat{\beta_j}) = \frac{1}{1-R^2_{x_j}}$$
+
+Can be calculated using `vif` in the `car` package.
+
+General rules of thumb:
+- Many suggest VIFs $>$ 10 are problematic
+- In my experience VIF's $>$ 3 can cause issues
+
+---
+# Potential consequences
+
+Models with collinear variables have: 
+
+- inflated standard errors
+
+- misleading estimates of effect
+
+- coefficients that are difficult to interpret
+
+---
+#Example:  Monet
+
+.pull-left[
+<br>
+
+```{r, echo=F}
+monet.dat <- read.csv(file="../Data/monet.csv", header=TRUE)
+monet.dat$HOUSE <- as.factor(monet.dat$HOUSE)
+monet.dat$SIGNED <- as.factor(monet.dat$SIGNED)
+monet.dat <- monet.dat[,-5]
+head(monet.dat)
+```
+]
+
+.pull-right[
+<br>
+
+```{r, echo=F, out.width="85%", fig.align="right"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/3/3c/Claude_Monet_-_The_Cliff_of_Aval%2C_Etr%C3%A9tat_-_Google_Art_Project.jpg")
+```
+
+.footnote[image: [Google Art Project](https://upload.wikimedia.org/wikipedia/commons/3/3c/Claude_Monet_-_The_Cliff_of_Aval%2C_Etr%C3%A9tat_-_Google_Art_Project.jpg)]
+]
+
+---
+# VIFs
+
+```{r, echo=F, eval=F}
+full.mod <- lm(Response ~ OD + BD + LTD + W, data=graham.dat)
+#not currently used
+```
+
+```{r, warning=F, message=F}
+library(car)
+full.mod <- lm(log(PRICE) ~ HEIGHT + WIDTH + SIZE, data=monet.dat)
+
+vif(full.mod)
+```
+
+<br>
+
+What to do now?
+---
+#  Strategies for Handling Confounding Variables
+
+Consider goals: if **prediction** is your goal collinearity may not be a problem.
+
+<br>
+
+If **understanding** predictor effects is important, consider removing one more variables:
+
+```{r}
+nosize.mod <- lm(log(PRICE) ~ HEIGHT + WIDTH, data=monet.dat)
+vif(nosize.mod)
+```
+
+---
+# Other techniques to handle multicollinearity
+
+- Create new predictors with Principle Components Analysis or Factor analysis
+
+- Ridge regression: gives better estimates of effects and SE's
+
+- Structural equation modeling 
+
+```{r, echo=F, fig.cap="http://jarrettbyrnes.info", fig.align="center"}
+knitr::include_graphics("http://jarrettbyrnes.info/pics/simple_path.png")
+```
+
+
+---
+class: inverse, middle
+
+# Excercise 6A
+-----
+## Examining multicollinearity
+
+---
+# Why do model selection?
+
+<br>
+
+- Understand which explanatory variables are important
+
+- Quantify the effects of explanatory variables on the respose
+
+- False belief that it is not legitimate to include ‘insignificant’
+regression coefficients.
+
+- May increase predictive precision by dropping unimportant variables
+
+---
+# A cautionary example: Google Flu Trends
+
+.pull-left[
+### Why not include all predictors?
+
+- They may be correlated
+  - Difficult to determine important effects
+
+- Leads to overfitting, poor prediction
+]
+
+.pull-right[
+```{r, echo=FALSE, out.width= "130%", fig.align="right"}
+knitr::include_graphics("../figure/NatureFlu.PNG")
+```
+]
+
+.footnote[https://www.wired.com/2015/10/can-learn-epic-failure-google-flu-trends/]
+
+---
+# How to compare models?
+
+
+
+- Look at correlations between individual predictors and the response variable
+
+- Look at the p-value from the ANOVA F-test of overall model fit
+
+* Compare $R^2$ or $R^2_{adj}$ between competing models
+
+* Assess ability to predict a new dataset
+
+Note that these different criterion will often point to different models as best!
+
+
+---
+# Example: Sleep in mammals
+
+* Lifespan (*years*)
+
+* Gestation (*days*)
+
+* log(Brain weight) (*g*)
+
+* log(Body Weight) (*kg*)
+
+* Predation Index (1-5; 1 = least likely to be preyed upon)
+
+* Exposure Index [1-5: 1 = least exposed (e.g., animal
+sleeps in a den)]
+
+* Danger Index (1:5, combines exposure and predation; 1=
+least danger from other animals)
+
+Any guesses which are most highly associated with total sleep?
+
+
+.footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
+
+---
+# Model 1: Sleep and Lifespan
+
+OK, `LifeSpan` is significant
+```{r, echo=F}
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
+```
+
+```{r}
+summary(lm(TotalSleep ~ LifeSpan, data=sleep.dat))
+```
+
+---
+# Model 2: Sleep and LifeSpan + Danger
+
+OK, `LifeSpan` is still significant
+
+```{r}
+summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
+```
+
+
+---
+# Model 3: Sleep and LifeSpan + Danger + BrainWt
+Snap!
+```{r}
+summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
+```
+
+---
+# Is LifeSpan an important predictor? 
+## T-test
+
+Model 1:
+
+```{r, echo=F}
+print(summary(lm(TotalSleep ~ LifeSpan, data=sleep.dat))$coefficients)
+```
+
+
+<br>
+
+Model 3:
+```{r, echo=F}
+print(summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))$coefficients)
+```
+
+Correlated predictors can strongly influence estimates and significance!
+
+---
+# Hypothesis test of nested models
+
+```{r}
+mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat, na.action=na.exclude)
+mod3 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, na.action=na.exclude)
+
+anova(mod2, mod3)
+
+
+```
+
+
+
+<br> 
+
+Model 2 and 3 are not significantly different.
+
+But this won't let us compare more than two models!
+---
+# Adjusted $R^2$
+
+\begin{align*}
+R^2 & = 1 - \frac{\mathrm{SSR}}{\mathrm{SST}} \\
+R^2_{adj} &= 1 - \frac{\mathrm{SSR}/(n-k-1)}{\mathrm{SST}/(n-1)}
+\end{align*}
+
+n = sample size
+
+k = number of parameters
+
+* $R^2$ always increases with the number of predictors
+
+* $R^2_{adj}$ takes into account the number of predictors used
+
+* As the number of explanatory variables increases, $R^2_{adj}$ is less than $R^2$
+
+* High values of $R^2_{adj}$ can be used to choose the best model
+  * Can be done with a large set of models
+
+---
+# Adjusted $R^2$ example
+```{r}
+
+summary(mod2)$adj.r.squared
+
+summary(mod3)$adj.r.squared
+
+```
+
+Suggests that model 2 better explains the data.
+
+**Potential issues**: $R^2_{adj}$ has high variability, so results are dependent on the data. Probability of selecting a suboptimal model is often high.
+
+
+---
+class: inverse, middle
+
+# Excercise 6B
+-----
+## F-tests and adjusted $R^2$
+
+---
+# Trade-offs in model fit and complexity 
+
+Including lots of predictors increases the amount of variation you explain in your dataset (aka the training data in blue), but does a poor job of explaining variation in a new dataset (aka the test data in red).
+
+Ideally the $R^2$ value in the training and the test data are the same.
+
+
+```{r, echo=FALSE, out.width= "55%", fig.align="center"}
+knitr::include_graphics("https://miro.medium.com/max/620/1*feFntGUIiob7MwUX62jdCg.png")
+```
+
+.footnote[image: [medium.com](https://medium.com/@prvnk10/bias-variance-tradeoff-ebf13adcea42)]
+
+---
+
+# Assessing prediction
+## A machine learning approach
+
+1. Break up data into **training** and **test** datasets
+  * typically 2/3 and 1/3 of dataset
+2. Fit the model to the training data
+3. Use the fits to predict the test data, calculate RMSE
+
+
+---
+#Example
+
+```{r}
+train.dat <- sleep.dat[1:40,]
+test.dat <- sleep.dat[41:62,]
+
+mod2.train <- lm(TotalSleep ~ Danger + log(BodyWt), data=train.dat)
+mod3.train <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=train.dat)
+```
+
+```{r}
+sqrt(mean((test.dat$TotalSleep - predict(mod2.train, newdata=test.dat))^2, na.rm=TRUE))
+
+sqrt(mean((test.dat$TotalSleep - predict(mod3.train, newdata=test.dat))^2, na.rm=TRUE))
+```
+
+Here model 3 is better!
+
+But for small datasets like this, our conclusion might change with a different partition of the test and training data.
+---
+
+# Leave-one-out Cross-Validation
+
+This is the recipe for leave-one-out cross validation:
+
+1. Fit all the data except for one datapoint
+
+2. Predict the held-out datapoint, $\hat{Y}$
+
+3. Calculate the error between the predicted and held-out value, $\hat{Y}- Y$.
+
+4. Go back and do it for the next datapoint
+
+---
+# Implementing in R
+
+```{r, warning=F, message=F}
+library(caret)
+
+sleep.control <- trainControl(method = "LOOCV") #tell the function we want to do leave one out cross validation
+
+mod2.xv <- train(TotalSleep ~ Danger + log(BodyWt), data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+mod3.xv <- train(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, method = "lm", na.action=na.omit, trControl= sleep.control)
+
+print(mod2.xv$results)
+print(mod3.xv$results)
+```
+
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
+---
+class: inverse, middle
+
+# Excercise 6C
+-----
+## LOOCV
+
+---
+# Akaike's Information Criterion
+
+If models are not nested or you need to compare more than two models pairwise comparisons won't work
+
+.pull-left[
+<br>
+
+<br>
+
+
+**Hirotugu Akaike** estimated the bias in the estimate of the likelihood, finding that bias increased with the number of model parameters.]
+
+.pull-right[
+```{r, echo=FALSE, out.width= "100%"}
+knitr::include_graphics("https://onlinelibrary.wiley.com/cms/asset/4b1fcb4c-6d4f-43f9-91a1-fef39470fae4/wics1460-toc-0001-m.jpg")
+```
+]
+ 
+.footnote[Cavanauh, J.E. and Neath, A.A. (2019) The Akaike information criterion: Background, derivation, properties, application, interpretation, and refinements. Wiley Interdisciplinary Reviews.]
+
+---
+# The AIC 
+
+AIC = $-2 \ell(\hat{\theta}; Y) + 2k$
+
+AICc = $-2 \ell(\hat{\theta}; Y) + 2k + \frac{2k^2 + 2k}{n - k - 1}$
+
+These criterion tradeoff the model **fit** (the likelihood of the model $\ell(\hat{\theta}; Y)$) and the model **complexity** (the number of parameters, $k$).
+
+
+* Fit all models, the lowest AIC (AICc) value is the best model.
+
+* Larger differences in AIC (AICc), called $\Delta$AIC, are stronger support for the best model.
+
+* Rules of thumb for support of suboptimal model
+  * 0- 7: plausible
+  * 7-14: equivocal
+  * $>$ 14: impossible
+  
+.footnote[Burnham, Anderson, Huyvaert (2011) Behavioral Ecology and Sociobiology]
+---
+
+# Example
+
+```{r}
+library(MuMIn)
+model.sel(list(mod2, mod3), rank=AIC)
+```
+
+AICc selects model 2 but $\Delta$AIC = 1.03.
+
+---
+# Fitting more models
+```{r, warning=F, message=F}
+mod1 <- lm(TotalSleep ~ log(BrainWt), data=sleep.dat)
+mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 <- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
+mod4 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
+mod5 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan + Exposure, data=sleep.dat)
+mod6 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan*Exposure, data=sleep.dat)
+
+model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+```
+
+---
+class: inverse, middle
+
+# Excercise 6D
+----
+## Model selection with AIC
+
+---
+# Model averaging
+
+Rather than choose a single best model, another approach is to average predictions among “competitive” models or models with roughly equal support.
+
+\begin{align*}
+\hat{\theta}_{avg} = \sum W_i \theta_i
+\end{align*}
+
+Calculate a standard error that accounts for model uncertainty and sampling uncertainty:
+
+\begin{align*}
+\widehat{SE}_{avg} = \displaystyle \sum_i W_i \sqrt{SE_i^2 + (\hat{\theta}_{avg} - \hat{\theta}_i)^2}
+\end{align*}
+
+Typically, 95% CIs are formed using $\hat{\theta}_{avg} \pm 1.96 \cdot \widehat{SE}_{avg}$.
+
+---
+# AIC weights
+
+
+1. Compute model weights, using the AIC values, reflecting
+relative plausibility of the different models
+\begin{align*}
+W_i = \displaystyle\frac{exp^{-\Delta\mathrm{AIC_i}}}{\sum_j exp^{-\Delta\mathrm{AIC_j}}}
+\end{align*}
+2. Calculate weighted predictions and SEs that reflect model
+uncertainty and sampling uncertainty
+
+---
+#Example
+
+```{r, warning=F, message=F}
+AIC.list <- model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+
+coef(model.avg(AIC.list)) #extract model averaged estimates
+
+sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
+
+#can also print summary(model.avg(...)) but too long for here.
+```
+
+---
+class: inverse, middle
+
+# Excercise 6E
+----
+## Model averaging
+---
+
+
+# Summary of the process
+
+###  
+<br>
+
+1. Define a set of *a-priori* models
+
+2. Fit & calculate AIC values/weights
+
+3. Determine whether to explore any *post-hoc* models based on initial analysis
+
+--- 
+
+<br>
+
+Other procedures sometimes used for exploratory analyses
+
+- Stepwise selection: overfits models
+
+- All subsets regression: same
+
+---
+# Resources
+
+* Ken Burham & David Anderson, Model Selection and Multimodel Inference. A classic book
+* Mark Brewer (Model selection and the cult of AIC) [https://www.youtube.com/watch?v=lEDpZmq5rBw]
+* R package `caret` for cross-validation (**C**lassification **A**nd **RE**gression **T**raining)
+* R package `MuMIn` for model averaging
+* Some issues with using model averaging for explanatory modeling are discussed in Cade, B. S. (2015). Model averaging and muddled multimodel inferences. Ecology, 96(9), 2370-2382.
+* Strengths and weaknesses of $R^2_{adj}$: https://davegiles.blogspot.com/2013/08/unbiased-model-selection-using-adjusted.html

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Module 6: Linear models II</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jake Ferguson" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Module 6: Linear models II
+### Jake Ferguson
+
+---
+
+  
+
+
+# Module goals
+
+&lt;br&gt;
+  
+1. Diagnose and address multicollinearity 
+
+
+2. Select between alternate models
+
+3. Combine information from more than one model
+
+
+---
+# Collinearity versus multicollinearity
+
+&lt;br&gt;
+
+**Collinearity** - when one predictor variable, `\(X_1\)`, is correlated with another, `\(X_2\)`
+
+**Multicollinearity** - when multiple independent variables are correlated with each other.
+
+
+
+.footnote[Graham 2003. Confronting multicollinearity in ecological multiple
+regression. Ecology 84:2809-2815.]
+
+---
+# Examples of collinear predictors
+
+- A person's height and weight
+
+- Monthly average temperature and max/min temperatures
+
+- Mean annual temperature and annual rainfall.
+
+&lt;br&gt;
+
+Examples from your study systems?
+
+---
+# Type of collinearity
+
+- Variables that are collinear and each have their own separate “effect” on the response variable, Y
+  - Tigers avoid areas near human settlements and also areas
+with domestic animals
+  - Domestic animals tend to be found near human settlements
+  
+  
+- **Redundant** predictors have essentially the same meaning.
+  - various morphometric measures of body size (lengths, masses, ratios, areas)
+
+- **Compositional** variables have to sum to 1 (because last category is determined by others)
+  - percent cover of habitat types
+
+---
+# Symptoms of predictor collinearity
+
+- Variables may be significant in simple linear regression, but not in multiple regression
+
+- Large standard errors in multiple regression models
+
+- Large changes in coefficient estimates between full and reduced models
+
+---
+# Variance Inflation Factors
+
+Get the `\(R^2\)` coefficient for variable `\(x_j\)` as a function of other predictors:
+
+`\begin{align*}
+R^2_{x_j} =  \mathrm{lm}(x_j \sim x_1 + x_2 + \ldots + x_{j-1} + x_{j+1} + \ldots +x_k) 
+\end{align*}`
+
+Multicollinearity is then measured using the **variance inflation factor** (VIF): 
+
+`$$VIF(\hat{\beta_j}) = \frac{1}{1-R^2_{x_j}}$$`
+
+Can be calculated using `vif` in the `car` package.
+
+General rules of thumb:
+- Many suggest VIFs `\(&gt;\)` 10 are problematic
+- In my experience VIF's `\(&gt;\)` 3 can cause issues
+
+---
+# Potential consequences
+
+Models with collinear variables have: 
+
+- inflated standard errors
+
+- misleading estimates of effect
+
+- coefficients that are difficult to interpret
+
+---
+#Example:  Monet
+
+.pull-left[
+&lt;br&gt;
+
+
+```
+##      PRICE HEIGHT WIDTH SIGNED HOUSE   SIZE
+## 1 3.993780   21.3  25.6      1     1 545.28
+## 2 8.800000   31.9  25.6      1     2 816.64
+## 3 0.131694    6.9  15.9      0     3 109.71
+## 4 2.037500   25.7  32.0      1     2 822.40
+## 5 1.487500   25.7  32.0      1     2 822.40
+## 6 1.870000   25.6  31.9      1     1 816.64
+```
+]
+
+.pull-right[
+&lt;br&gt;
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Claude_Monet_-_The_Cliff_of_Aval%2C_Etr%C3%A9tat_-_Google_Art_Project.jpg" width="85%" style="display: block; margin: auto 0 auto auto;" /&gt;
+
+.footnote[image: [Google Art Project](https://upload.wikimedia.org/wikipedia/commons/3/3c/Claude_Monet_-_The_Cliff_of_Aval%2C_Etr%C3%A9tat_-_Google_Art_Project.jpg)]
+]
+
+---
+# VIFs
+
+
+
+
+```r
+library(car)
+full.mod &lt;- lm(log(PRICE) ~ HEIGHT + WIDTH + SIZE, data=monet.dat)
+
+vif(full.mod)
+```
+
+```
+##    HEIGHT     WIDTH      SIZE 
+##  4.754569  6.013350 13.111192
+```
+
+&lt;br&gt;
+
+What to do now?
+---
+#  Strategies for Handling Confounding Variables
+
+Consider goals: if **prediction** is your goal collinearity may not be a problem.
+
+&lt;br&gt;
+
+If **understanding** predictor effects is important, consider removing one more variables:
+
+
+```r
+nosize.mod &lt;- lm(log(PRICE) ~ HEIGHT + WIDTH, data=monet.dat)
+vif(nosize.mod)
+```
+
+```
+##  HEIGHT   WIDTH 
+## 1.33921 1.33921
+```
+
+---
+# Other techniques to handle multicollinearity
+
+- Create new predictors with Principle Components Analysis or Factor analysis
+
+- Ridge regression: gives better estimates of effects and SE's
+
+- Structural equation modeling 
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="http://jarrettbyrnes.info/pics/simple_path.png" alt="http://jarrettbyrnes.info"  /&gt;
+&lt;p class="caption"&gt;http://jarrettbyrnes.info&lt;/p&gt;
+&lt;/div&gt;
+
+
+---
+class: inverse, middle
+
+# Excercise 6A
+-----
+## Examining multicollinearity
+
+---
+# Why do model selection?
+
+&lt;br&gt;
+
+- Understand which explanatory variables are important
+
+- Quantify the effects of explanatory variables on the respose
+
+- False belief that it is not legitimate to include ‘insignificant’
+regression coefficients.
+
+- May increase predictive precision by dropping unimportant variables
+
+---
+# A cautionary example: Google Flu Trends
+
+.pull-left[
+### Why not include all predictors?
+
+- They may be correlated
+  - Difficult to determine important effects
+
+- Leads to overfitting, poor prediction
+]
+
+.pull-right[
+&lt;img src="../figure/NatureFlu.PNG" width="130%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+
+.footnote[https://www.wired.com/2015/10/can-learn-epic-failure-google-flu-trends/]
+
+---
+# How to compare models?
+
+
+
+- Look at correlations between individual predictors and the response variable
+
+- Look at the p-value from the ANOVA F-test of overall model fit
+
+* Compare `\(R^2\)` or `\(R^2_{adj}\)` between competing models
+
+* Assess ability to predict a new dataset
+
+Note that these different criterion will often point to different models as best!
+
+
+---
+# Example: Sleep in mammals
+
+* Lifespan (*years*)
+
+* Gestation (*days*)
+
+* log(Brain weight) (*g*)
+
+* log(Body Weight) (*kg*)
+
+* Predation Index (1-5; 1 = least likely to be preyed upon)
+
+* Exposure Index [1-5: 1 = least exposed (e.g., animal
+sleeps in a den)]
+
+* Danger Index (1:5, combines exposure and predation; 1=
+least danger from other animals)
+
+Any guesses which are most highly associated with total sleep?
+
+
+.footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
+
+---
+# Model 1: Sleep and Lifespan
+
+OK, `LifeSpan` is significant
+
+
+
+```r
+summary(lm(TotalSleep ~ LifeSpan, data=sleep.dat))
+```
+
+```
+## 
+## Call:
+## lm(formula = TotalSleep ~ LifeSpan, data = sleep.dat)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.2781 -2.7714  0.3248  2.4586  9.5964 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 12.27314    1.01443  12.099 7.17e-14 ***
+## LifeSpan    -0.08206    0.04117  -1.993   0.0543 .  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 4.46 on 34 degrees of freedom
+##   (6 observations deleted due to missingness)
+## Multiple R-squared:  0.1046,	Adjusted R-squared:  0.07831 
+## F-statistic: 3.974 on 1 and 34 DF,  p-value: 0.05429
+```
+
+---
+# Model 2: Sleep and LifeSpan + Danger
+
+OK, `LifeSpan` is still significant
+
+
+```r
+summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
+```
+
+```
+## 
+## Call:
+## lm(formula = TotalSleep ~ LifeSpan + Danger, data = sleep.dat)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -6.4670 -1.5811  0.0289  2.1701  6.2612 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 18.03550    1.30037  13.870 2.54e-15 ***
+## LifeSpan    -0.09329    0.03046  -3.063  0.00435 ** 
+## Danger      -2.15770    0.39806  -5.421 5.33e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.293 on 33 degrees of freedom
+##   (6 observations deleted due to missingness)
+## Multiple R-squared:  0.5264,	Adjusted R-squared:  0.4977 
+## F-statistic: 18.34 on 2 and 33 DF,  p-value: 4.415e-06
+```
+
+
+---
+# Model 3: Sleep and LifeSpan + Danger + BrainWt
+Snap!
+
+```r
+summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
+```
+
+```
+## 
+## Call:
+## lm(formula = TotalSleep ~ LifeSpan + Danger + log(BrainWt), data = sleep.dat)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.8545 -1.2643 -0.2213  2.1568  4.8204 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  18.68659    1.20426  15.517  &lt; 2e-16 ***
+## LifeSpan     -0.01554    0.03908  -0.398   0.6936    
+## Danger       -1.99159    0.36656  -5.433 5.63e-06 ***
+## log(BrainWt) -0.85280    0.30252  -2.819   0.0082 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.993 on 32 degrees of freedom
+##   (6 observations deleted due to missingness)
+## Multiple R-squared:  0.6206,	Adjusted R-squared:  0.585 
+## F-statistic: 17.45 on 3 and 32 DF,  p-value: 6.829e-07
+```
+
+---
+# Is LifeSpan an important predictor? 
+## T-test
+
+Model 1:
+
+
+```
+##                Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) 12.27314106 1.01443011 12.098558 7.173668e-14
+## LifeSpan    -0.08206275 0.04116776 -1.993374 5.429371e-02
+```
+
+
+&lt;br&gt;
+
+Model 3:
+
+```
+##                 Estimate Std. Error    t value     Pr(&gt;|t|)
+## (Intercept)  18.68658631 1.20425929 15.5170788 1.908941e-16
+## LifeSpan     -0.01553554 0.03908285 -0.3975027 6.936360e-01
+## Danger       -1.99158708 0.36656242 -5.4331458 5.632896e-06
+## log(BrainWt) -0.85279547 0.30251767 -2.8189939 8.196780e-03
+```
+
+Correlated predictors can strongly influence estimates and significance!
+
+---
+# Hypothesis test of nested models
+
+
+```r
+mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat, na.action=na.exclude)
+mod3 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, na.action=na.exclude)
+
+anova(mod2, mod3)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: TotalSleep ~ Danger + log(BrainWt)
+## Model 2: TotalSleep ~ log(BrainWt) + Danger + log(BodyWt)
+##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+## 1     35 311.65                           
+## 2     34 304.55  1    7.0961 0.7922 0.3797
+```
+
+
+
+&lt;br&gt; 
+
+Model 2 and 3 are not significantly different.
+
+But this won't let us compare more than two models!
+---
+# Adjusted `\(R^2\)`
+
+`\begin{align*}
+R^2 &amp; = 1 - \frac{\mathrm{SSR}}{\mathrm{SST}} \\
+R^2_{adj} &amp;= 1 - \frac{\mathrm{SSR}/(n-k-1)}{\mathrm{SST}/(n-1)}
+\end{align*}`
+
+n = sample size
+
+k = number of parameters
+
+* `\(R^2\)` always increases with the number of predictors
+
+* `\(R^2_{adj}\)` takes into account the number of predictors used
+
+* As the number of explanatory variables increases, `\(R^2_{adj}\)` is less than `\(R^2\)`
+
+* High values of `\(R^2_{adj}\)` can be used to choose the best model
+  * Can be done with a large set of models
+
+---
+# Adjusted `\(R^2\)` example
+
+```r
+summary(mod2)$adj.r.squared
+```
+
+```
+## [1] 0.5640078
+```
+
+```r
+summary(mod3)$adj.r.squared
+```
+
+```
+## [1] 0.5614038
+```
+
+Suggests that model 2 better explains the data.
+
+**Potential issues**: `\(R^2_{adj}\)` has high variability, so results are dependent on the data. Probability of selecting a suboptimal model is often high.
+
+
+---
+class: inverse, middle
+
+# Excercise 6B
+-----
+## F-tests and adjusted `\(R^2\)`
+
+---
+# Trade-offs in model fit and complexity 
+
+Including lots of predictors increases the amount of variation you explain in your dataset (aka the training data in blue), but does a poor job of explaining variation in a new dataset (aka the test data in red).
+
+Ideally the `\(R^2\)` value in the training and the test data are the same.
+
+
+&lt;img src="https://miro.medium.com/max/620/1*feFntGUIiob7MwUX62jdCg.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+.footnote[image: [medium.com](https://medium.com/@prvnk10/bias-variance-tradeoff-ebf13adcea42)]
+
+---
+
+# Assessing prediction
+## A machine learning approach
+
+1. Break up data into **training** and **test** datasets
+  * typically 2/3 and 1/3 of dataset
+2. Fit the model to the training data
+3. Use the fits to predict the test data, calculate RMSE
+
+
+---
+#Example
+
+
+```r
+train.dat &lt;- sleep.dat[1:40,]
+test.dat &lt;- sleep.dat[41:62,]
+
+mod2.train &lt;- lm(TotalSleep ~ Danger + log(BodyWt), data=train.dat)
+mod3.train &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=train.dat)
+```
+
+
+```r
+sqrt(mean((test.dat$TotalSleep - predict(mod2.train, newdata=test.dat))^2, na.rm=TRUE))
+```
+
+```
+## [1] 6.348124
+```
+
+```r
+sqrt(mean((test.dat$TotalSleep - predict(mod3.train, newdata=test.dat))^2, na.rm=TRUE))
+```
+
+```
+## [1] 4.271833
+```
+
+Here model 3 is better!
+
+But for small datasets like this, our conclusion might change with a different partition of the test and training data.
+---
+
+# Leave-one-out Cross-Validation
+
+This is the recipe for leave-one-out cross validation:
+
+1. Fit all the data except for one datapoint
+
+2. Predict the held-out datapoint, `\(\hat{Y}\)`
+
+3. Calculate the error between the predicted and held-out value, `\(\hat{Y}- Y\)`.
+
+4. Go back and do it for the next datapoint
+
+---
+# Implementing in R
+
+
+```r
+library(caret)
+
+sleep.control &lt;- trainControl(method = "LOOCV") #tell the function we want to do leave one out cross validation
+
+mod2.xv &lt;- train(TotalSleep ~ Danger + log(BodyWt), data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+mod3.xv &lt;- train(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, method = "lm", na.action=na.omit, trControl= sleep.control)
+
+print(mod2.xv$results)
+```
+
+```
+##   intercept     RMSE  Rsquared      MAE
+## 1      TRUE 3.258317 0.4688809 2.666278
+```
+
+```r
+print(mod3.xv$results)
+```
+
+```
+##   intercept     RMSE  Rsquared      MAE
+## 1      TRUE 3.128541 0.5108055 2.555539
+```
+
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
+---
+class: inverse, middle
+
+# Excercise 6C
+-----
+## LOOCV
+
+---
+# Akaike's Information Criterion
+
+If models are not nested or you need to compare more than two models pairwise comparisons won't work
+
+.pull-left[
+&lt;br&gt;
+
+&lt;br&gt;
+
+
+**Hirotugu Akaike** estimated the bias in the estimate of the likelihood, finding that bias increased with the number of model parameters.]
+
+.pull-right[
+&lt;img src="https://onlinelibrary.wiley.com/cms/asset/4b1fcb4c-6d4f-43f9-91a1-fef39470fae4/wics1460-toc-0001-m.jpg" width="100%" /&gt;
+]
+ 
+.footnote[Cavanauh, J.E. and Neath, A.A. (2019) The Akaike information criterion: Background, derivation, properties, application, interpretation, and refinements. Wiley Interdisciplinary Reviews.]
+
+---
+# The AIC 
+
+AIC = `\(-2 \ell(\hat{\theta}; Y) + 2k\)`
+
+AICc = `\(-2 \ell(\hat{\theta}; Y) + 2k + \frac{2k^2 + 2k}{n - k - 1}\)`
+
+These criterion tradeoff the model **fit** (the likelihood of the model `\(\ell(\hat{\theta}; Y)\)`) and the model **complexity** (the number of parameters, `\(k\)`).
+
+
+* Fit all models, the lowest AIC (AICc) value is the best model.
+
+* Larger differences in AIC (AICc), called `\(\Delta\)`AIC, are stronger support for the best model.
+
+* Rules of thumb for support of suboptimal model
+  * 0- 7: plausible
+  * 7-14: equivocal
+  * `\(&gt;\)` 14: impossible
+  
+.footnote[Burnham, Anderson, Huyvaert (2011) Behavioral Ecology and Sociobiology]
+---
+
+# Example
+
+
+```r
+library(MuMIn)
+model.sel(list(mod2, mod3), rank=AIC)
+```
+
+```
+## Model selection table 
+##   (Int)    Dng log(BrW) log(BdW) df  logLik   AIC delta weight
+## 1 18.12 -1.861  -0.9035           4 -93.901 195.8  0.00  0.637
+## 2 19.35 -1.885  -1.4650   0.4807  5 -93.464 196.9  1.12  0.363
+## Models ranked by AIC(x)
+```
+
+AICc selects model 2 but `\(\Delta\)`AIC = 1.03.
+
+---
+# Fitting more models
+
+```r
+mod1 &lt;- lm(TotalSleep ~ log(BrainWt), data=sleep.dat)
+mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 &lt;- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
+mod4 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
+mod5 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan + Exposure, data=sleep.dat)
+mod6 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan*Exposure, data=sleep.dat)
+
+model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+```
+
+```
+## Model selection table 
+##   (Int) log(BrW)    Dng       LfS log(BdW)    Exp   Exp:LfS df   logLik   AIC
+## 4 19.41  -1.2450 -1.990 -0.008893   0.3063                   6  -88.266 188.5
+## 5 19.56  -1.3570 -2.394 -0.008660   0.2541 0.5591            7  -87.909 189.8
+## 6 19.57  -1.3520 -2.393 -0.009335   0.2504 0.5479 0.0004399  8  -87.909 191.8
+## 2 18.12  -0.9035 -1.861                                      4  -93.901 195.8
+## 3 12.27                 -0.082060                            3 -103.881 213.8
+## 1 13.63  -0.9983                                             3 -104.941 215.9
+##   delta weight
+## 4  0.00  0.573
+## 5  1.29  0.301
+## 6  3.29  0.111
+## 2  7.27  0.015
+## 3 25.23  0.000
+## 1 27.35  0.000
+## Models ranked by AIC(x)
+```
+
+---
+class: inverse, middle
+
+# Excercise 6D
+----
+## Model selection with AIC
+
+---
+# Model averaging
+
+Rather than choose a single best model, another approach is to average predictions among “competitive” models or models with roughly equal support.
+
+`\begin{align*}
+\hat{\theta}_{avg} = \sum W_i \theta_i
+\end{align*}`
+
+Calculate a standard error that accounts for model uncertainty and sampling uncertainty:
+
+`\begin{align*}
+\widehat{SE}_{avg} = \displaystyle \sum_i W_i \sqrt{SE_i^2 + (\hat{\theta}_{avg} - \hat{\theta}_i)^2}
+\end{align*}`
+
+Typically, 95% CIs are formed using `\(\hat{\theta}_{avg} \pm 1.96 \cdot \widehat{SE}_{avg}\)`.
+
+---
+# AIC weights
+
+
+1. Compute model weights, using the AIC values, reflecting
+relative plausibility of the different models
+`\begin{align*}
+W_i = \displaystyle\frac{exp^{-\Delta\mathrm{AIC_i}}}{\sum_j exp^{-\Delta\mathrm{AIC_j}}}
+\end{align*}`
+2. Calculate weighted predictions and SEs that reflect model
+uncertainty and sampling uncertainty
+
+---
+#Example
+
+
+```r
+AIC.list &lt;- model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+
+coef(model.avg(AIC.list)) #extract model averaged estimates
+```
+
+```
+##       (Intercept)      log(BrainWt)            Danger       log(BodyWt) 
+##     19.4531688312     -1.2852080307     -2.1544877453      0.2840339391 
+##          LifeSpan          Exposure Exposure:LifeSpan 
+##     -0.0088718739      0.5560591092      0.0004399214
+```
+
+```r
+sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
+```
+
+```
+##       (Intercept)      log(BrainWt)            Danger       log(BodyWt) 
+##        1.85015203        0.81763865        0.54150786        0.59308295 
+##          LifeSpan          Exposure Exposure:LifeSpan 
+##        0.04447710        0.82645576        0.03011468
+```
+
+```r
+#can also print summary(model.avg(...)) but too long for here.
+```
+
+---
+class: inverse, middle
+
+# Excercise 6E
+----
+## Model averaging
+---
+
+
+# Summary of the process
+
+###  
+&lt;br&gt;
+
+1. Define a set of *a-priori* models
+
+2. Fit &amp; calculate AIC values/weights
+
+3. Determine whether to explore any *post-hoc* models based on initial analysis
+
+--- 
+
+&lt;br&gt;
+
+Other procedures sometimes used for exploratory analyses
+
+- Stepwise selection: overfits models
+
+- All subsets regression: same
+
+---
+# Resources
+
+* Ken Burham &amp; David Anderson, Model Selection and Multimodel Inference. A classic book
+* Mark Brewer (Model selection and the cult of AIC) [https://www.youtube.com/watch?v=lEDpZmq5rBw]
+* R package `caret` for cross-validation (**C**lassification **A**nd **RE**gression **T**raining)
+* R package `MuMIn` for model averaging
+* Some issues with using model averaging for explanatory modeling are discussed in Cade, B. S. (2015). Model averaging and muddled multimodel inferences. Ecology, 96(9), 2370-2382.
+* Strengths and weaknesses of `\(R^2_{adj}\)`: https://davegiles.blogspot.com/2013/08/unbiased-model-selection-using-adjusted.html
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
