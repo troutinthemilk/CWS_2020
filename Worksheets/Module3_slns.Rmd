@@ -1,0 +1,144 @@
+---
+title: 'Module 3 worksheet'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+###############
+# Exercise 3A #
+###############
+
+## Using the sample function
+
+We can use the function `sample` to randomly draw numbers from a set. We can draw with replacement (`replace=TRUE`) or without (`replace=FALSE`). 
+
+1. create a vector of values from 1 to 25.
+2. randomly sample 25 values with replacement from this vector
+3. randomly sample 25 values without replacement from this vector
+
+```{r}
+
+```
+
+
+###############
+# Exercise 3B #
+###############
+
+## Your first for loop
+
+Loops allow you to repeat a chunk of code a bunch of times.
+
+syntax: `for(index in set) {do this}`
+Here is a couple of examples for you to explore:
+```{r}
+#For loop syntax: for (var in seq) {expression}
+for (i in 1:10) {
+  print(i)
+} #basic for loop
+
+```
+
+```{r}
+for (i in c(1,3,17)) {
+  print(i)
+} #sequence need not be in order
+```
+
+```{r}
+for (char in c("A", "Z", "2")) {
+  print(char)
+} #sequence need not be numbers
+```
+
+Here is a more complex example, we will loop through some of the columns of a dataset on silverswords and calculate the mean of each column. We will explore what each of these columns mean in a future module.
+```{r}
+silver.dat <- read.csv(file="../Data/Silversword.csv")
+for(i in 1:6) {
+  print(mean(silver.dat[,i], na.rm=TRUE))
+}
+```
+
+**Excercise** Update the below for-loop from above to store the mean value for each column in the dataset. I've given you most of the code but you will need to store each mean value in the vector mean.code.
+
+```{r}
+mean.silver <- numeric(6) #create empty vector
+
+#code here
+```
+
+
+################
+# Excercise 3C #
+################
+
+## Paired-sample randomization test
+
+The pebbled butterfly fish (*Chaetodon multicinctus*) is a reef fish endemic to Hawai‘i. Typically they are seen in male-female pairs. Ernie Reese (emeritus professor in the Zoology Department) collected 16 mated pairs of fish, and sexed and measured each individual. We want to use these data to determine whether there is a size difference between males and females of mated pairs.
+
+1. Read in the dataset `ButterflyFishDiffs.csv`. 
+2. Use the code from lecture to generate the null distribution for this dataset. 
+3. Build a histogram of the null distribution. If you want, you can add the observed statistic using `geom_vline`. The intercept is given by the aesthetic `xintercept`.
+4. Calculate the p-value. What do you conclude?
+
+```{r}
+#code here
+butt.dat <- read.csv(file="../Data/ButterflyFishDiffs.csv")
+
+obs.stat <- mean(butt.dat$Difference) 
+null.vec <- vector('numeric', 1e4)
+for(i in 1:length(null.vec)) {
+  multiplier <- sample(x=c(-1,1), size=length(butt.dat$Difference), replace=TRUE)
+  null.vec[i] <- mean(butt.dat$Difference*multiplier)
+}
+
+ggplot() + 
+  geom_histogram(aes(x=null.vec), col="white", bins=20) + geom_vline(aes(xintercept=obs.stat), col="red")
+
+p.val <-sum(null.vec > obs.stat)/length(null.vec) #proportion of values that are more extreme than the observation
+print(2*p.val) #double this for a two-sided test
+```
+
+
+################
+# Excercise 3D #
+################
+
+## Two-sample randomization test
+
+Attwood AS et al. (2012) explored the effect that glass shape has on the speed of drinking a beer. They looked at two types of glasses, curved and straight. 
+1. Create a boxplot of the glass type vs drinking minutes.
+2. Copy and update the code from the two-sample randomization test slides to run a two-sample test. Be sure to report the p-value. 
+3. Based on this test, is there a difference in the mean drinking time for different glasses?
+
+```{r}
+glass.dat <- read.csv(file="../Data/BeerGlassShape.csv")
+obs.val <- mean(glass.dat$drinkingMinutes[1:10]) - mean(glass.dat$drinkingMinutes[11:19])
+print(obs.val)
+#code here.
+
+null.vec <- numeric(1e4)
+for(i in 1:1e4) {
+  index       <- sample(1:19, 10, replace=F)
+  null.vec[i] <- mean(glass.dat$drinkingMinutes[index]) - mean(glass.dat$drinkingMinutes[-index])
+}
+
+ggplot() + 
+  geom_histogram(aes(x=null.vec), col="white", bins=20) + geom_vline(aes(xintercept=obs.val), col="red")
+
+p.val <- 2*sum(null.vec > obs.val)/length(null.vec)
+print(p.val)
+
+```

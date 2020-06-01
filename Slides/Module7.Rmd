@@ -3,8 +3,10 @@ title: "Module 7: Generalized linear models"
 author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
-    css: [default, metropolis, metropolis-fonts]
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
     lib_dir: libs
+    includes:
+      after_body: logo.html
     nature:
       highlightStyle: github
       highlightLines: true
@@ -238,7 +240,7 @@ For the pheasant model, $R^2_{pseudo}=$ `r round(1 - 94.911/484.156,2)`.
 ---
 class: inverse, middle
 
-# Excercise 7A
+# Exercise 7A
 -----
 ## Fit a count model
 
@@ -379,7 +381,7 @@ beaver.nb
 ---
 class: inverse, middle
 
-# Excercise 7B
+# Exercise 7B
 -----
 ## Negative binomial regression
 
@@ -626,7 +628,7 @@ ggplot(data=silver.dat, aes(x=Elev, y=Survival)) +
 ---
 class: inverse, middle
 
-# Excercise 7C
+# Exercise 7C
 -----
 ## Modeling categorical data
 
@@ -697,7 +699,7 @@ ggplot(data=silver.dat, aes(x=Elev, y=Survival)) +
   xlab("Elevation") + ylab('Proportion surviving')
 ```
 
-# Excercise 7D
+# Exercise 7D
 -----
 ## Fit an overdispersed categorical model
 

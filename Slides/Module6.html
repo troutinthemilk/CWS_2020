@@ -7,6 +7,7 @@
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -198,7 +199,7 @@ vif(nosize.mod)
 ---
 class: inverse, middle
 
-# Excercise 6A
+# Exercise 6A
 -----
 ## Examining multicollinearity
 
@@ -477,7 +478,7 @@ Suggests that model 2 better explains the data.
 ---
 class: inverse, middle
 
-# Excercise 6B
+# Exercise 6B
 -----
 ## F-tests and adjusted `\(R^2\)`
 
@@ -579,15 +580,17 @@ print(mod3.xv$results)
 ## 1      TRUE 3.128541 0.5108055 2.555539
 ```
 
-Here we predict model 3 is better again.
-
-However, what is the uncertainty in the RMSE?
 ---
 class: inverse, middle
 
-# Excercise 6C
------
+# Exercise 6C
+----
 ## LOOCV
+
+---
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
 
 ---
 # Akaike's Information Criterion
@@ -684,7 +687,7 @@ model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
 ---
 class: inverse, middle
 
-# Excercise 6D
+# Exercise 6D
 ----
 ## Model selection with AIC
 
@@ -748,14 +751,6 @@ sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
 ```r
 #can also print summary(model.avg(...)) but too long for here.
 ```
-
----
-class: inverse, middle
-
-# Excercise 6E
-----
-## Model averaging
----
 
 
 # Summary of the process
@@ -852,6 +847,35 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
 
 <script>
 (function() {

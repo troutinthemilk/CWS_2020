@@ -1,0 +1,87 @@
+---
+title: 'Module 5 worksheet'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+# Exercise 7A
+-----
+## Fit a count model
+
+
+Dodd and Silvertown [1999](https://doi.org/10.1086/303238) explored the relationships between size , age, competition, on the number of cones produced by fir (*Abies balsamea*). Interestingly, some of these populations experience wave-like die offs that lead to bands of dead trees in the forest (see image [here](https://www.conifers.org/pi/ab/balsamea13.jpg)). These waves are thought to be driven by chronic wind-stress. Today we will explore how fir fecundity is related to tree size, and population that have and not had wave die-offs.
+
+- `DBH`: diameter in m at breast height (1.4 m)
+- `fecundity`: number of cone rachises produced per year
+- `pop`: whether the tree comes from a population that experiences non-wave or wave mortality patterns
+
+
+1. Read in Firs.csv and plot the dataset, illustrating the effect of both `DBH` and population type (`pop`) on fecundity. What kind of distribution should we consider using to model fecundity? Based on this figure do you think the relationship between fecundity and DBH differs between populations?
+
+
+```{r}
+fir.dat <- read.csv(file="Firs.csv")
+fir.dat
+
+ggplot(data=fir.dat, aes(x=DBH, y=fecundity, col=pop)) + 
+  geom_point()
+```
+
+2. Now fit a Poisson regression to `fecundity` using `pop` and `DBH` as predictor variables. Report model estimates and confidence intervals, and plot the model fits using the function `plot_model`.
+
+###############
+# Exercise 7B #
+###############
+
+## Negative binomial regression
+
+Repeat the analysis in 7A but use a negative binomial model. Use AIC to determine which fit is better. Do the parameter estimates or confidence intervals differ much between the results in 7A and 7B?
+
+###############
+# Exercise 7C #
+###############
+
+## Modeling categorical data
+
+Let's look at the silversword data from the lecture.
+
+1. Load the dataset `silversword.csv`.
+2. Build a survival model using the predictors `Pop_size`, `Precip`, `Elev`, and `veg_cover`. 
+3. Increases in which predictors are associated with increases in survival? How about decreases in survival? Is there evidence of density dependence in the survival rate?
+
+```{r}
+silver.dat <- read.csv(file="../Data/Silversword.csv")
+full.mod <- glm(cbind(Survive, Die) ~ Elev + Precip + veg_cover + Pop_size, family=binomial, data=silver.dat)
+```
+
+###############
+# Exercise 7D #
+###############
+
+## Fit an overdispersed categorical model
+
+1. Use the `VGAM` package to fit the model you used above to fit the same mean function as in 7C but using a betabinomial model. 
+2. Compare the AIC values between the two model and compare their parameter estimates, are there systematic differences in the estimates?   
+
+```{r}
+library(VGAM) #contains beta-binomial regression
+model.bb <- vglm(cbind(Survive, Die) ~ Elev + Precip + veg_cover + Pop_size, data=silver.dat, family=betabinomial)
+
+coef(full.mod)
+coef(model.bb)
+```
+
+
+

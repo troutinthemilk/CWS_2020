@@ -7,6 +7,7 @@
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -246,7 +247,7 @@ For the pheasant model, `\(R^2_{pseudo}=\)` 0.8.
 ---
 class: inverse, middle
 
-# Excercise 7A
+# Exercise 7A
 -----
 ## Fit a count model
 
@@ -455,7 +456,7 @@ beaver.nb
 ---
 class: inverse, middle
 
-# Excercise 7B
+# Exercise 7B
 -----
 ## Negative binomial regression
 
@@ -766,7 +767,7 @@ Image: wikimedia]
 ---
 class: inverse, middle
 
-# Excercise 7C
+# Exercise 7C
 -----
 ## Modeling categorical data
 
@@ -885,7 +886,7 @@ print(c(AIC(model.bin), AIC(model.bb)))
 ----
 &lt;img src="Module7_files/figure-html/unnamed-chunk-33-1.png" width="60%" /&gt;
 
-# Excercise 7D
+# Exercise 7D
 -----
 ## Fit an overdispersed categorical model
 
@@ -963,6 +964,35 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
 
 <script>
 (function() {

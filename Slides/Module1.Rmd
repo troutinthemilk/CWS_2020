@@ -110,6 +110,30 @@ y*2
 ```
 
 Note that errors in R can be difficult to interpret. Cut and paste into **google** to decipher!
+
+---
+#Order of operations
+
+
+Precedence of operations, from highest to lowest:
+^ exponentiation
+
+* / multiplication, division
+
++ - addition, subtraction
+
+`>` `<` `<=` `==` `!=` comparison operators (less than , greater thean, less than or equal to, equal to, not equal to)
+
+However, best practice is to use parenthesis
+```{r}
+x <- 36
+y <- 7
+
+sqrt(x)*7-2
+sqrt(x)*(7-2)
+
+```
+
 ---
 # Collections of values
 
@@ -159,8 +183,8 @@ rep(3.14, times=10) #repeat a value
 class: inverse, middle
 
 # Excercise 1A
-
-## variables and vectors
+-------
+## Variables and vectors
 
 ---
 # Data frames
@@ -175,22 +199,19 @@ choice.dat
 ---
 # Extracting and subsetting dataframes
 
-We can access specific rows and columns of dataframes
-
+.pull-left[
 ```{r}
-choice.dat[3:5,]
-
-choice.dat[,2]
-
-choice.dat[3:5,2]
+choice.dat[3:5,] #3 rows
+choice.dat[,2] #1 column
+choice.dat[3:5,1:2] #3 rows and 2 columns
 ```
+]
 
-or access columns by name with the `$` operator.
-
+.pull-right[
 ```{r}
-choice.dat$Choice
+choice.dat$Choice # access columns by name
 ```
-
+]
 ---
 # Reading in data from a file
 
@@ -210,7 +231,6 @@ If the data file is in a different location, as it often is if you are working o
 bass.dat <- read.csv(file="C::\\Users\Jake\BassGrowthOto.csv") #A windows path
 
 bass.dat <- read.csv(file="/Users/Jake/BassGrowthOto.csv") #A mac or linux path
-
 ```
 
 ---
@@ -230,10 +250,32 @@ str(bass.dat)
 class: inverse, middle
 
 # Excercise 1B
-
+----------------
 ## Reading in data
 
 ---
-# Creating new variables
+# Special values
 
-It is often useful to create new variables ...
+Missing values: `NA`
+
+infinite values: `Inf`, `-Inf`
+```{r}
+1/0
+```
+
+logical: `TRUE` and `FALSE`
+```{r}
+is.numeric(7)
+is.character(7)
+```
+
+---
+# Summary 
+
+<br>
+
+- R stores numeric and categorical data differently
+
+- `data.frame`s store multiple vectors of data and can contain both numeric and categorical types
+
+- `read.csv` is used to read in csv file, the most common types of input files. These can be exported from excel or libreoffice.

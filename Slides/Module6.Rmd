@@ -3,8 +3,10 @@ title: "Module 6: Linear models II"
 author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
-    css: [default, metropolis, metropolis-fonts]
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
     lib_dir: libs
+    includes:
+      after_body: logo.html
     nature:
       highlightStyle: github
       highlightLines: true
@@ -198,7 +200,7 @@ knitr::include_graphics("http://jarrettbyrnes.info/pics/simple_path.png")
 ---
 class: inverse, middle
 
-# Excercise 6A
+# Exercise 6A
 -----
 ## Examining multicollinearity
 
@@ -383,7 +385,7 @@ Suggests that model 2 better explains the data.
 ---
 class: inverse, middle
 
-# Excercise 6B
+# Exercise 6B
 -----
 ## F-tests and adjusted $R^2$
 
@@ -461,15 +463,17 @@ print(mod2.xv$results)
 print(mod3.xv$results)
 ```
 
-Here we predict model 3 is better again.
-
-However, what is the uncertainty in the RMSE?
 ---
 class: inverse, middle
 
-# Excercise 6C
------
+# Exercise 6C
+----
 ## LOOCV
+
+---
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
 
 ---
 # Akaike's Information Criterion
@@ -539,7 +543,7 @@ model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
 ---
 class: inverse, middle
 
-# Excercise 6D
+# Exercise 6D
 ----
 ## Model selection with AIC
 
@@ -584,14 +588,6 @@ sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
 
 #can also print summary(model.avg(...)) but too long for here.
 ```
-
----
-class: inverse, middle
-
-# Excercise 6E
-----
-## Model averaging
----
 
 
 # Summary of the process

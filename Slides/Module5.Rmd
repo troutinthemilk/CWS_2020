@@ -3,8 +3,10 @@ title: "Module 5: Linear regression and ANOVA"
 author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
-    css: [default, metropolis, metropolis-fonts]
+    css: [default, metropolis, metropolis-fonts, "Title.css"]
     lib_dir: libs
+    includes:
+      after_body: logo.html
     nature:
       highlightStyle: github
       highlightLines: true

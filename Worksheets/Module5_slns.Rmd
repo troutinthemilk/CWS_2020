@@ -1,0 +1,100 @@
+---
+title: 'Module 5 worksheet'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+###############
+# Exercise 5A #
+###############
+
+## Calculating and plotting correlations
+
+Load the dataset `ColCountsFinal.csv`. This dataset is the counts of beaver colonies of different populations throughout Northern Minnesota (Johnson-Bice et al. 2020). Ecologists are often interested in the degree of synchrony in populations over space. 
+
+1. Cacluate the correlations between populations.
+
+2. Use the `corrplot` library to plot these correlations.
+
+
+```{r}
+library(corrplot)
+beav.dat <- read.csv(file="../Data/BeaverDensities.csv")
+M <- cor(beav.dat[,-1], use="pairwise.complete") #extract numeric responses
+corrplot.mixed(M)
+
+corr.vec <- M[lower.tri(M)]
+```
+
+
+###############
+# Exercise 5B #
+###############
+
+
+## Simple linear regression
+
+Now load a datast that has these correlations and the distances between each population (`CorrDistance.csv`). Test to see whether correlation between populations varies by distance in a predictable manner. What information from the regression did you use to draw your conclusions?
+
+```{r}
+corr.dat <- read.csv(file="../Data/CorrDistance.csv")
+summary(lm(correlation ~ distance, data=corr.dat))
+```
+
+
+The data set contained in `LionNoses.csv` contains the age of male lions and the proportion of their nose that is black (from Whitman et al. 2004). The proportional amount of black on a lions nose tends to change as an individual ages, a pattern that can be used to identify individual lions (http://livingwithlions.org/mara/how-to/identify-lions/). 
+
+Load this dataset and create a linear model to relate the proportion blackness in a lions nose to it's age. Interpret the slope, intercept, any significance tests, and the $R^2$ value.
+
+```{r}
+lion.dat <- read.csv(file="../Data/LionNoses.csv")
+summary(lm(ageInYears ~ proportionBlack, data=lion.dat))
+```
+
+
+###############
+# Exercise 5C #
+###############
+
+## Multiple linear regression
+
+1. Read in the dataset, `monet.csv`. Build a model that includes the effects of HOUSE (the auction house), SIGNED (wherther the painting was signed), HEIGHT and WIDTH.
+
+```{r}
+monet.dat       <- read.csv(file="../Data/monet.csv", header=TRUE)
+monet.dat$HOUSE <- as.factor(monet.dat$HOUSE)
+monet.dat$SIGNED <- as.factor(monet.dat$SIGNED)
+monet.dat <- subset(monet.dat, SIZE< 2000) #just take the paintings less that size 2000 cm^2
+
+monet.mod <- lm(log(PRICE) ~ HEIGHT + WIDTH + SIGNED + HOUSE -1 , data=monet.dat)
+```
+Based on your model does a centimeter increase in WIDTH or HEIGHT differently affect the PRICE? Does having a signed painting increase it's value?
+
+
+###############
+# Exercise 5D #
+###############
+
+## Run an ANOVA model 
+
+Run an ANOVA on the model you defined above and a similar model without the signature. How do you interpret differences in the F-tests on HOUSE in both of these models?
+```{r}
+monet.mod2 <- lm(log(PRICE) ~ HEIGHT + WIDTH + HOUSE , data=monet.dat)
+
+summary(aov(monet.mod))
+summary(aov(monet.mod2))
+```
+
+

@@ -1,0 +1,128 @@
+---
+title: 'Module 6 worksheet'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+###############
+# Exercise 6A #
+###############
+
+## Examining multicollinearity
+
+This example uses data from the Maryland Biological Stream Survey, downloaded from: http://udel.edu/~mcdonald/statmultreg.html. We are interested in predicting the abundance of longnose dace using chemical and biological characteristics of a stream.
+
+The dependent variable is the number of longnose dace, **longnosedace**, per 75-meter section of stream. The independent variables are the **acreage** drained by the stream; the dissolved oxygen, **do2**, in mg/liter; the maximum depth, **maxdepth**, in cm of the 75-meter segment of stream; nitrate concentration,  **no3**, in mg/liter; sulfate concentration, **so4**, in mg/liter; water temperature, **temp**, on the sampling date in degrees C, and the stream conductivity, **conduct**, in uS/cm.
+
+1. Create a linear model of longnosedace with all the covariates in the model. 
+2. load the `car` library and calculate the variance inflation factors using the function `vif`. 
+
+```{r}
+dace.dat <- read.csv(file="../Data/longnosedace.csv")
+dace.dat <- dace.dat[,-1]#remove stream name from the dataset. this will simplify further analyses
+full.mod <- lm(longnosedace ~ acreage + do2 + maxdepth + no3 + so4 + temp + conduct, data=dace.dat)
+
+library(car)
+vif(full.mod)
+```
+
+###############
+# Exercise 6B #
+###############
+
+## F-tests and adjusted $R^2$
+
+Create two models of the longose dace, the full model and a model  with just the predictors `acreage` and `maxdepth`. 
+1. Report the adjusted $R^2$ values for these models. Based on this criterion, which is the better model?
+2. Now run an F-test with the `anova` function. What does the p-value tell you?
+
+```{r}
+mod2 <- lm(longnosedace ~ acreage + do2 + maxdepth + no3 + so4 + temp + conduct, data=dace.dat)
+mod3 <- lm(longnosedace ~ acreage + maxdepth, data=dace.dat)
+
+anova(mod2, mod3)
+```
+
+
+In 1981 bluegills were randomly sampled from Lake Mary in Minnesota. The researchers (Cook and Weisberg, 1999) measured and recorded the length (in mm) of the fish and the age (in years) of the fish. The researchers wanted to know how to predict fish length just from knowledge of the fish age. 
+
+1. Fit two models to the dataset. In the first use just age as the predictor, in the second model fit age + age^2. In order to incorporate this quadratic term, you need to use the 'as is' command `I(age^2)`. Otherwise R doesn't understand you are using a quadratic term. 
+2. Plot the model predictions using the command `plot_model` in the sjPlot package. Which model looks like a better fit?
+3. Calculate the adjusted $R^2$ and perform an F-test to determine which model is a better fit to the data.
+
+```{r}
+bluegill.dat <- read.csv(file="../Data/bluegills.csv")
+bg.mod1 <- lm(length ~ age, data=bluegill.dat)
+bg.mod2 <- lm(length ~ age + I(age^2), data=bluegill.dat)
+
+anova(bg.mod1, bg.mod2)
+
+library(sjPlot)
+plot_model(bg.mod1, terms="age", type="pred", show.data=TRUE)
+plot_model(bg.mod2, terms="age", type="pred", show.data=TRUE)
+
+
+```
+################
+# Excercise 6D #
+################
+
+## LOOCV
+For the mammal-sleep dataset, the best entry in our prediction completion discussed in the lecture came from a student who built three models. Model 1 included `LifeSpan` and `Exposure`. Model 2 included `Danger` and `Predation`. Model 3 included just `Exposure`. Fit these three models to the data, then use LOOCV (adapting the code from lecture) to determine which model has the best predictive properties.
+
+```{r}
+mammal.dat <- read.csv(file="../Data/MammalSleep.csv")
+
+library(caret)
+
+sleep.control <- trainControl(method = "LOOCV") #tell the function we want to do leave one out cross validation
+
+mod1.xv <- train(TotalSleep ~ LifeSpan + Exposure, data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+mod2.xv <- train(TotalSleep ~ Danger + Predation, data=sleep.dat, method = "lm", na.action=na.omit, trControl= sleep.control)
+mod3.xv <- train(TotalSleep ~ Exposure, data=sleep.dat, method = "lm", na.action=na.omit, trControl= sleep.control)
+
+print(mod1.xv$results)
+print(mod2.xv$results)
+print(mod3.xv$results)
+
+```
+
+
+################
+# Excercise 6D #
+################
+
+## Model selection with AIC
+
+Perform model selection using AIC on the bluegill models from problem 6D. Does AIC agree with the F-test and with the adjusted $R^2$?
+
+```{r}
+library(MuMIn)
+model.sel(list(bg.mod1, bg.mod2))
+```
+
+Now use AIC to select from the three models defined in model 6D. Does this agree with the results from LOOCV?
+
+```{r}
+read.csv(file="../Data/MammalSleep.csv")
+mod1 <- lm(TotalSleep ~ LifeSpan + Exposure, data=mammal.dat)
+mod2 <- lm(TotalSleep ~ Danger + Predation, data=mammal.dat) 
+mod3 <- lm(TotalSleep ~ Exposure, data=mammal.dat)
+library(MuMIn)
+model.sel(list(mod1, mod2, mod3), rank="AIC")
+
+```
+
+

@@ -1,0 +1,98 @@
+---
+title: 'Module 1 worksheet'
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+################
+# Excercise 1A #
+################
+
+Object in the R language include vectors, lists and functions. Objects are created by assignment statements, comments in your code can be denoted by the hash symbol (#):
+```{r}
+y <- c(38,18,22) # A vector of integers. elements in a vector need to be all the same type
+x <- 3.1563 #a real number
+z <- "hello person" # a collection of characters, known as a string
+```
+
+You can run a line in by copying it to the console, hitting the run button, or by hitting Alt+Enter (my preferred method) when the cursor is on the line. You can run the full chunk by clicking the green run button in the Run the code above, and you should see the variables x, y, and z show up in the environment window in the upper right corner.
+
+```{r}
+y <- 18 #y is a single value
+y <- c(-3.6, 1.58) #now its a vector of real numbers
+y <- 1:9 #this notation creates a sequence of integers 1 to 9
+```
+Note that every time you run a line the variable y is overwritten in the environment window
+
+In the box below, name a vector of odd integers from 1 to 9. Name a vector of even integers from 2 to 10. Multiply numbers in each vector above and give each product a new name.
+```{r}
+
+```
+
+We will often need to access a subset of elements in a vector. There are (at least) three ways to access elements, by position, by exclusion, by logical. Note that all notations use the braces:
+```{r}
+y <- c(18, 32, 15, -7, 12, 19)
+
+y[3:5] #by position
+y[-c(1, 5, 6)] #by exclusion
+y[y < 15] #by logical
+```
+
+In the box below, create a vector of the values from 0 to 1 spaced by 0.01. Name this vector p. 
+```{r}
+
+```
+
+
+################
+# Excercise 1B #
+################
+
+Data are stored in objects called data frames. A dataframe is like a matrix where the columns correspond to different variables. Unlike a matrix, the variables in a dataframe can be different types so they can contain a mixture of numerical and categorical variables. Look in your Files viewer for a file called SalmonBodySize.csv. This .csv (comma-separated values) file contains salmon lengths and mass as well as individual ages. Lets load the data, visualize it, and look at some quick summary statistics.
+
+```{r}
+salmon.dat <- read.csv(file="SalmonBodySize.csv") #this function reads in the salmon body size data and stores it as salmon.dat. It expects a csv file, which is easy to convert to from an excel spreadsheet.
+```
+
+You can read this file in Rstudio cloud because I uploaded it for you previously. If you were running this on your desktop, you would need to ensure that your current *working directory* is where the file is located. You can look at the dataframe that is now loaded into R by clicking `salmon.dat` in the Environment window of Rstudio. 
+
+
+
+Calculate the mean (`mean`) and standard deviation (`sd`) for the salmon length and for body mass. You will need to combine applying these functions with with extracting columns from your dataframe. Now calculate the coefficient of variation in these data (defined as the standard devation divided by the mean)
+
+```{r}
+
+```
+
+
+#############
+#Other stuff#
+#############
+
+Try the following lines and explain the differences in output and why it is important to keep track of parentheses.
+```{r, eval=F}
+((1+4)^2) + 2/4
+((1+4)^2 + 2)/4
+```
+
+
+ Look up the help file for the variance function var by typing 
+`?var`. What is the x argument? What do the other arguments mean? 
+
+Clearly the R help files are not designed to teach you how to learn something you don't already know, but they are useful once you have learned something but need a refresher.
+
+

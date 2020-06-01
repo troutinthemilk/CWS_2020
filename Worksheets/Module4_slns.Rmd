@@ -1,0 +1,129 @@
+---
+title: 'Module 4 worksheet'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+###############
+# Exercise 4A #
+###############
+
+## Estimating means and standard deviations
+
+Estimate the mean (`mean()`) and standard deviation (`sd()`) for the following data vectors:
+```{r}
+x <- 0:10
+y <- rep(5, 10)
+z <- sample(0:10, size=10, replace=TRUE) 
+```
+
+Rerun the analysis a couple of times do the estimates from `z` change or stay the same? Does this make sense?
+
+###############
+# Exercise 4B #
+###############
+
+## Simulating sampling distributions
+
+We can simulate data from a normal distribution using `rnorm(n, mean, sd)`, where `n` is the number of samples to draw, `mean` is the mean of the distribution and `sd` is the standard deviation of the distribution. 
+
+1. Generate a sample of size 10 from a distribution with mean 0 and standard deviation of 10.
+2. Estimate the mean and standard deviation from the sample. Do these estimates agree with the population parameters?
+3. Use a `for` loop to repeat this estimation procedure a thousand times. Plot the results. Are the distributions centered where you expected? What do the widths of the distribution describe? 
+4. Repeat the above procedue but increase your sample size to 100. How do the sampling distributions change?
+
+```{r}
+#code here
+mean.vec <- sd.vec <- numeric(1000)
+for(i in 1:1000) {
+  sample <- rnorm(10, 0, 10)
+  mean.vec[i] <- mean(sample)
+  sd.vec[i] <- sd(sample)
+}
+
+ggplot() +
+  geom_histogram(aes(x=mean.vec), col="white")
+ggplot() +
+  geom_histogram(aes(x=sd.vec), col="white")
+
+```
+
+###############
+# Exercise 4C #
+###############
+
+## Calculating z-scores, and p-values 
+
+1. Read in the dataset `ButterflyFishDiffs.csv`.
+2. Calculate the standard error of the mean.
+3. Claculate the confidence interval for the estimate of the mean.
+4. Calculate the z-score for a hypothesis test with $H_0=0$ and corresponding p-value. 
+5. State your conclusions.
+
+```{r}
+#code here
+butt.dat <- read.csv(file="../Data/ButterflyFishDiffs.csv")
+xbar <- mean(butt.dat$Difference)
+se <- sd(butt.dat$Difference)/sqrt(16)
+
+z.score <- xbar/se
+p.val <- 2*pnorm(q=z.score, lower.tail=F)
+CI.z <- xbar + c(-1,1)*qnorm(0.975)*se
+```
+
+
+###############
+# Exercise 4D #
+###############
+
+## Calculating Wald confidence intervals 
+
+Using the dataset above, use the t-distribution to estimate the confidence intervals. Explain why these intervals are wider than the intervals using the normal distribution.
+
+```{r}
+CI.t <- xbar + c(-1,1)*qt(0.975, df=15)*se
+```
+
+
+###############
+# Exercise 4E #
+###############
+
+## One- and two-sample t-tests
+
+For the following datasets determine if you should conduct a one- or two-sample test. Then conduct the appropriate test using `t.test()`. Note to conduct a paired t-test using the formula you can use `t.test(response ~ predictor, paired=TRUE)`.
+
+1. The butterflyfish dataset: `ButterflyFish.csv`. One column is the male the second column is the female in a mated pair. 
+
+2. Chen et al. (2011) studied recent range shifts in 31 taxa. This dataset (`RangeShift.csv`) has changes in highest detected elevation for these species from the late 1900's to the early 2000's. Postive numbers indicate upward shifts in elevation and negative numbers indicate shifts to lower elevations. Measurements are in meters.
+
+3. In many species males are more likely to attract females if the males have high testosterone, one hypothesis is that the cost associated with high testosterone is a weakend ability to fight disease. Hasselquist et al. (1999) experimentally increased the amount of testosterone in 13 male red-winged blackbirds and measured their ability to produce antibodies to an antigen before and after implantation (`Blackbird.csv`). 
+
+4. The neurodegenerative disease *Spinocerebellar Ataxia* type 1  is a disease marked by the gradual loss of motor skills and culminates in early death. Fryer et al. (2011) investigated the benefits of exercise in affecting the lifespan in a mouse model (`SpinocerebellarAtaxia.csv`).
+
+```{r}
+butt.dat <- read.csv(file="../Data/ButterflyFish.csv")
+t.test(Length ~ Sex, data=butt.dat, paired=TRUE)
+
+range.dat <- read.csv(file="../Data/RangeShift.csv")
+t.test(x=range.dat$elevationalRangeShift)
+
+bird.dat <- read.csv(file="../Data/Blackbird.csv")
+t.test(Antibody ~ Treatment, data=bird.dat, paired=TRUE)
+
+mouse.dat <- read.csv(file="../Data/SpinocerebellarAtaxia.csv")
+t.test(lifespan ~ treatment, data=bird.dat, paired=TRUE)
+```
+
