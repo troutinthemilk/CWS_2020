@@ -3,7 +3,6 @@ title: 'Module 2 worksheet'
 output: html_notebook
 ---
 
-
 ```{r}
 library(ggplot2) #loads the ggplot functions
 library(ggthemes) #themes to apply to a plot
@@ -73,7 +72,10 @@ ggplot(titanic.dat) +
 
 ## Univariate plots
 
-Histograms are univariate plots (`geom_histogram`) used to illustrate numerical variables and barcharts (`geom_bar`) are univariate plots used to illustrate categorical variables. In both plots we only specify the aesthetic `x` and no `y` aesthetic. Use the appropriate plots to build a figure of Elk counts in Yellowstone National Park, `Elk`, and where passengers embarked from, `embarked`, in the titanic dataset. Bonus points if you can figure out how to also get survival on the embarked plot.
+Histograms are univariate plots (`geom_histogram`) used to illustrate numerical variables and barcharts (`geom_bar`) are univariate plots used to illustrate categorical variables. In both of these kinds of plots we only specify the aesthetic `x` (no `y` aesthetic). 
+
+1. Build a histogram of Elk counts in Yellowstone National Park using the variable `Elk`.
+2. Build a barplot from the Titanic dataset using the `embarked` variable (locations that passengers embarked from). Bonus points if you can figure out how to also get survival on the embarked plot.
 
 ```{r}
 ggplot(data=wolves.dat) +
