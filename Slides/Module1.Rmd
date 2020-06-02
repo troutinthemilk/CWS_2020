@@ -122,16 +122,31 @@ Precedence of operations, from highest to lowest:
 
 + - addition, subtraction
 
-`>` `<` `<=` `==` `!=` comparison operators (less than , greater thean, less than or equal to, equal to, not equal to)
-
-However, best practice is to use parenthesis
+However, best practice is to use parenthesis for clarity
 ```{r}
 x <- 36
 y <- 7
 
 sqrt(x)*7-2
+(sqrt(x)*7)-2
 sqrt(x)*(7-2)
 
+```
+
+---
+# Logical operations
+
+`>` `<` `<=` `==` `!=` comparison operators (less than , greater thean, less than or equal to, equal to, not equal to)
+
+
+```{r}
+7 < 2
+
+7 > 2
+
+7 == 2
+
+2 == 2
 ```
 
 ---
