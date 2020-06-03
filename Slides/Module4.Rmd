@@ -246,7 +246,7 @@ xbar <- mean(diff.dat)
 n <- length(diff.dat)
 se <- sd(diff.dat)/sqrt(n)
 
-xbar - qnorm(0.975)*se
+xbar + qnorm(0.025)*se
 xbar + qnorm(0.975)*se
 ```
 ]
@@ -354,7 +354,7 @@ xbar <- mean(diff.dat)
 n <- length(diff.dat)
 se <- sd(diff.dat)/sqrt(n)
 
-xbar - qt(0.975, df=n-1)*se
+xbar + qt(0.025, df=n-1)*se
 xbar + qt(0.975, df=n-1)*se
 ```
 ]

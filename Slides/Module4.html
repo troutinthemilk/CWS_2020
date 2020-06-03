@@ -3,17 +3,18 @@
   <head>
     <title>Module 4: Inference on a normal population</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
+    <meta name="author" content="Jake Ferguson" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 # Module 4: Inference on a normal population
-### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
+### Jake Ferguson
 
 ---
 
@@ -107,7 +108,7 @@ mean(x)
 ```
 
 ```
-## [1] 1049.694
+## [1] 1050.207
 ```
 
 ```r
@@ -115,7 +116,7 @@ var(x)
 ```
 
 ```
-## [1] 3257.462
+## [1] 3264.628
 ```
 
 ```r
@@ -123,14 +124,14 @@ sd(x) #sqrt(var)
 ```
 
 ```
-## [1] 57.07418
+## [1] 57.13692
 ```
 
 ---
 class: inverse, middle
 
-# Excercise 4A
-
+# Exercise 4A
+-------
 ## Estimating means and standard deviations
 
 ---
@@ -163,13 +164,6 @@ $$ \sigma_\bar{x} = \frac{s}{\sqrt{n}} $$
 &lt;img src="Module4_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ---
-class: inverse, middle
-
-# Excercise 4B
-
-## Simulating sampling distributions
-
----
 # Inference with known `\(\sigma\)`
 
 We and estimate the mean horn length of a unicorn, `\(\bar{x}\)`. The standard error determines how much uncertainy is in `\(\bar{x}\)`. How confident can we be that the population horn average (i.e., the true value) is close to our estimate?
@@ -194,7 +188,7 @@ xbar &lt;- mean(diff.dat)
 n &lt;- length(diff.dat)
 se &lt;- sd(diff.dat)/sqrt(n)
 
-xbar - qnorm(0.975)*se
+xbar + qnorm(0.025)*se
 ```
 
 ```
@@ -255,8 +249,8 @@ pnorm(q=0.48, lower.tail=F)
 ---
 class: inverse, middle
 
-# Excercise 4C
-
+# Excercise 4B
+------------
 ## Calculating confidence intervals, z-scores, and p-values 
 
 ---
@@ -289,7 +283,7 @@ xbar &lt;- mean(diff.dat)
 n &lt;- length(diff.dat)
 se &lt;- sd(diff.dat)/sqrt(n)
 
-xbar - qt(0.975, df=n-1)*se
+xbar + qt(0.025, df=n-1)*se
 ```
 
 ```
@@ -315,8 +309,8 @@ Compare this to the interval that assumes `\(s\)` is known: (-0.0327, 0.0078)
 ---
 class: inverse, middle
 
-# Excercise 4D
-
+# Excercise 4C
+-------------
 ## Calculating Wald confidence intervals
 
 ---
@@ -444,8 +438,8 @@ t.test(drinkingMinutes ~ glassShape, data=glass.dat)
 ---
 class: inverse, middle
 
-# Excercise 4E
-
+# Excercise 4D
+--------------
 ## One- and two-sample t-tests
 
 ---
@@ -522,6 +516,35 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
 
 <script>
 (function() {
