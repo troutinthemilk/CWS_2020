@@ -68,7 +68,7 @@ knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/3/
 # A random sample
 
 ```{r}
-x <- sample(1:20, 100, replace=T)
+x <- sample(x=1:20, size=100, replace=T)
 ```
 
 ```{r, echo=F, out.width="60%", fig.align="center", fig.asp=0.6}
@@ -86,7 +86,7 @@ Many measurements we make and statistics are  a sum of random variables.
 ```{r}
 x <- numeric(10000)
 for(i in 1:10000) {
-  x[i] <- sum(sample(1:20, 100, replace=T))
+  x[i] <- sum(sample(x=1:20, size=100, replace=T))
 }
 ```
 
@@ -136,8 +136,8 @@ sd(x) #sqrt(var)
 ---
 class: inverse, middle
 
-# Excercise 4A
-
+# Exercise 4A
+-------
 ## Estimating means and standard deviations
 
 ---
@@ -176,7 +176,7 @@ sample.size <- 100 #this is the number of deaths we pretend that we observed
 #every sample gives us a different answer. Let's do this a bunch of times, everytime we collect a different sample. 
 mean.sample <- vector(length=5000)
 for(i in 1:length(mean.sample)) {
-  mean.sample[i] <- mean(sample(fluDeaths, size=sample.size))
+  mean.sample[i] <- mean(sample(x=fluDeaths, size=sample.size))
 }
 
 #hist(mean.sample, col="black", border="white", xlab="Estimated age at death", breaks=-1:100+0.5, freq=F, main="The sampling distribution")
@@ -203,13 +203,6 @@ n <- 5:100
 ggplot() +
   geom_line(aes(x=n, y=10/sqrt(n))) + xlab('Sample size') + ylab("Standard error")
 ```
-
----
-class: inverse, middle
-
-# Excercise 4B
-
-## Simulating sampling distributions
 
 ---
 # Inference with known $\sigma$
@@ -243,7 +236,7 @@ ggplot(data=Tdat, aes(x=T, y=Density)) +
 The Hawai'ian monk seal data. Calculated the confidence interval of the behavior differences:
 
 ```{r, echo=F}
-monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+monk.dat <- read.csv(file="../ProtectedData/MonkHandlingResponse.csv")
 diff.dat <- monk.dat$After - monk.dat$Before
 ```
 
@@ -313,8 +306,8 @@ pnorm(q=0.48, lower.tail=F)
 ---
 class: inverse, middle
 
-# Excercise 4C
-
+# Excercise 4B
+------------
 ## Calculating confidence intervals, z-scores, and p-values 
 
 ---
@@ -378,8 +371,8 @@ Compare this to the interval that assumes $s$ is known: (-0.0327, 0.0078)
 ---
 class: inverse, middle
 
-# Excercise 4D
-
+# Excercise 4C
+-------------
 ## Calculating Wald confidence intervals
 
 ---
@@ -387,7 +380,7 @@ class: inverse, middle
 
 The Hawai'ian monk seal data. Test if the difference between treatments is 0.
 ```{r, echo=F}
-monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+monk.dat <- read.csv(file="../ProtectedData/MonkHandlingResponse.csv")
 diff.dat <- monk.dat$After - monk.dat$Before
 ```
 
@@ -470,8 +463,8 @@ t.test(drinkingMinutes ~ glassShape, data=glass.dat)
 ---
 class: inverse, middle
 
-# Excercise 4E
-
+# Excercise 4D
+--------------
 ## One- and two-sample t-tests
 
 ---

@@ -125,13 +125,13 @@ This is equivalent to randomly changing the sign of the difference (+/-)
 
 &lt;br&gt;
 
-* Calculate your statistic of interest (e.g., `\(\bar{x}_{Before} - \bar{x}_{After}\)`)
+* Calculate your statistic of interest (e.g., `\(\overline{x_{After} - x_{Before}}\)`)
 
 &lt;br&gt;
 
 1. Randomly assign each observation to one of the treatments (Before/After) (for a paired t-test this equivalent to multiplying by +1 or -1 with equal probability)
 
-2. Calculate your new statistic of interest (e.g., `\(\bar{x}_{Before} - \bar{x}_{After}\)`) under `\(H_0\)`. Save result.
+2. Calculate your new statistic of interest (e.g., `\(\overline{x_{After} - x_{Before}}\)`) under `\(H_0\)`. Save result.
 
 3. Go back to 1.
 
@@ -152,7 +152,7 @@ sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1
 ```
 
 ```
-##  [1] -1 -1  1  1  1 -1 -1  1 -1  1
+##  [1]  1  1  1 -1 -1 -1 -1 -1  1  1
 ```
 
 Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
@@ -178,7 +178,7 @@ syntax:
 
 
 ```r
-for (val in sequence)
+for(val in sequence)
 {
   statement to do stuff.
 }
@@ -224,7 +224,7 @@ class: inverse, middle
 ```r
 obs.stat &lt;- mean(diff.dat$Difference) 
 
-null.vec &lt;- vector('numeric', 1e4)
+null.vec &lt;-numeric(1e4)
 for(i in 1:length(null.vec)) {
   multiplier &lt;- sample(x=c(-1,1), size=length(diff.dat$Difference), replace=TRUE)
   null.vec[i] &lt;- mean(diff.dat$Difference*multiplier)
@@ -255,7 +255,7 @@ print(2*p.val) #double this for a two-sided test
 ```
 
 ```
-## [1] 0.2364
+## [1] 0.2314
 ```
 
 &lt;img src="Module3_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
@@ -316,8 +316,7 @@ If we have samples from two populations and want to compare them the recipe is a
 ```r
 hotwings.dat &lt;- read.csv(file="../Data/hotwings.csv")
 ggplot(data=hotwings.dat) +
-  geom_histogram(aes(x=Hotwings), bins=15, col="white") +
-  facet_wrap(~Sex, ncol=1)
+  geom_boxplot(aes(x=Sex, y=Hotwings))
 ```
 
 ![](Module3_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
@@ -349,7 +348,7 @@ print(p.val)
 ```
 
 ```
-## [1] 0.0012
+## [1] 0.002
 ```
 ]
 

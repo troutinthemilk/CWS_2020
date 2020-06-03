@@ -100,7 +100,7 @@ knitr::include_graphics("https://apps-pifsc.fisheries.noaa.gov/hawaiian_monk_sea
 # The data
 ```{r, echo=F, fig.align="center", out.width="50%", warning=F, message=F, fig.asp=0.5}
 library(ggplot2)
-monk.dat <- read.csv(file="../Data/MonkHandlingResponse.csv")
+monk.dat <- read.csv(file="../ProtectedData/MonkHandlingResponse.csv")
 new.dat <- rbind(data.frame(Proportion=monk.dat$Before, State="Before handling event"), data.frame(Proportion=monk.dat$After, State="After handling event"))
 ggplot(data=new.dat, aes(x=Proportion)) +
   facet_wrap(~State) +
@@ -147,13 +147,13 @@ This is equivalent to randomly changing the sign of the difference (+/-)
 
 <br>
 
-* Calculate your statistic of interest (e.g., $\bar{x}_{Before} - \bar{x}_{After}$)
+* Calculate your statistic of interest (e.g., $\overline{x_{After} - x_{Before}}$)
 
 <br>
 
 1. Randomly assign each observation to one of the treatments (Before/After) (for a paired t-test this equivalent to multiplying by +1 or -1 with equal probability)
 
-2. Calculate your new statistic of interest (e.g., $\bar{x}_{Before} - \bar{x}_{After}$) under $H_0$. Save result.
+2. Calculate your new statistic of interest (e.g., $\overline{x_{After} - x_{Before}}$) under $H_0$. Save result.
 
 3. Go back to 1.
 
@@ -194,7 +194,7 @@ class: inverse, middle
 syntax: 
 
 ```{r, eval=F}
-for (val in sequence)
+for(val in sequence)
 {
   statement to do stuff.
 }
@@ -230,7 +230,7 @@ class: inverse, middle
 ```{r, fig.align="center", out.width="70%", fig.asp=0.5}
 obs.stat <- mean(diff.dat$Difference) 
 
-null.vec <- vector('numeric', 1e4)
+null.vec <-numeric(1e4)
 for(i in 1:length(null.vec)) {
   multiplier <- sample(x=c(-1,1), size=length(diff.dat$Difference), replace=TRUE)
   null.vec[i] <- mean(diff.dat$Difference*multiplier)
@@ -353,9 +353,7 @@ knitr::include_graphics("https://cdn.pixabay.com/photo/2019/04/11/17/37/wings-41
 ```{r}
 hotwings.dat <- read.csv(file="../Data/hotwings.csv")
 ggplot(data=hotwings.dat) +
-  geom_histogram(aes(x=Hotwings), bins=15, col="white") +
-  facet_wrap(~Sex, ncol=1)
-
+  geom_boxplot(aes(x=Sex, y=Hotwings))
 ```
 ]
 ---
