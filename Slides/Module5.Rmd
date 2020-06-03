@@ -37,7 +37,11 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 <br>
   
-1. 
+1. Run simple- and multiple-regressions in R
+
+2. Interpret regression outputs in R for continuous and categorical predictors
+
+3. Run ANOVA in R
 
 ---
 # Sleep in mammals
@@ -61,7 +65,7 @@ Why? What is the purpose of sleep?
 
 Is the total amount of sleep related to an animals brain weight?
 
-```{r, echo=F, fig.align="center", out.width="70%", fig.asp=0.6}
+```{r, echo=F, warning=F, message=F, fig.align="center", out.width="70%", fig.asp=0.6}
 # Correlations with total sleep
 sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
 
@@ -96,7 +100,7 @@ $$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )
 # Linear correlations and dependence
 
 
-- $r = 0$ means no linear association. The variables could still be otherwise associated. Always plot your data!
+- $r = 0$ means no **linear** association. The variables could still be otherwise associated. Always plot your data!
 
 - Recall definition of statistical independence: $P(Y|X)=P(Y)$
   - If $\rho \neq 0$ then $X$ and $Y$ are **definitely not** independent
@@ -111,10 +115,10 @@ knitr::include_graphics("https://imgs.xkcd.com/comics/correlation.png")
 .footnote[https://www.xkcd.com]
 
 ---
-# Get $r$ in R
+# Getting pairwise correlations in R
 
 ```{r}
-cor(sleep.dat$BrainWt, sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
+cor(x=sleep.dat$BrainWt, y=sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
 ```
 ---
 # Correlations between multiple variables
@@ -143,8 +147,8 @@ corrplot.mixed(M)
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5A
+----
 ## Calculating correlations
 
 ---
@@ -167,7 +171,7 @@ ggplot(data=sleep.dat) +
 ---
 # Simple linear regression
 
-fits a line to the data. Estimates the **intercept** and **slope**. 
+The goal is to fit a line that could have genererated the data. Estimates the **intercept** and slope of the line **slope**, as well as the **variance** in the residuals. 
 
 $$
 \begin{align*}
@@ -195,23 +199,27 @@ summary(sleep.lm)
 ---
 # Lets go through the output
 
-$\beta_0$, $\beta_1$ Parameter estimates:
+- Slope and intercept estimates:
 ```{r, echo=F}
 summary(sleep.lm)$coef
 ```
 
-df (degrees of freedom used in the t-tests, df=n-1-#betas)
+
+- df (degrees of freedom used in the t-tests, df=n-1-#betas)
 ```{r, echo=F}
 summary(sleep.lm)$df[2]
 ```
 
-Residual standard error ($\sigma$, the standard deviation of the residuals)
+
+
+- Residual standard error ( $\sigma$, the standard deviation of the residuals)
 ```{r, echo=F}
 summary(sleep.lm)$sigma
 ```
 
 
-Multiple R-squared (the squareroot of the correlation coefficient!)
+
+- Multiple R-squared (the squareroot of the correlation coefficient!)
 ```{r, echo=F}
 summary(sleep.lm)$r.squared
 ```
@@ -227,12 +235,12 @@ plot(sleep.lm, which=1)
 # The quantile-quantile plot
 
 Do the residuals follow a normal distribution?
-```{r, fig.aling="center", fig.asp=0.8}
+```{r, fig.align="center", fig.asp=0.8}
 plot(sleep.lm, which=2)
 ```
 
 ---
-# Getting confidence intervals
+# Extracting confidence intervals
 
 ```{r}
 confint(sleep.lm)
@@ -240,8 +248,8 @@ confint(sleep.lm)
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5B
+-----
 ## Simple linear regression
 
 ---
@@ -322,7 +330,7 @@ The **SLOPE** parameter of `SIZE` tells us how fast the price increases with the
 ---
 # Plotting the output
 
-```{r, out.width="70%", fig.align="center", fig.asp=0.7}
+```{r, out.width="70%", fig.align="center", fig.asp=0.7, message=F, warning=F}
 library(sjPlot)
 plot_model(monet.mod, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
 ```
@@ -345,8 +353,8 @@ plot_model(monet.mod2, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5C
+-----
 ## Multiple linear regression
 
 ---
@@ -504,6 +512,12 @@ summary(aov(egg_length ~ host_species, cuckoo.dat))
 
 Cool, there is a difference...
 
+
+---
+# Exercise 5D
+-------
+## Run an ANOVA model 
+
 ---
 # Post tests
 
@@ -518,18 +532,17 @@ The Tukey-test uses the t-statistic (mean/SE) but the p-value controls for the f
 knitr::include_graphics("https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tukey.jpg")
 ```
 
+---
+# Applying Tukey's test
+
+```{r}
+TukeyHSD(aov(egg_length ~ host_species, cuckoo.dat))
+```
 .footnote[
 image: https://en.wikipedia.org/wiki/John_Tukey
 
 good wikipedia article: https://en.wikipedia.org/wiki/Tukey%27s_range_test
 ]
-
----
-# Tukey's Honest Significant Difference
-
-```{r}
-TukeyHSD(aov(egg_length ~ host_species, cuckoo.dat))
-```
 
 ---
 # A word about anova
@@ -545,7 +558,11 @@ Even better is a randomization approach such as PERMANOVA  in the `vegan` packag
 ---
 # Summary
 
-- Fit continuous response data to one or more predictors using 
+- Fit continuous response data to one or more predictors with regression
+
+- Interpret output of model fits and hypothesis tests
+
+- Introduction to diagnostic figures
 
 
 

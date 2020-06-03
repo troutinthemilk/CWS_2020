@@ -3,7 +3,7 @@
   <head>
     <title>Module 5: Linear regression and ANOVA</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
+    <meta name="author" content="Jake Ferguson" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
@@ -14,7 +14,7 @@
 class: center, middle, inverse, title-slide
 
 # Module 5: Linear regression and ANOVA
-### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
+### Jake Ferguson
 
 ---
 
@@ -25,7 +25,11 @@ class: center, middle, inverse, title-slide
 
 &lt;br&gt;
   
-1. 
+1. Run simple- and multiple-regressions in R
+
+2. Interpret regression outputs in R for continuous and categorical predictors
+
+3. Run ANOVA in R
 
 ---
 # Sleep in mammals
@@ -48,11 +52,6 @@ Why? What is the purpose of sleep?
 # Continuous response, continuous predictor
 
 Is the total amount of sleep related to an animals brain weight?
-
-
-```
-## Warning: Removed 4 rows containing missing values (geom_point).
-```
 
 &lt;img src="Module5_files/figure-html/unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
@@ -83,7 +82,7 @@ $$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )
 # Linear correlations and dependence
 
 
-- `\(r = 0\)` means no linear association. The variables could still be otherwise associated. Always plot your data!
+- `\(r = 0\)` means no **linear** association. The variables could still be otherwise associated. Always plot your data!
 
 - Recall definition of statistical independence: `\(P(Y|X)=P(Y)\)`
   - If `\(\rho \neq 0\)` then `\(X\)` and `\(Y\)` are **definitely not** independent
@@ -96,11 +95,11 @@ $$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )
 .footnote[https://www.xkcd.com]
 
 ---
-# Get `\(r\)` in R
+# Getting pairwise correlations in R
 
 
 ```r
-cor(sleep.dat$BrainWt, sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
+cor(x=sleep.dat$BrainWt, y=sleep.dat$TotalSleep, use="pairwise.complete") #the argument to use, removes data that is missing. 
 ```
 
 ```
@@ -143,8 +142,8 @@ corrplot.mixed(M)
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5A
+----
 ## Calculating correlations
 
 ---
@@ -161,7 +160,7 @@ class: inverse, middle
 ---
 # Simple linear regression
 
-fits a line to the data. Estimates the **intercept** and **slope**. 
+The goal is to fit a line that could have genererated the data. Estimates the **intercept** and slope of the line **slope**, as well as the **variance** in the residuals. 
 
 $$
 `\begin{align*}
@@ -209,7 +208,7 @@ summary(sleep.lm)
 ---
 # Lets go through the output
 
-`\(\beta_0\)`, `\(\beta_1\)` Parameter estimates:
+- Slope and intercept estimates:
 
 ```
 ##                 Estimate  Std. Error   t value     Pr(&gt;|t|)
@@ -217,20 +216,24 @@ summary(sleep.lm)
 ## BrainWt     -0.006194472 0.002933888 -2.111352 4.175088e-02
 ```
 
-df (degrees of freedom used in the t-tests, df=n-1-#betas)
+
+- df (degrees of freedom used in the t-tests, df=n-1-#betas)
 
 ```
 ## [1] 36
 ```
 
-Residual standard error ($\sigma$, the standard deviation of the residuals)
+
+
+- Residual standard error ( `\(\sigma\)`, the standard deviation of the residuals)
 
 ```
 ## [1] 4.321744
 ```
 
 
-Multiple R-squared (the squareroot of the correlation coefficient!)
+
+- Multiple R-squared (the squareroot of the correlation coefficient!)
 
 ```
 ## [1] 0.1101841
@@ -255,10 +258,10 @@ Do the residuals follow a normal distribution?
 plot(sleep.lm, which=2)
 ```
 
-![](Module5_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+&lt;img src="Module5_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
-# Getting confidence intervals
+# Extracting confidence intervals
 
 
 ```r
@@ -273,8 +276,8 @@ confint(sleep.lm)
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5B
+-----
 ## Simple linear regression
 
 ---
@@ -425,13 +428,6 @@ The **SLOPE** parameter of `SIZE` tells us how fast the price increases with the
 
 ```r
 library(sjPlot)
-```
-
-```
-## Learn more about sjPlot with 'browseVignettes("sjPlot")'.
-```
-
-```r
 plot_model(monet.mod, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
 ```
 
@@ -463,8 +459,8 @@ coef(summary(monet.mod2))
 ---
 class: inverse, middle
 
-# Excercise 5
-
+# Exercise 5C
+-----
 ## Multiple linear regression
 
 ---
@@ -599,6 +595,12 @@ summary(aov(egg_length ~ host_species, cuckoo.dat))
 
 Cool, there is a difference...
 
+
+---
+# Exercise 5D
+-------
+## Run an ANOVA model 
+
 ---
 # Post tests
 
@@ -614,14 +616,8 @@ knitr::include_graphics("https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tuk
 
 &lt;img src="https://upload.wikimedia.org/wikipedia/en/e/e9/John_Tukey.jpg" style="display: block; margin: auto 0 auto auto;" /&gt;
 
-.footnote[
-image: https://en.wikipedia.org/wiki/John_Tukey
-
-good wikipedia article: https://en.wikipedia.org/wiki/Tukey%27s_range_test
-]
-
 ---
-# Tukey's Honest Significant Difference
+# Applying Tukey's test
 
 
 ```r
@@ -652,6 +648,11 @@ TukeyHSD(aov(egg_length ~ host_species, cuckoo.dat))
 ## Wren-Robin                 -1.44500000 -2.392271433 -0.49772857 0.0003183
 ## Wren-Tree Pipit            -1.96000000 -2.922428738 -0.99757126 0.0000006
 ```
+.footnote[
+image: https://en.wikipedia.org/wiki/John_Tukey
+
+good wikipedia article: https://en.wikipedia.org/wiki/Tukey%27s_range_test
+]
 
 ---
 # A word about anova
@@ -667,7 +668,11 @@ Even better is a randomization approach such as PERMANOVA  in the `vegan` packag
 ---
 # Summary
 
-- Fit continuous response data to one or more predictors using
+- Fit continuous response data to one or more predictors with regression
+
+- Interpret output of model fits and hypothesis tests
+
+- Introduction to diagnostic figures
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
