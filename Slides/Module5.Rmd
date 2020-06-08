@@ -1,6 +1,5 @@
 ---
 title: "Module 5: Linear regression and ANOVA"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -46,17 +45,20 @@ theme_update(plot.title = element_text(hjust = 0.5),
 ---
 # Sleep in mammals
 
-Sleep is characterized by either slow wave (non-dreaming) or drapid eye movement (dreaming), with wide variability in theamount of both types of sleep.
+The total amount of sleep is widely variable across species.
 
 * Roe Deer sleep < 3 hours/day
 * Little Brown bat sleeps close to 20 hours per day
 
 --
 
+<br>
+
 Why? What is the purpose of sleep?
 
 * Memory consolidation
 * Energy conservation
+* Limit exposure to risk
 
 .footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
 
@@ -101,8 +103,6 @@ $$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )
 
 
 - $r = 0$ means no **linear** association. The variables could still be otherwise associated. Always plot your data!
-
-- Recall definition of statistical independence: $P(Y|X)=P(Y)$
   - If $\rho \neq 0$ then $X$ and $Y$ are **definitely not** independent
   - If $\rho = 0$ then $X$ and $Y$ **may be** independent
 

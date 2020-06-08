@@ -1,6 +1,5 @@
 ---
 title: "Module 7: Generalized linear models"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -15,8 +14,7 @@ editor_options:
   chunk_output_type: console
 header-includes :
   - \usepackage {amsmath}
-  - \usepackage{mathrsfs}
----
+  - \usepackage{mathrsfs}---
   
 ```{r, echo=F, message=F, warning=F, eval=T}
 #setting up my ggplot defaults. Update with your own preferences
@@ -163,13 +161,14 @@ pheas.dat <- data.frame(grassCover=x, Pheasants=y)
 ```
 
 ```{r}
-summary(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+pheas.mod <- glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson(link="log"))
+summary(pheas.mod)
 ```
 
 ---
 # How to interpret $\beta_0$ and $\beta_1$?
 ```{r}
-coef(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+coef(pheas.mod)
 ```
 
 --
@@ -230,13 +229,24 @@ There is no $R^2$ for glm's typically so we can instead use the proportion devia
 $$R^2_\mathrm{pseudo} = 1 - \frac{\mathrm{Residual\,\, deviance}}{\mathrm{Null\,\, deviance}}$$
 - **Null deviance** $\approx$ equivalent of total sum of squares.
 
-- **Residual deviance** $\approx$quivalent of residual sum of squares.
+- **Residual deviance** $\approx$ equivalent of residual sum of squares.
 
 --
 
+
+.pull-left[
 <br>
 
 For the pheasant model, $R^2_{pseudo}=$ `r round(1 - 94.911/484.156,2)`.
+]
+
+.pull-right[
+```{r, echo=F, fig.align="center", out.width="80%", fig.asp=0.9, warning=F, message=F}
+library(sjPlot)
+plot_model(pheas.mod, type="pred", terms="grassCover", show.data=TRUE)
+```
+]
+
 ---
 class: inverse, middle
 
@@ -272,7 +282,7 @@ Y/\mathrm{Area}
 Each route is a different length.
 
 ```{r, out.width="60%", echo=F, fig.align="center"}
-knitr::include_graphics("BeavMap.jpg")
+knitr::include_graphics("../figure/BeavMap.jpg")
 ```
 
 ---
@@ -289,7 +299,7 @@ summary(beaver.glm)
 ```
 
 ---
-# Model selection
+# Model selection and inference
 
 ### Can use same tools as linear regression. 
 
@@ -437,7 +447,7 @@ $\frac{p}{1-p}$ is called the **odds** and gives the relative probability of suc
 p <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 odds <- p/(1-p)
 log.odds <- log(odds)
-knitr::kable(data.frame(p, "odds"=round(odds,2), "logit(log odds)"=round(log.odds,2)), 'html')
+knitr::kable(data.frame(p, "odds"=round(odds,2), "log-odds"=round(log.odds,2)), 'html')
 ```
 ]
 
@@ -451,7 +461,9 @@ ggplot() +
 ]
 
 ---
-# Interpreting parameters in logistic regression
+# Interpreting the slope parameter
+
+<br>
 
 For a continuous predictor variable, $x_1$ , the regression coefficient, $\beta_1$ , represents the change in log-odds per unit change in $x_1$ holding other predictors constant.
 
@@ -478,7 +490,9 @@ grid.arrange(plot1, plot2, nrow = 1)
 ```
 
 ---
-# Interpreting parameters in logistic regression
+# Interpreting the intercept parameter
+
+<br>
 
 
 The intercept determines the probability at $x=0$: $p=\frac{e^{\beta_0}}{1 + e^{\beta_0}}=?$
@@ -658,8 +672,8 @@ lines(x, rmutil::dbetabinom(y=x, size=10, m=0.3, s=5), lwd=2, col='cornflowerblu
 
 ```{r, warning=F, message=F}
 library(VGAM) #contains beta-binomial regression
-model.bin <- glm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=binomial)
-model.bb <- vglm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=betabinomial)
+model.bin <- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial)
+model.bb <- vglm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=betabinomial)
 
 summary(model.bb)
 ```
@@ -682,22 +696,9 @@ coef(model.bb)
 confintvglm(model.bb, method="profile")
 ```
 ]
----
-# Comparing model fits
 
-```{r}
-print(c(AIC(model.bin), AIC(model.bb)))
-```
-----
-```{r, echo=F, out.width="60%", fig.asp=0.8}
-pred.sil.bb <- predict(model.bb, type="response")
-ggplot(data=silver.dat, aes(x=Elev, y=Survival)) +
-  geom_point(size=3) + 
-  geom_rangeframe() + 
-  geom_line(y=pred.sil) + 
-  geom_line(aes(y=pred.sil.bb), col="cornflowerblue", size=1.2) + 
-  xlab("Elevation") + ylab('Proportion surviving')
-```
+---
+class: inverse, middle
 
 # Exercise 7D
 -----

@@ -1,6 +1,5 @@
 ---
 title: "Module 6: Linear models II"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -170,7 +169,9 @@ vif(full.mod)
 
 What to do now?
 ---
-#  Strategies for Handling Confounding Variables
+#  Strategies for Handling Collinearity
+
+<br>
 
 Consider goals: if **prediction** is your goal collinearity may not be a problem.
 
@@ -184,7 +185,9 @@ vif(nosize.mod)
 ```
 
 ---
-# Other techniques to handle multicollinearity
+# Other techniques 
+
+<br>
 
 - Create new predictors with Principle Components Analysis or Factor analysis
 
@@ -279,7 +282,7 @@ Any guesses which are most highly associated with total sleep?
 .footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
 
 ---
-# Model 1: Sleep and Lifespan
+# Model 1: Lifespan
 
 OK, `LifeSpan` is significant
 ```{r, echo=F}
@@ -291,7 +294,7 @@ summary(lm(TotalSleep ~ LifeSpan, data=sleep.dat))
 ```
 
 ---
-# Model 2: Sleep and LifeSpan + Danger
+# Model 2: LifeSpan + Danger
 
 OK, `LifeSpan` is still significant
 
@@ -301,14 +304,14 @@ summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
 
 
 ---
-# Model 3: Sleep and LifeSpan + Danger + BrainWt
+# Model 3: LifeSpan + Danger + BrainWt
 Snap!
 ```{r}
 summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
 ```
 
 ---
-# Is LifeSpan an important predictor? 
+# So is LifeSpan important? 
 ## T-test
 
 Model 1:
@@ -330,16 +333,18 @@ Correlated predictors can strongly influence estimates and significance!
 ---
 # Hypothesis test of nested models
 
+```{r, echo=F}
+sleep.dat <- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
+```
+
 ```{r}
-mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat, na.action=na.exclude)
-mod3 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, na.action=na.exclude)
+mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 <- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
 
 anova(mod2, mod3)
 
 
 ```
-
-
 
 <br> 
 
@@ -462,6 +467,11 @@ mod3.xv <- train(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.da
 print(mod2.xv$results)
 print(mod3.xv$results)
 ```
+---
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
+
 
 ---
 class: inverse, middle
@@ -469,11 +479,6 @@ class: inverse, middle
 # Exercise 6C
 ----
 ## LOOCV
-
----
-Here we predict model 3 is better again.
-
-However, what is the uncertainty in the RMSE?
 
 ---
 # Akaike's Information Criterion
@@ -520,12 +525,22 @@ These criterion tradeoff the model **fit** (the likelihood of the model $\ell(\h
 
 # Example
 
+Note when using AIC, all models have to use the same data. This means that NA's need to be removed
+
+```{r}
+sleep.dat <- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
+mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 <- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
+```
+
 ```{r}
 library(MuMIn)
 model.sel(list(mod2, mod3), rank=AIC)
 ```
 
-AICc selects model 2 but $\Delta$AIC = 1.03.
+<br>
+
+AICc selects model 2 but $\Delta$AIC = 1.84.
 
 ---
 # Fitting more models
@@ -534,10 +549,8 @@ mod1 <- lm(TotalSleep ~ log(BrainWt), data=sleep.dat)
 mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
 mod3 <- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
 mod4 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
-mod5 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan + Exposure, data=sleep.dat)
-mod6 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan*Exposure, data=sleep.dat)
 
-model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
 ```
 
 ---
@@ -580,7 +593,7 @@ uncertainty and sampling uncertainty
 #Example
 
 ```{r, warning=F, message=F}
-AIC.list <- model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+AIC.list <- model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
 
 coef(model.avg(AIC.list)) #extract model averaged estimates
 
@@ -589,7 +602,7 @@ sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
 #can also print summary(model.avg(...)) but too long for here.
 ```
 
-
+---
 # Summary of the process
 
 ###  

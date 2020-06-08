@@ -1,6 +1,5 @@
 ---
 title: "Module 2: Visualizing your data"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -43,8 +42,9 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 2. Understand ggplot syntax
 
-3. Identify approach figure types for your datatype
+3. Identify appropriate figure styles for your datatype
 
+.footnote[[R for Data Science, Grolemond and Wickham.](https://r4ds.had.co.nz/)]
 ---
 # R's package system
  
@@ -64,9 +64,15 @@ We are going to use the grammar of graphics package from the tidyverse
   
 --
   
-### It stands for __Grammar of Graphics__:
-  
+### It stands for __Grammar of Graphics__: 
+
+> "A grammar of graphics is a tool that enables us to concisely describe the components of a graphic."
+>
+> `r tufte::quote_footer('--- Hadley Wickham (2010)')`
+
 --
+
+<br>
   
 ```
 ggplot(data = <DATA>) + 
@@ -115,14 +121,21 @@ ggplot(data = <DATA>) +
 - Default theme sucks
 
 ---
+# Installing and loading packages
 
+```{r, echo=F, align="center"}
+knitr::include_graphics("../figure/PackageMenu.png")
+```
+
+
+---
 # Different plots for different thoughts
 
 ### Keep in mind
 
 some plot characteristics will require **categorical** variables (color, faceting)
 
-some plot charateristics will require **continuous** variables (y-axis)
+some plot characteristics will require **continuous** variables (y-axis)
 
 some plot characteristics can be **either** continuous or categorical (point/line size, x-axis)
 
@@ -144,6 +157,12 @@ Data were collecated by the EPA on 38 models of car. The variables are
 
 ```{r, warning=FALSE, message=FALSE, cache=FALSE, echo=F}
 library(ggplot2) #loads the package
+mpg$manufacturer <- factor(mpg$manufacturer)
+mpg$model <- factor(mpg$model)
+mpg$class <- factor(mpg$class)
+mpg$trans <- factor(mpg$trans)
+mpg$drv <- factor(mpg$drv)
+mpg$fl  <- factor(mpg$fl)
 ```
 
 ```{r}
@@ -172,19 +191,14 @@ class: inverse, middle
 ```{r, warning=F}
 library(ggthemes) #an R library with more ggplot themes
 theme_set(theme_tufte()) # a simple theme I like.
-```
-
-```{r, echo=F}
-theme_set(theme_tufte()) # a theme I like.
-theme_update(plot.title = element_text(hjust = 0.5), 
-             axis.line.x = element_line(color="black", size = 1),
+theme_update(plot.title = element_text(hjust = 0.5), #center plot titles
+             axis.line.x = element_line(color="black", size = 1), #add axis line
              axis.line.y = element_line(color="black", size = 1),
-             text=element_text(size=20),
+             text=element_text(size=20), #change axis label sizes
              axis.text=element_text(size=15)) #center all titles and and axis lines
 ```
 
-```{r, out.width = "68%", eval=T, cache=FALSE, fig.asp = 0.7, warning=F, fig.align="center"}
-
+```{r, out.width = "50%", eval=T, cache=FALSE, fig.asp = 0.7, warning=F, fig.align="center"}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x=displ, y=hwy))
 ```
@@ -229,7 +243,7 @@ ggplot(data=mpg) +
 
 Editing arguments outside of `aes` will modify the all observations
 
-```{r out.width = "65%", fig.asp = 0.7, fig.width=8, warning=F}
+```{r out.width = "65%", fig.asp = 0.7, fig.width=8, warning=F, fig.align="center"}
 ggplot(data=mpg) + 
   geom_point(mapping=aes(x=displ, y=hwy, color=class, size=year), alpha=0.5) 
 ```

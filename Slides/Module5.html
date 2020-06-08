@@ -3,7 +3,6 @@
   <head>
     <title>Module 5: Linear regression and ANOVA</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
@@ -14,7 +13,6 @@
 class: center, middle, inverse, title-slide
 
 # Module 5: Linear regression and ANOVA
-### Jake Ferguson
 
 ---
 
@@ -34,17 +32,20 @@ class: center, middle, inverse, title-slide
 ---
 # Sleep in mammals
 
-Sleep is characterized by either slow wave (non-dreaming) or drapid eye movement (dreaming), with wide variability in theamount of both types of sleep.
+The total amount of sleep is widely variable across species.
 
 * Roe Deer sleep &lt; 3 hours/day
 * Little Brown bat sleeps close to 20 hours per day
 
 --
 
+&lt;br&gt;
+
 Why? What is the purpose of sleep?
 
 * Memory consolidation
 * Energy conservation
+* Limit exposure to risk
 
 .footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
 
@@ -83,8 +84,6 @@ $$ r = \frac{\sum(X_i - \bar{X}) (Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 )
 
 
 - `\(r = 0\)` means no **linear** association. The variables could still be otherwise associated. Always plot your data!
-
-- Recall definition of statistical independence: `\(P(Y|X)=P(Y)\)`
   - If `\(\rho \neq 0\)` then `\(X\)` and `\(Y\)` are **definitely not** independent
   - If `\(\rho = 0\)` then `\(X\)` and `\(Y\)` **may be** independent
 

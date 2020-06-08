@@ -3,18 +3,17 @@
   <head>
     <title>Module 7: Generalized linear models</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson" />
+    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
-    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 # Module 7: Generalized linear models
-### Jake Ferguson
+### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
 
 ---
 
@@ -139,13 +138,15 @@ This website has a nice table of families and their link functions in `glm`: htt
 
 
 ```r
-summary(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+pheas.mod &lt;- glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson(link="log"))
+summary(pheas.mod)
 ```
 
 ```
 ## 
 ## Call:
-## glm(formula = Pheasants ~ grassCover, family = poisson, data = pheas.dat)
+## glm(formula = Pheasants ~ grassCover, family = poisson(link = "log"), 
+##     data = pheas.dat)
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
@@ -171,7 +172,7 @@ summary(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
 # How to interpret `\(\beta_0\)` and `\(\beta_1\)`?
 
 ```r
-coef(glm(Pheasants ~ grassCover, data=pheas.dat, family=poisson))
+coef(pheas.mod)
 ```
 
 ```
@@ -237,13 +238,21 @@ There is no `\(R^2\)` for glm's typically so we can instead use the proportion d
 `$$R^2_\mathrm{pseudo} = 1 - \frac{\mathrm{Residual\,\, deviance}}{\mathrm{Null\,\, deviance}}$$`
 - **Null deviance** `\(\approx\)` equivalent of total sum of squares.
 
-- **Residual deviance** `\(\approx\)`quivalent of residual sum of squares.
+- **Residual deviance** `\(\approx\)` equivalent of residual sum of squares.
 
 --
 
+
+.pull-left[
 &lt;br&gt;
 
 For the pheasant model, `\(R^2_{pseudo}=\)` 0.8.
+]
+
+.pull-right[
+&lt;img src="Module7_files/figure-html/unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
 ---
 class: inverse, middle
 
@@ -278,7 +287,7 @@ Y/\mathrm{Area}
 
 Each route is a different length.
 
-&lt;img src="BeavMap.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="../figure/BeavMap.jpg" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 # Beaver density `glm`
@@ -328,7 +337,7 @@ Using route length as an **offset** controls for differences in survey effort.
 ```
 
 ---
-# Model selection
+# Model selection and inference
 
 ### Can use same tools as linear regression. 
 
@@ -389,7 +398,7 @@ The true variance is often higher (**overdispersion**) than the Poisson distribu
 \mathrm{Var}[y] &amp;= \mu + \mu^2/\theta
 \end{align*}`
 
-&lt;img src="Module7_files/figure-html/unnamed-chunk-10-1.png" width="70%" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-11-1.png" width="70%" /&gt;
 
 ---
 
@@ -513,7 +522,7 @@ Var[Y] &amp;= Np(1-p)
   &lt;tr&gt;
    &lt;th style="text-align:right;"&gt; p &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; odds &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; logit.log.odds. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; log.odds &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
@@ -547,25 +556,29 @@ Var[Y] &amp;= Np(1-p)
 ]
 
 .pull-right[
-&lt;img src="Module7_files/figure-html/unnamed-chunk-14-1.png" width="100%" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-15-1.png" width="100%" /&gt;
 ]
 
 ---
-# Interpreting parameters in logistic regression
+# Interpreting the slope parameter
+
+&lt;br&gt;
 
 For a continuous predictor variable, `\(x_1\)` , the regression coefficient, `\(\beta_1\)` , represents the change in log-odds per unit change in `\(x_1\)` holding other predictors constant.
 
-&lt;img src="Module7_files/figure-html/unnamed-chunk-15-1.png" width="100%" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-16-1.png" width="100%" /&gt;
 
 ---
-# Interpreting parameters in logistic regression
+# Interpreting the intercept parameter
+
+&lt;br&gt;
 
 
 The intercept determines the probability at `\(x=0\)`: `\(p=\frac{e^{\beta_0}}{1 + e^{\beta_0}}=?\)`
 
 
 
-&lt;img src="Module7_files/figure-html/unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-17-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -630,7 +643,7 @@ glm.fit  &lt;- glm(y ~ x, data=sim.dat, family=binomial)
 
 .pull-right[
 
-![](Module7_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](Module7_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -705,7 +718,7 @@ glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial)
 .pull-right[
 
 
-![](Module7_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+![](Module7_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -723,7 +736,7 @@ Image: wikimedia]
 ---
 # Survival
 
-&lt;img src="Module7_files/figure-html/unnamed-chunk-25-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-26-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 # Modeling survival with `glm`
@@ -762,7 +775,7 @@ Image: wikimedia]
 
 `\(R^2_{pseudo}=\)` 0.62
 
-&lt;img src="Module7_files/figure-html/unnamed-chunk-27-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-28-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse, middle
@@ -781,7 +794,7 @@ E[Y] &amp;= N \mu, \\
 Var[Y] &amp;= N \mu \left(1 - \mu \right) + \rho N(N-1) \mu \left(1 - \mu \right)
 \end{align*}`
 $$
-&lt;img src="Module7_files/figure-html/unnamed-chunk-28-1.png" width="60%" /&gt;
+&lt;img src="Module7_files/figure-html/unnamed-chunk-29-1.png" width="60%" /&gt;
 
 ---
 # Beta-binomial regression
@@ -789,8 +802,8 @@ $$
 
 ```r
 library(VGAM) #contains beta-binomial regression
-model.bin &lt;- glm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=binomial)
-model.bb &lt;- vglm(cbind(Survive, Die) ~ scale(Elev), data=silver.dat, family=betabinomial)
+model.bin &lt;- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial)
+model.bb &lt;- vglm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=betabinomial)
 
 summary(model.bb)
 ```
@@ -798,7 +811,7 @@ summary(model.bb)
 ```
 ## 
 ## Call:
-## vglm(formula = cbind(Survive, Die) ~ scale(Elev), family = betabinomial, 
+## vglm(formula = cbind(Survive, Die) ~ Elev, family = betabinomial, 
 ##     data = silver.dat)
 ## 
 ## Pearson residuals:
@@ -807,10 +820,10 @@ summary(model.bb)
 ## logitlink(rho) -0.7086 -0.6495 -0.4718 0.1017 4.234
 ## 
 ## Coefficients: 
-##               Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept):1  0.27837    0.07451   3.736 0.000187 ***
-## (Intercept):2 -3.21794    0.26498 -12.144  &lt; 2e-16 ***
-## scale(Elev)    0.37971    0.07861   4.830 1.36e-06 ***
+##                 Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept):1 -3.4172705  0.7626091  -4.481 7.43e-06 ***
+## (Intercept):2 -3.2179363  0.2649795 -12.144  &lt; 2e-16 ***
+## Elev           0.0015122  0.0003131   4.830 1.36e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -835,8 +848,8 @@ coef(model.bin)
 ```
 
 ```
-## (Intercept) scale(Elev) 
-##   0.2459422   0.5098857
+## (Intercept)        Elev 
+## -4.71673877  0.00203061
 ```
 
 ```r
@@ -844,9 +857,9 @@ confint(model.bin, method="profile")
 ```
 
 ```
-##                 2.5 %    97.5 %
-## (Intercept) 0.2203443 0.2716179
-## scale(Elev) 0.4807028 0.5392651
+##                   2.5 %       97.5 %
+## (Intercept) -4.99399186 -4.441151785
+## Elev         0.00191439  0.002147614
 ```
 ]
 .pull-right[
@@ -857,8 +870,8 @@ coef(model.bb)
 ```
 
 ```
-## (Intercept):1 (Intercept):2   scale(Elev) 
-##     0.2783720    -3.2179363     0.3797051
+## (Intercept):1 (Intercept):2          Elev 
+##  -3.417270549  -3.217936261   0.001512169
 ```
 
 ```r
@@ -866,25 +879,15 @@ confintvglm(model.bb, method="profile")
 ```
 
 ```
-##                    2.5 %     97.5 %
-## (Intercept):1  0.1278870  0.4282708
-## (Intercept):2 -3.7124930 -2.6589521
-## scale(Elev)    0.2237321  0.5373084
+##                       2.5 %       97.5 %
+## (Intercept):1 -4.9445201847 -1.898432854
+## (Intercept):2 -3.7124930079 -2.658952145
+## Elev           0.0008910092  0.002139821
 ```
 ]
+
 ---
-# Comparing model fits
-
-
-```r
-print(c(AIC(model.bin), AIC(model.bb)))
-```
-
-```
-## [1] 1005.151  341.455
-```
-----
-&lt;img src="Module7_files/figure-html/unnamed-chunk-33-1.png" width="60%" /&gt;
+class: inverse, middle
 
 # Exercise 7D
 -----
@@ -964,35 +967,6 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
-<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
-
-<style>
-  .logo {
-    background-image: url(CWS_logo.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 0em;
-    right: 1em;
-    width: 85px;
-    height: 85px;
-    z-index: 0;
-  }
-</style>
-  
-  <script>
-  document
-.querySelectorAll(
-  '.remark-slide-content' +
-    ':not(.title-slide)' +
-    // add additional classes to exclude here, e.g.
-  // ':not(.inverse)' +
-    ':not(.hide-logo)'
-)
-.forEach(el => {
-  el.innerHTML += '<div class="logo"></div>';
-});
-</script>
 
 <script>
 (function() {

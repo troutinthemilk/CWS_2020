@@ -1,6 +1,5 @@
 ---
 title: "Module 3: Introduction to hypothesis testing"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -45,7 +44,8 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 3. Introduce sampling with and without replacement
 
-
+.footnote[[Computer Age Statistical Inference:
+Algorithms, Evidence and Data Science. Efron and Hastie](https://web.stanford.edu/~hastie/CASI/order.html)]
 ---
 # Monte Carlo methods
 
@@ -72,9 +72,9 @@ knitr::include_graphics("https://c1.wallpaperflare.com/preview/6/487/674/various
 
 **Question**: are two groups the same?
 
-**Solution**: What would the data look like if there were no differences between the groups.
+**Solution**: Determine what would the data look like if there were no differences between the groups.
 
-**How**: Randomly assign observations to each treatment
+**How**: Randomly assign observations to each treatment.
 
 ```{r, fig.align="center", echo=F, out.width="65%"}
 knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Permutation_generation_algorithms.svg/1280px-Permutation_generation_algorithms.svg.png")
@@ -107,7 +107,7 @@ ggplot(data=new.dat, aes(x=Proportion)) +
   geom_histogram(bins=10, color="white") + xlab('Response to researcher') + ylab('Count')
 ```
 
-Since this is a **paired** study design, we can study the difference in each animals behavior 
+Since this is a **paired** study design, we can study the difference in each animal's behavior 
 ```{r, echo=F, fig.align="center", out.width="50%", fig.asp=0.7, warning=F, message=F}
 ggplot(data=monk.dat, aes(x=AfterSector - BeforeSector)) +
   geom_histogram(bins=10, color="white") + xlab('Difference in response') + ylab('Count')
@@ -147,7 +147,7 @@ This is equivalent to randomly changing the sign of the difference (+/-)
 
 <br>
 
-* Calculate your statistic of interest (e.g., $\overline{x_{After} - x_{Before}}$)
+Calculate your statistic of interest (e.g., $\overline{x_{After} - x_{Before}}$)
 
 <br>
 
@@ -159,7 +159,7 @@ This is equivalent to randomly changing the sign of the difference (+/-)
 
 <br>
 
-* After doing 1-3 a bunch, use to construct $H_0$. Compare $H_0$ to the original statistic.
+After doing 1-3 a bunch, use to construct $H_0$. Compare $H_0$ to the original statistic.
 
 ---
 # Generating random numbers
@@ -169,7 +169,7 @@ How to randomly switch the sign of the observed difference?
 The `sample` function randomly draws values from a set of possibilities:
 
 ```{r}
-sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1
+sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1 with replacement
 ```
 
 Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
@@ -246,7 +246,7 @@ ggplot(data=data.frame(null.vec)) +
 ---
 # The p-value
 
-A hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? <sup>1</sup>
+A null hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? <sup>1</sup>
 
 <br>
 
@@ -320,7 +320,7 @@ class: inverse, middle
 If we have samples from two populations and want to compare them the recipe is a bit different
 
 
-* Calculate your statistic of interest
+Calculate your statistic of interest
 
 <br>
 
@@ -332,10 +332,10 @@ If we have samples from two populations and want to compare them the recipe is a
 
 <br>
 
-* After doing 1-3 a bunch, use to construct $H_0$ and compare to the original statistic.
+After doing 1-3 a bunch, use to construct $H_0$ and compare to the original statistic.
 
 ---
-# Hotwings
+# Hot wings
 .pull-left[
 
 <br>
@@ -364,7 +364,7 @@ ggplot(data=hotwings.dat) +
 obs.val <- mean(hotwings.dat$Hotwings[1:14]) - mean(hotwings.dat$Hotwings[15:28])
 print(obs.val)
 
-null.vec <- numeric(1e4)
+null.vec <- numeric(1e4) #scientific notation for 10000
 for(i in 1:1e4) {
   index       <- sample(1:28, 14, replace=F)
   null.vec[i] <- mean(hotwings.dat$Hotwings[index]) - mean(hotwings.dat$Hotwings[-index])

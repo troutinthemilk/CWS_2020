@@ -1,6 +1,5 @@
 ---
 title: "Module 4: Inference on a normal population"
-author: "Jake Ferguson"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -90,13 +89,13 @@ for(i in 1:10000) {
 }
 ```
 
-```{r, fig.align="center", out.width="50%", fig.asp=0.7, echo=F, message=F, warning=F}
+```{r, fig.align="center", out.width="40%", fig.asp=0.7, echo=F, message=F, warning=F}
 suppressWarnings(ggplot() + geom_histogram(aes(x=x), col="white") + xlab("sum(X)") + ylab("Count"))
 ```
 
 Collections of such variables display remarkable regularity properties. This is the **Central Limit Theorem** (CLT).
 
-The sum or mean of a large number of measurements randomly sampled from a populations is approximately normally distributed.
+The sum (or mean) of a large number of measurements randomly sampled from a populations is approximately normally distributed.
 
 ---
 # The normal distribution
@@ -384,7 +383,7 @@ monk.dat <- read.csv(file="../ProtectedData/MonkHandlingResponse.csv")
 diff.dat <- monk.dat$After - monk.dat$Before
 ```
 
-<br>
+------
 
 .pull-left[
 
@@ -476,7 +475,7 @@ class: inverse, middle
 
 - We tested whether the mean of a sample was equal to a specific value (the null hypothesis)
 
-- We looked at one- and two-sample tests
+- We conducted at one- and two-sample t-tests
 
 
 

@@ -3,18 +3,17 @@
   <head>
     <title>Module 6: Linear models II</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson" />
+    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
-    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 # Module 6: Linear models II
-### Jake Ferguson
+### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
 
 ---
 
@@ -162,7 +161,9 @@ vif(full.mod)
 
 What to do now?
 ---
-#  Strategies for Handling Confounding Variables
+#  Strategies for Handling Collinearity
+
+&lt;br&gt;
 
 Consider goals: if **prediction** is your goal collinearity may not be a problem.
 
@@ -182,7 +183,9 @@ vif(nosize.mod)
 ```
 
 ---
-# Other techniques to handle multicollinearity
+# Other techniques 
+
+&lt;br&gt;
 
 - Create new predictors with Principle Components Analysis or Factor analysis
 
@@ -276,7 +279,7 @@ Any guesses which are most highly associated with total sleep?
 .footnote[Allison, Truett and Cicchetti, Domenic V. (1976), Sleep in Mammals: Ecological and Constitutional Correlates, Science, November 12, vol. 194]
 
 ---
-# Model 1: Sleep and Lifespan
+# Model 1: Lifespan
 
 OK, `LifeSpan` is significant
 
@@ -309,7 +312,7 @@ summary(lm(TotalSleep ~ LifeSpan, data=sleep.dat))
 ```
 
 ---
-# Model 2: Sleep and LifeSpan + Danger
+# Model 2: LifeSpan + Danger
 
 OK, `LifeSpan` is still significant
 
@@ -343,7 +346,7 @@ summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
 
 
 ---
-# Model 3: Sleep and LifeSpan + Danger + BrainWt
+# Model 3: LifeSpan + Danger + BrainWt
 Snap!
 
 ```r
@@ -375,7 +378,7 @@ summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
 ```
 
 ---
-# Is LifeSpan an important predictor? 
+# So is LifeSpan important? 
 ## T-test
 
 Model 1:
@@ -406,9 +409,11 @@ Correlated predictors can strongly influence estimates and significance!
 # Hypothesis test of nested models
 
 
+
+
 ```r
-mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat, na.action=na.exclude)
-mod3 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.dat, na.action=na.exclude)
+mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
 
 anova(mod2, mod3)
 ```
@@ -417,13 +422,11 @@ anova(mod2, mod3)
 ## Analysis of Variance Table
 ## 
 ## Model 1: TotalSleep ~ Danger + log(BrainWt)
-## Model 2: TotalSleep ~ log(BrainWt) + Danger + log(BodyWt)
+## Model 2: TotalSleep ~ log(BrainWt) + Danger + LifeSpan
 ##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
-## 1     35 311.65                           
-## 2     34 304.55  1    7.0961 0.7922 0.3797
+## 1     32 267.53                           
+## 2     31 266.28  1    1.2563 0.1463 0.7047
 ```
-
-
 
 &lt;br&gt; 
 
@@ -459,7 +462,7 @@ summary(mod2)$adj.r.squared
 ```
 
 ```
-## [1] 0.5640078
+## [1] 0.6235575
 ```
 
 ```r
@@ -467,7 +470,7 @@ summary(mod3)$adj.r.squared
 ```
 
 ```
-## [1] 0.5614038
+## [1] 0.6132389
 ```
 
 Suggests that model 2 better explains the data.
@@ -523,7 +526,7 @@ sqrt(mean((test.dat$TotalSleep - predict(mod2.train, newdata=test.dat))^2, na.rm
 ```
 
 ```
-## [1] 6.348124
+## [1] NaN
 ```
 
 ```r
@@ -531,7 +534,7 @@ sqrt(mean((test.dat$TotalSleep - predict(mod3.train, newdata=test.dat))^2, na.rm
 ```
 
 ```
-## [1] 4.271833
+## [1] NaN
 ```
 
 Here model 3 is better!
@@ -568,7 +571,7 @@ print(mod2.xv$results)
 
 ```
 ##   intercept     RMSE  Rsquared      MAE
-## 1      TRUE 3.258317 0.4688809 2.666278
+## 1      TRUE 3.172491 0.5359655 2.520415
 ```
 
 ```r
@@ -576,9 +579,14 @@ print(mod3.xv$results)
 ```
 
 ```
-##   intercept     RMSE  Rsquared      MAE
-## 1      TRUE 3.128541 0.5108055 2.555539
+##   intercept     RMSE Rsquared      MAE
+## 1      TRUE 3.064479 0.567427 2.479641
 ```
+---
+Here we predict model 3 is better again.
+
+However, what is the uncertainty in the RMSE?
+
 
 ---
 class: inverse, middle
@@ -586,11 +594,6 @@ class: inverse, middle
 # Exercise 6C
 ----
 ## LOOCV
-
----
-Here we predict model 3 is better again.
-
-However, what is the uncertainty in the RMSE?
 
 ---
 # Akaike's Information Criterion
@@ -635,6 +638,15 @@ These criterion tradeoff the model **fit** (the likelihood of the model `\(\ell(
 
 # Example
 
+Note when using AIC, all models have to use the same data. This means that NA's need to be removed
+
+
+```r
+sleep.dat &lt;- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
+mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
+mod3 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
+```
+
 
 ```r
 library(MuMIn)
@@ -643,13 +655,15 @@ model.sel(list(mod2, mod3), rank=AIC)
 
 ```
 ## Model selection table 
-##   (Int)    Dng log(BrW) log(BdW) df  logLik   AIC delta weight
-## 1 18.12 -1.861  -0.9035           4 -93.901 195.8  0.00  0.637
-## 2 19.35 -1.885  -1.4650   0.4807  5 -93.464 196.9  1.12  0.363
+##   (Int)    Dng log(BrW)      LfS df  logLik   AIC delta weight
+## 1 19.00 -2.001  -1.0030           4 -85.256 178.5  0.00  0.715
+## 2 19.08 -2.023  -0.9232 -0.01464  5 -85.174 180.3  1.84  0.285
 ## Models ranked by AIC(x)
 ```
 
-AICc selects model 2 but `\(\Delta\)`AIC = 1.03.
+&lt;br&gt;
+
+AICc selects model 2 but `\(\Delta\)`AIC = 1.84.
 
 ---
 # Fitting more models
@@ -659,28 +673,17 @@ mod1 &lt;- lm(TotalSleep ~ log(BrainWt), data=sleep.dat)
 mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
 mod3 &lt;- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
 mod4 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
-mod5 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan + Exposure, data=sleep.dat)
-mod6 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan*Exposure, data=sleep.dat)
 
-model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
 ```
 
 ```
 ## Model selection table 
-##   (Int) log(BrW)    Dng       LfS log(BdW)    Exp   Exp:LfS df   logLik   AIC
-## 4 19.41  -1.2450 -1.990 -0.008893   0.3063                   6  -88.266 188.5
-## 5 19.56  -1.3570 -2.394 -0.008660   0.2541 0.5591            7  -87.909 189.8
-## 6 19.57  -1.3520 -2.393 -0.009335   0.2504 0.5479 0.0004399  8  -87.909 191.8
-## 2 18.12  -0.9035 -1.861                                      4  -93.901 195.8
-## 3 12.27                 -0.082060                            3 -103.881 213.8
-## 1 13.63  -0.9983                                             3 -104.941 215.9
-##   delta weight
-## 4  0.00  0.573
-## 5  1.29  0.301
-## 6  3.29  0.111
-## 2  7.27  0.015
-## 3 25.23  0.000
-## 1 27.35  0.000
+##   (Int) log(BrW)    Dng       LfS log(BdW) df   logLik   AIC delta weight
+## 2 19.00   -1.003 -2.001                     4  -85.256 178.5  0.00   0.86
+## 4 19.64   -1.233 -2.021 -0.009375   0.2435  6  -85.068 182.1  3.62   0.14
+## 1 13.99   -1.069                            3  -97.562 201.1 22.61   0.00
+## 3 12.36                 -0.084050           3 -101.411 208.8 30.31   0.00
 ## Models ranked by AIC(x)
 ```
 
@@ -725,16 +728,14 @@ uncertainty and sampling uncertainty
 
 
 ```r
-AIC.list &lt;- model.sel(list(mod1, mod2, mod3, mod4, mod5, mod6), rank=AIC)
+AIC.list &lt;- model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
 
 coef(model.avg(AIC.list)) #extract model averaged estimates
 ```
 
 ```
-##       (Intercept)      log(BrainWt)            Danger       log(BodyWt) 
-##     19.4531688312     -1.2852080307     -2.1544877453      0.2840339391 
-##          LifeSpan          Exposure Exposure:LifeSpan 
-##     -0.0088718739      0.5560591092      0.0004399214
+##  (Intercept)       Danger log(BrainWt)  log(BodyWt)     LifeSpan 
+## 19.091094390 -2.003343828 -1.035718969  0.243544650 -0.009375072
 ```
 
 ```r
@@ -742,17 +743,15 @@ sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
 ```
 
 ```
-##       (Intercept)      log(BrainWt)            Danger       log(BodyWt) 
-##        1.85015203        0.81763865        0.54150786        0.59308295 
-##          LifeSpan          Exposure Exposure:LifeSpan 
-##        0.04447710        0.82645576        0.03011468
+##  (Intercept)       Danger log(BrainWt)  log(BodyWt)     LifeSpan 
+##   1.30071782   0.35223138   0.36380350   0.57251368   0.04071756
 ```
 
 ```r
 #can also print summary(model.avg(...)) but too long for here.
 ```
 
-
+---
 # Summary of the process
 
 ###  
@@ -847,35 +846,6 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
-<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
-
-<style>
-  .logo {
-    background-image: url(CWS_logo.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 0em;
-    right: 1em;
-    width: 85px;
-    height: 85px;
-    z-index: 0;
-  }
-</style>
-  
-  <script>
-  document
-.querySelectorAll(
-  '.remark-slide-content' +
-    ':not(.title-slide)' +
-    // add additional classes to exclude here, e.g.
-  // ':not(.inverse)' +
-    ':not(.hide-logo)'
-)
-.forEach(el => {
-  el.innerHTML += '<div class="logo"></div>';
-});
-</script>
 
 <script>
 (function() {
