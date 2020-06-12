@@ -18,6 +18,7 @@ header-includes :
 ---
 class: inverse
 
+
 ```{r, echo=F, message=F, warning=F, eval=F}
 #setting up my ggplot defaults. Update with your own preferences
 library(ggplot2)#plotting functions
@@ -35,6 +36,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 # Module goals
 
+
 <br>
 
 0. Navigate rstudio cloud
@@ -47,7 +49,14 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 4. View and summarize the datasets
 
+???
+
+Welcome to Ecological Modeling in R from the Center for Wildlife Studies. We will be covering basic concepts in statistical programming and data visualization in R.
+
+All analyses in this course will be conducted in Rstudio Cloud. You should have received instructions on creating a free account for this service. 
+
 ---
+
 # R, RStudio, and RStudio Cloud
 
 
@@ -69,23 +78,25 @@ theme_update(plot.title = element_text(hjust = 0.5),
 # Navigating `rstudio.cloud`
 
 ---
-# Module 1 on rstudio.cloud
+# Links for Module 1
 
 <br>
 
 <br>
 
 
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module1.html
 
-###  https://rstudio.cloud/spaces/73676/project/1350072
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350072
 
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module1.Rmd
 
 ---
 # Assigning values in R
 
-The arrow <- is an assignment operation. 
+The arrow <- is an assignment operation.
 
-The right-hand side is the value you assign
+The right-hand side is the value you assign.
 
 The left-hand side is the variable you assign a value to.
 
@@ -198,7 +209,7 @@ rep(3.14, times=10) #repeat a value
 ---
 class: inverse, middle
 
-# Excercise 1A
+# Exercise 1A
 -------
 ## Variables and vectors
 
@@ -235,11 +246,11 @@ choice.dat$Choice # access columns by name
 Sometimes we want a subset of the data frame.
 
 ```{r}
-head(subset(bass.dat, Increment > 2)) #extract values with growth > 2
+head(subset(choice.dat, Number > 3)) #extract values that are greater than 3
 ```
 
 ```{r}
-head(subset(bass.dat, YearClass == 1989)) #extract fish born in 1989
+head(subset(choice.dat, Choice == "yes")) #extract Yes answers
 ```
 
 ---
@@ -260,8 +271,6 @@ These operations are often useful for working with data frames.
 2 == 2
 ```
 
----
-E
 ---
 # The working directory
 
@@ -314,7 +323,7 @@ str(bass.dat)
 ---
 class: inverse, middle
 
-# Excercise 1B
+# Exercise 1B
 ----------------
 ## Reading in data
 
@@ -346,3 +355,5 @@ is.character(7)
   - Our subsequent R analyses will rely on `data.frame` 
 
 - `read.csv` is used to read in csv file, the most common types of input files. These can be exported from excel or libreoffice.
+
+- Source code for slides and all analyses available for download at: https://github.com/troutinthemilk/CWS_2020

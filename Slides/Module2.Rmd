@@ -45,6 +45,23 @@ theme_update(plot.title = element_text(hjust = 0.5),
 3. Identify appropriate figure styles for your datatype
 
 .footnote[[R for Data Science, Grolemond and Wickham.](https://r4ds.had.co.nz/)]
+
+---
+# Links for Module 2
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module2.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350089
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module2.Rmd
+
+---
+
 ---
 # R's package system
  

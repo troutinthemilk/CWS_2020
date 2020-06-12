@@ -43,6 +43,21 @@ theme_update(plot.title = element_text(hjust = 0.5),
 3. Run ANOVA in R
 
 ---
+# Links for Module 5
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module5.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350124
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module5.Rmd
+
+
+---
 # Sleep in mammals
 
 The total amount of sleep is widely variable across species.
@@ -87,7 +102,7 @@ $$-1 \leq  \rho \leq 1$$
 
 $0 < \rho \leq 1$ : positive association
 
-$\rho = 1$: no association
+$\rho = 0$: no association
 
 $-1 \leq \rho < 0$: negative association
 
@@ -125,7 +140,7 @@ cor(x=sleep.dat$BrainWt, y=sleep.dat$TotalSleep, use="pairwise.complete") #the a
 
 <br>
 
-The correlation matrix, $\boldsymbol{\Sigma}$, contains each pairwise correlation  between $X$, $Y$, and $Z$.
+The correlation matrix, $\boldsymbol{R}$, contains each pairwise correlation  between $X$, $Y$, and $Z$.
 
 $$\boldsymbol{R}= \left[\begin{array}{cc}
 1 & \rho_{XY} &  \rho_{XZ} \\
@@ -338,7 +353,7 @@ plot_model(monet.mod, type="pred", terms=c("SIZE", "HOUSE"), show.data=TRUE)
 ---
 # Interactions
 
-I the previous model the intercept varied by auction house. In this model **both** the intercept and slope vary.
+In the previous model the intercept varied by auction house. In this model **both** the intercept and slope vary.
 
 ```{r}
 monet.mod2  <- lm(PRICE ~ SIZE * HOUSE, data=monet.dat)
@@ -406,7 +421,7 @@ knitr::include_graphics("http://www.economics.soton.ac.uk/staff/aldrich/fishergu
 
 - **Do cuckoo bird eggs found in nests of different species differ in size?**
 
-.footnote[https://opinionator.blogs.nytimes.com/2010/06/01/cuckoo-cuckoo]
+.footnote[https://opinionator.blogs.nytimes.com/2010/06/01/cuckoo-cuckoo/]
 
 --
 
@@ -440,6 +455,7 @@ ggplot(data=cuckoo.dat, aes(x=host_species, y=egg_length)) +
 
 **Intuition**: If we remove a group from the population, does the overall variation in the data change?
 
+.footnote[Latter (1905). The egg of Cuculus Canorus: An attempt to ascertain from the dimensions of the cuckoo’s egg if the species is tending to break up into sub-species, each exhibiting a preference for some one foster-parent. Biometrika, 4, 363-373.]
 ---
 # The ANOVA model
 
@@ -514,6 +530,8 @@ Cool, there is a difference...
 
 
 ---
+class: inverse, middle
+
 # Exercise 5D
 -------
 ## Run an ANOVA model 

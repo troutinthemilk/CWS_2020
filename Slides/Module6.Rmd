@@ -38,11 +38,24 @@ theme_update(plot.title = element_text(hjust = 0.5),
   
 1. Diagnose and address multicollinearity 
 
-
 2. Select between alternate models
 
 3. Combine information from more than one model
 
+
+---
+# Links for Module 6
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module6.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350152
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module6.Rmd
 
 ---
 # Collinearity versus multicollinearity
@@ -51,7 +64,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 **Collinearity** - when one predictor variable, $X_1$, is correlated with another, $X_2$
 
-**Multicollinearity** - when multiple independent variables are correlated with each other.
+**Multicollinearity** - when more than two predictor variables are correlated with each other.
 
 
 
@@ -88,6 +101,8 @@ with domestic animals
 
 ---
 # Symptoms of predictor collinearity
+
+<br>
 
 - Variables may be significant in simple linear regression, but not in multiple regression
 
@@ -173,7 +188,7 @@ What to do now?
 
 <br>
 
-Consider goals: if **prediction** is your goal collinearity may not be a problem.
+Consider goals: if **prediction** is your goal then collinearity may not be a problem.
 
 <br>
 
@@ -254,7 +269,7 @@ knitr::include_graphics("../figure/NatureFlu.PNG")
 
 * Assess ability to predict a new dataset
 
-Note that these different criterion will often point to different models as best!
+Note that different criterion will often point to different models as best!
 
 
 ---
@@ -305,7 +320,7 @@ summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
 
 ---
 # Model 3: LifeSpan + Danger + BrainWt
-Snap!
+**Snap!**
 ```{r}
 summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
 ```
@@ -423,8 +438,8 @@ knitr::include_graphics("https://miro.medium.com/max/620/1*feFntGUIiob7MwUX62jdC
 #Example
 
 ```{r}
-train.dat <- sleep.dat[1:40,]
-test.dat <- sleep.dat[41:62,]
+train.dat <- sleep.dat[1:30,]
+test.dat <- sleep.dat[31:41,]
 
 mod2.train <- lm(TotalSleep ~ Danger + log(BodyWt), data=train.dat)
 mod3.train <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=train.dat)
@@ -449,7 +464,7 @@ This is the recipe for leave-one-out cross validation:
 
 2. Predict the held-out datapoint, $\hat{Y}$
 
-3. Calculate the error between the predicted and held-out value, $\hat{Y}- Y$.
+3. Calculate the error between the predicted and held-out value, $(\hat{Y}- Y)^2$.
 
 4. Go back and do it for the next datapoint
 
@@ -467,7 +482,9 @@ mod3.xv <- train(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=sleep.da
 print(mod2.xv$results)
 print(mod3.xv$results)
 ```
----
+
+--
+
 Here we predict model 3 is better again.
 
 However, what is the uncertainty in the RMSE?
@@ -511,7 +528,7 @@ AICc = $-2 \ell(\hat{\theta}; Y) + 2k + \frac{2k^2 + 2k}{n - k - 1}$
 These criterion tradeoff the model **fit** (the likelihood of the model $\ell(\hat{\theta}; Y)$) and the model **complexity** (the number of parameters, $k$).
 
 
-* Fit all models, the lowest AIC (AICc) value is the best model.
+* Fit all models, then the lowest AIC (AICc) value is the best model.
 
 * Larger differences in AIC (AICc), called $\Delta$AIC, are stronger support for the best model.
 
@@ -533,14 +550,14 @@ mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
 mod3 <- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
 ```
 
-```{r}
+```{r, warning=F, message=F}
 library(MuMIn)
-model.sel(list(mod2, mod3), rank=AIC)
+model.sel(list(mod2, mod3), rank=AICc)
 ```
 
 <br>
 
-AICc selects model 2 but $\Delta$AIC = 1.84.
+AICc selects model 2 but $\Delta$AIC = 2.57.
 
 ---
 # Fitting more models
@@ -550,7 +567,7 @@ mod2 <- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
 mod3 <- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
 mod4 <- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
 
-model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
+model.sel(list(mod1, mod2, mod3, mod4), rank=AICc)
 ```
 
 ---
@@ -593,7 +610,7 @@ uncertainty and sampling uncertainty
 #Example
 
 ```{r, warning=F, message=F}
-AIC.list <- model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
+AIC.list <- model.sel(list(mod1, mod2, mod3, mod4), rank=AICc)
 
 coef(model.avg(AIC.list)) #extract model averaged estimates
 

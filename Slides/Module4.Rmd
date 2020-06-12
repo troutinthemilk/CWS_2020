@@ -48,6 +48,20 @@ theme_update(plot.title = element_text(hjust = 0.5),
 4. Run one- and two-sample t-test
 
 ---
+# Links for Module 4
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module4.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350115
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module4.Rmd
+
+---
 # Random variables
 
 <br>
@@ -124,7 +138,7 @@ $$\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$$
 
  The sample variance ( $s^2$) is the estimate of the population variance ( $\sigma^2$). 
 
-$$\bar{x} = \frac{1}{n-1} \sum_{i=1}^n \left( x_i - \mu \right)^2$$
+$$s^2 = \frac{1}{n-1} \sum_{i=1}^n \left( x_i - \mu \right)^2$$
 In R use the `mean` and `var` functions:
 ```{r}
 mean(x)
@@ -305,7 +319,7 @@ pnorm(q=0.48, lower.tail=F)
 ---
 class: inverse, middle
 
-# Excercise 4B
+# Exercise 4B
 ------------
 ## Calculating confidence intervals, z-scores, and p-values 
 
@@ -370,7 +384,7 @@ Compare this to the interval that assumes $s$ is known: (-0.0327, 0.0078)
 ---
 class: inverse, middle
 
-# Excercise 4C
+# Exercise 4C
 -------------
 ## Calculating Wald confidence intervals
 
@@ -462,7 +476,7 @@ t.test(drinkingMinutes ~ glassShape, data=glass.dat)
 ---
 class: inverse, middle
 
-# Excercise 4D
+# Exercise 4D
 --------------
 ## One- and two-sample t-tests
 

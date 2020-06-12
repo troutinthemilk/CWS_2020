@@ -14,8 +14,9 @@ editor_options:
   chunk_output_type: console
 header-includes :
   - \usepackage {amsmath}
-  - \usepackage{mathrsfs}---
-  
+  - \usepackage{mathrsfs}
+---
+
 ```{r, echo=F, message=F, warning=F, eval=T}
 #setting up my ggplot defaults. Update with your own preferences
 library(ggplot2)#plotting functions
@@ -44,6 +45,20 @@ theme_update(plot.title = element_text(hjust = 0.5),
 2. Identify proper distribution to use for particular datasets
 
 3. Evaluate model quality
+
+---
+# Links for Module 6
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module7.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350176
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module7.Rmd
 
 ---
 # Linear regression
@@ -293,7 +308,8 @@ Using route length as an **offset** controls for differences in survey effort.
 ```{r, echo=F}
 beav.dat <- read.csv(file="../Data/ColCountsFinal.csv")
 #beav.dat <- subset(beav.dat, rte.name == "Blackduck" | rte.name == "Kabetogama" | rte.name == "Kanabec" | rte.name == "Cass" | rte.name == "Itasca")
-beaver.glm <- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson)
+beaver.glm <- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson(link="log"))
+beaver.glm2 <- glm(num.col ~ rte.name + offset((rte.km)), data=beav.dat, family=gaussian)
 
 summary(beaver.glm)
 ```
@@ -374,10 +390,10 @@ lines(x, dnbinom(x=x, mu=5, size=10), col="cornflowerblue", lwd=2)
 ```{r}
 library(MASS)
 library(MuMIn)
-beaver.pois <- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson)
+beaver.pois <- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson(link="log"))
 beaver.nb <- glm.nb(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat)
 
-model.sel(list(beaver.pois, beaver.nb))
+model.sel(list(beaver.pois, beaver.nb), rank=AICc)
 ```
 
 Based on this output is **overdispersion** present?
@@ -397,7 +413,7 @@ class: inverse, middle
 
 ---
 
-# Modeling categorgies: Binomial (logistic) regression 
+# Modeling categories: Binomial regression 
 
 
 We've covered: 
@@ -518,7 +534,7 @@ ggplot() +
 We can have response data of 0 or 1...
 
 ```{r, eval=F}
-glm.fit  <- glm(y ~ x, data=sim.dat, family=binomial)
+glm.fit  <- glm(y ~ x, data=sim.dat, family=binomial(link="logit"))
 
 ```
 
@@ -529,7 +545,7 @@ set.seed(1)
 x        <- rnorm(20, 0, 10)
 y        <- rbinom(length(x), size=1, p=exp(1 + 0.1*x)/(1 + exp(1 + 0.1*x)))
 sim.dat  <- data.frame(x=x, y=y)
-glm.fit  <- glm(y ~ x, data=sim.dat, family=binomial)
+glm.fit  <- glm(y ~ x, data=sim.dat, family=binomial(link="logit"))
 
 pred.x   <- seq(-30, 30, length.out=100)
 pred.sim <- predict(glm.fit, newdata=data.frame(x=pred.x), type="response")
@@ -554,7 +570,7 @@ ggplot(data=sim.dat, aes(x=x, y=y)) +
 ... or the response data can be a vector of successes and failures
 
 ```{r, eval=F}
-glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial)
+glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial(link="logit"))
 ```
 
 .pull-left[
@@ -570,7 +586,7 @@ knitr::kable(sim.dat[1:9,], format="html")
 
 .pull-right[
 ```{r, echo=F}
-glm.fit  <- glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial)
+glm.fit  <- glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial(link="logit"))
 ```
 
 ```{r, echo=F}
@@ -617,7 +633,7 @@ ggplot(data=silver.dat, aes(x=Elev, y=Survival)) +
 # Modeling survival with `glm`
 
 ```{r, echo=F}
-mod.sil <- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial)
+mod.sil <- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial(link="logit"))
 print(summary(mod.sil))
 pred.sil <- predict(mod.sil, newdata=silver.dat, type="response")
 
@@ -672,7 +688,7 @@ lines(x, rmutil::dbetabinom(y=x, size=10, m=0.3, s=5), lwd=2, col='cornflowerblu
 
 ```{r, warning=F, message=F}
 library(VGAM) #contains beta-binomial regression
-model.bin <- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial)
+model.bin <- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial(link="logit"))
 model.bb <- vglm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=betabinomial)
 
 summary(model.bb)
@@ -713,5 +729,5 @@ class: inverse, middle
 - Standard distributions in `glm` cannot handle overdisperison.
 
 - Overdispersion can have strong influences on SE's and p-values
-  - Not accounting for overdispersion can lead to overconfidence in estimates and model.
+  - Not accounting for overdispersion can lead to overconfidence in estimates and model fit.
 

@@ -20,7 +20,9 @@ class: inverse
 
 
 
+
 # Module goals
+
 
 &lt;br&gt;
 
@@ -34,7 +36,14 @@ class: inverse
 
 4. View and summarize the datasets
 
+???
+
+Welcome to Ecological Modeling in R from the Center for Wildlife Studies. We will be covering basic concepts in statistical programming and data visualization in R.
+
+All analyses in this course will be conducted in Rstudio Cloud. You should have received instructions on creating a free account for this service. 
+
 ---
+
 # R, RStudio, and RStudio Cloud
 
 
@@ -56,16 +65,18 @@ class: inverse
 # Navigating `rstudio.cloud`
 
 ---
-# Module 1 on rstudio.cloud
+# Links for Module 1
 
 &lt;br&gt;
 
 &lt;br&gt;
 
 
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module1.html
 
-###  https://rstudio.cloud/spaces/73676/project/1350072
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350072
 
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module1.Rmd
 
 ---
 # Assigning values in R
@@ -376,6 +387,78 @@ choice.dat$Choice # access columns by name
 ]
 
 ---
+# The subset function
+
+Sometimes we want a subset of the data frame.
+
+
+```r
+head(subset(choice.dat, Number &gt; 3)) #extract values that are greater than 3
+```
+
+```
+##   Number Choice
+## 4      4     no
+## 5      5    yes
+## 6      6     no
+```
+
+
+```r
+head(subset(choice.dat, Choice == "yes")) #extract Yes answers
+```
+
+```
+##   Number Choice
+## 1      1    yes
+## 3      3    yes
+## 5      5    yes
+```
+
+---
+# Logical operations
+ 
+These operations are often useful for working with data frames.
+ 
+`&gt;` `&lt;` `&lt;=` `==` `!=` comparison operators (less than , greater than, less than or equal to, equal to, not equal to)
+
+
+
+```r
+7 &lt; 2
+```
+
+```
+## [1] FALSE
+```
+
+```r
+7 &gt; 2
+```
+
+```
+## [1] TRUE
+```
+
+```r
+7 == 2
+```
+
+```
+## [1] FALSE
+```
+
+```r
+2 == 2
+```
+
+```
+## [1] TRUE
+```
+
+---
+E
+---
 # The working directory
 
 R operates from the **working directory**. 
@@ -443,78 +526,6 @@ str(bass.dat)
 ##  $ Year     : int  1987 1987 1987 1987 1987 1987 1988 1989 1989 1989 ...
 ```
 
----
-# Logical operations
- 
-These operations will be useful for working with data frames.
- 
-`&gt;` `&lt;` `&lt;=` `==` `!=` comparison operators (less than , greater thean, less than or equal to, equal to, not equal to)
-
-
-
-```r
-7 &lt; 2
-```
-
-```
-## [1] FALSE
-```
-
-```r
-7 &gt; 2
-```
-
-```
-## [1] TRUE
-```
-
-```r
-7 == 2
-```
-
-```
-## [1] FALSE
-```
-
-```r
-2 == 2
-```
-
-```
-## [1] TRUE
-```
-
----
-# The subset function
-
-Sometimes we want a subset of the data frame.
-
-
-```r
-head(subset(bass.dat, Increment &gt; 2)) #extract values with growth &gt; 2
-```
-
-```
-##     gear yearcap FishID YearClass Age Increment Year
-## 19     T    1988     19      1987   1   2.53269 1987
-## 20     T    1988     20      1987   1   2.01174 1987
-## 40     E    1988     39      1986   2   2.09626 1987
-## 178    T    1989    108      1987   2   2.06964 1988
-## 180    T    1989    109      1987   2   2.49266 1988
-## 445    E    1990    198      1987   2   2.12348 1988
-```
-
-
-```r
-head(subset(bass.dat, YearClass == 1989)) #extract fish born in 1989
-```
-
-```
-##    gear yearcap FishID YearClass Age Increment Year
-## 8     E    1990      8      1989   1   1.51076 1989
-## 9     E    1990      9      1989   1   1.57989 1989
-## 10    E    1990     10      1989   1   1.48721 1989
-```
 
 
 ---
@@ -569,6 +580,8 @@ is.character(7)
   - Our subsequent R analyses will rely on `data.frame` 
 
 - `read.csv` is used to read in csv file, the most common types of input files. These can be exported from excel or libreoffice.
+
+- Source code for slides and all analyses available for download at: https://github.com/troutinthemilk/CWS_2020
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

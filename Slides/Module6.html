@@ -3,17 +3,16 @@
   <head>
     <title>Module 6: Linear models II</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 # Module 6: Linear models II
-### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
 
 ---
 
@@ -26,11 +25,24 @@ class: center, middle, inverse, title-slide
   
 1. Diagnose and address multicollinearity 
 
-
 2. Select between alternate models
 
 3. Combine information from more than one model
 
+
+---
+# Links for Module 6
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module6.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350152
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module6.Rmd
 
 ---
 # Collinearity versus multicollinearity
@@ -39,7 +51,7 @@ class: center, middle, inverse, title-slide
 
 **Collinearity** - when one predictor variable, `\(X_1\)`, is correlated with another, `\(X_2\)`
 
-**Multicollinearity** - when multiple independent variables are correlated with each other.
+**Multicollinearity** - when more than two predictor variables are correlated with each other.
 
 
 
@@ -76,6 +88,8 @@ with domestic animals
 
 ---
 # Symptoms of predictor collinearity
+
+&lt;br&gt;
 
 - Variables may be significant in simple linear regression, but not in multiple regression
 
@@ -165,7 +179,7 @@ What to do now?
 
 &lt;br&gt;
 
-Consider goals: if **prediction** is your goal collinearity may not be a problem.
+Consider goals: if **prediction** is your goal then collinearity may not be a problem.
 
 &lt;br&gt;
 
@@ -251,7 +265,7 @@ regression coefficients.
 
 * Assess ability to predict a new dataset
 
-Note that these different criterion will often point to different models as best!
+Note that different criterion will often point to different models as best!
 
 
 ---
@@ -347,7 +361,7 @@ summary(lm(TotalSleep ~ LifeSpan + Danger, data=sleep.dat))
 
 ---
 # Model 3: LifeSpan + Danger + BrainWt
-Snap!
+**Snap!**
 
 ```r
 summary(lm(TotalSleep ~ LifeSpan + Danger + log(BrainWt), data=sleep.dat))
@@ -513,8 +527,8 @@ Ideally the `\(R^2\)` value in the training and the test data are the same.
 
 
 ```r
-train.dat &lt;- sleep.dat[1:40,]
-test.dat &lt;- sleep.dat[41:62,]
+train.dat &lt;- sleep.dat[1:30,]
+test.dat &lt;- sleep.dat[31:41,]
 
 mod2.train &lt;- lm(TotalSleep ~ Danger + log(BodyWt), data=train.dat)
 mod3.train &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt), data=train.dat)
@@ -526,7 +540,7 @@ sqrt(mean((test.dat$TotalSleep - predict(mod2.train, newdata=test.dat))^2, na.rm
 ```
 
 ```
-## [1] NaN
+## [1] 3.659052
 ```
 
 ```r
@@ -534,7 +548,7 @@ sqrt(mean((test.dat$TotalSleep - predict(mod3.train, newdata=test.dat))^2, na.rm
 ```
 
 ```
-## [1] NaN
+## [1] 3.328402
 ```
 
 Here model 3 is better!
@@ -550,7 +564,7 @@ This is the recipe for leave-one-out cross validation:
 
 2. Predict the held-out datapoint, `\(\hat{Y}\)`
 
-3. Calculate the error between the predicted and held-out value, `\(\hat{Y}- Y\)`.
+3. Calculate the error between the predicted and held-out value, `\((\hat{Y}- Y)^2\)`.
 
 4. Go back and do it for the next datapoint
 
@@ -582,7 +596,9 @@ print(mod3.xv$results)
 ##   intercept     RMSE Rsquared      MAE
 ## 1      TRUE 3.064479 0.567427 2.479641
 ```
----
+
+--
+
 Here we predict model 3 is better again.
 
 However, what is the uncertainty in the RMSE?
@@ -624,7 +640,7 @@ AICc = `\(-2 \ell(\hat{\theta}; Y) + 2k + \frac{2k^2 + 2k}{n - k - 1}\)`
 These criterion tradeoff the model **fit** (the likelihood of the model `\(\ell(\hat{\theta}; Y)\)`) and the model **complexity** (the number of parameters, `\(k\)`).
 
 
-* Fit all models, the lowest AIC (AICc) value is the best model.
+* Fit all models, then the lowest AIC (AICc) value is the best model.
 
 * Larger differences in AIC (AICc), called `\(\Delta\)`AIC, are stronger support for the best model.
 
@@ -650,20 +666,20 @@ mod3 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + LifeSpan, data=sleep.dat)
 
 ```r
 library(MuMIn)
-model.sel(list(mod2, mod3), rank=AIC)
+model.sel(list(mod2, mod3), rank=AICc)
 ```
 
 ```
 ## Model selection table 
-##   (Int)    Dng log(BrW)      LfS df  logLik   AIC delta weight
-## 1 19.00 -2.001  -1.0030           4 -85.256 178.5  0.00  0.715
-## 2 19.08 -2.023  -0.9232 -0.01464  5 -85.174 180.3  1.84  0.285
-## Models ranked by AIC(x)
+##   (Int)    Dng log(BrW)      LfS df  logLik  AICc delta weight
+## 1 19.00 -2.001  -1.0030           4 -85.256 179.8  0.00  0.783
+## 2 19.08 -2.023  -0.9232 -0.01464  5 -85.174 182.4  2.57  0.217
+## Models ranked by AICc(x)
 ```
 
 &lt;br&gt;
 
-AICc selects model 2 but `\(\Delta\)`AIC = 1.84.
+AICc selects model 2 but `\(\Delta\)`AIC = 2.57.
 
 ---
 # Fitting more models
@@ -674,17 +690,17 @@ mod2 &lt;- lm(TotalSleep ~ Danger + log(BrainWt), data=sleep.dat)
 mod3 &lt;- lm(TotalSleep ~ LifeSpan, data=sleep.dat)
 mod4 &lt;- lm(TotalSleep ~ log(BrainWt) + Danger + log(BodyWt) + LifeSpan, data=sleep.dat)
 
-model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
+model.sel(list(mod1, mod2, mod3, mod4), rank=AICc)
 ```
 
 ```
 ## Model selection table 
-##   (Int) log(BrW)    Dng       LfS log(BdW) df   logLik   AIC delta weight
-## 2 19.00   -1.003 -2.001                     4  -85.256 178.5  0.00   0.86
-## 4 19.64   -1.233 -2.021 -0.009375   0.2435  6  -85.068 182.1  3.62   0.14
-## 1 13.99   -1.069                            3  -97.562 201.1 22.61   0.00
-## 3 12.36                 -0.084050           3 -101.411 208.8 30.31   0.00
-## Models ranked by AIC(x)
+##   (Int) log(BrW)    Dng       LfS log(BdW) df   logLik  AICc delta weight
+## 2 19.00   -1.003 -2.001                     4  -85.256 179.8  0.00  0.934
+## 4 19.64   -1.233 -2.021 -0.009375   0.2435  6  -85.068 185.1  5.29  0.066
+## 1 13.99   -1.069                            3  -97.562 201.9 22.05  0.000
+## 3 12.36                 -0.084050           3 -101.411 209.6 29.75  0.000
+## Models ranked by AICc(x)
 ```
 
 ---
@@ -728,14 +744,14 @@ uncertainty and sampling uncertainty
 
 
 ```r
-AIC.list &lt;- model.sel(list(mod1, mod2, mod3, mod4), rank=AIC)
+AIC.list &lt;- model.sel(list(mod1, mod2, mod3, mod4), rank=AICc)
 
 coef(model.avg(AIC.list)) #extract model averaged estimates
 ```
 
 ```
 ##  (Intercept)       Danger log(BrainWt)  log(BodyWt)     LifeSpan 
-## 19.091094390 -2.003343828 -1.035718969  0.243544650 -0.009375072
+## 19.043394207 -2.001853923 -1.018675269  0.243544650 -0.009375316
 ```
 
 ```r
@@ -744,7 +760,7 @@ sqrt(diag(vcov(model.avg(AIC.list)))) #model averaged standard errors
 
 ```
 ##  (Intercept)       Danger log(BrainWt)  log(BodyWt)     LifeSpan 
-##   1.30071782   0.35223138   0.36380350   0.57251368   0.04071756
+##   1.23601444   0.35112392   0.29377063   0.57251368   0.04071778
 ```
 
 ```r
@@ -846,6 +862,35 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
 
 <script>
 (function() {

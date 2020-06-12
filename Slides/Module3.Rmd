@@ -1,5 +1,5 @@
 ---
-title: "Module 3: Introduction to hypothesis testing"
+title: "Module 3: Introduction to permutation tests"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "Title.css"]
@@ -46,6 +46,21 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 .footnote[[Computer Age Statistical Inference:
 Algorithms, Evidence and Data Science. Efron and Hastie](https://web.stanford.edu/~hastie/CASI/order.html)]
+
+---
+# Links for Module 3
+
+<br>
+
+<br>
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module3.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350109
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module3.Rmd
+
 ---
 # Monte Carlo methods
 
@@ -310,7 +325,7 @@ ggplot(data=Tdat, aes(x=T, y=Density)) +
 ---
 class: inverse, middle
 
-# Excercise 3C
+# Exercise 3C
 -------
 ## Paired-sample randomization test
 
@@ -393,7 +408,7 @@ What do we conclude?
 ---
 class: inverse, middle
 
-# Excercise 3D
+# Exercise 3D
 
 ## Two-sample randomization test
 

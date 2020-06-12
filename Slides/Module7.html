@@ -3,21 +3,20 @@
   <head>
     <title>Module 7: Generalized linear models</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Jake Ferguson (jakeferg@hawaii.edu)" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="Title.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
 # Module 7: Generalized linear models
-### Jake Ferguson (<a href="mailto:jakeferg@hawaii.edu" class="email">jakeferg@hawaii.edu</a>)
 
 ---
 
-  
+
 
 
 
@@ -33,6 +32,20 @@ class: center, middle, inverse, title-slide
 2. Identify proper distribution to use for particular datasets
 
 3. Evaluate model quality
+
+---
+# Links for Module 6
+
+&lt;br&gt;
+
+&lt;br&gt;
+
+
+Slides: https://troutinthemilk.github.io/CWS_2020/Slides/Module7.html
+
+Exercises and groupwork: https://rstudio.cloud/spaces/73676/project/1350176
+
+Code to reproduce slides: https://github.com/troutinthemilk/CWS_2020/blob/master/Slides/Module7.Rmd
 
 ---
 # Linear regression
@@ -298,7 +311,7 @@ Using route length as an **offset** controls for differences in survey effort.
 ```
 ## 
 ## Call:
-## glm(formula = num.col ~ rte.name + offset(log(rte.km)), family = poisson, 
+## glm(formula = num.col ~ rte.name + offset(log(rte.km)), family = poisson(link = "log"), 
 ##     data = beav.dat)
 ## 
 ## Deviance Residuals: 
@@ -408,10 +421,17 @@ The true variance is often higher (**overdispersion**) than the Poisson distribu
 ```r
 library(MASS)
 library(MuMIn)
-beaver.pois &lt;- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson)
+```
+
+```
+## Warning: package 'MuMIn' was built under R version 3.6.3
+```
+
+```r
+beaver.pois &lt;- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson(link="log"))
 beaver.nb &lt;- glm.nb(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat)
 
-model.sel(list(beaver.pois, beaver.nb))
+model.sel(list(beaver.pois, beaver.nb), rank=AICc)
 ```
 
 ```
@@ -471,7 +491,7 @@ class: inverse, middle
 
 ---
 
-# Modeling categorgies: Binomial (logistic) regression 
+# Modeling categories: Binomial regression 
 
 
 We've covered: 
@@ -588,7 +608,7 @@ We can have response data of 0 or 1...
 
 
 ```r
-glm.fit  &lt;- glm(y ~ x, data=sim.dat, family=binomial)
+glm.fit  &lt;- glm(y ~ x, data=sim.dat, family=binomial(link="logit"))
 ```
 
 .pull-left[
@@ -653,7 +673,7 @@ glm.fit  &lt;- glm(y ~ x, data=sim.dat, family=binomial)
 
 
 ```r
-glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial)
+glm(cbind(successes, fails) ~ x, data=sim.dat, family=binomial(link="logit"))
 ```
 
 .pull-left[
@@ -745,7 +765,7 @@ Image: wikimedia]
 ```
 ## 
 ## Call:
-## glm(formula = cbind(Survive, Die) ~ Elev, family = binomial, 
+## glm(formula = cbind(Survive, Die) ~ Elev, family = binomial(link = "logit"), 
 ##     data = silver.dat)
 ## 
 ## Deviance Residuals: 
@@ -802,7 +822,7 @@ $$
 
 ```r
 library(VGAM) #contains beta-binomial regression
-model.bin &lt;- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial)
+model.bin &lt;- glm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=binomial(link="logit"))
 model.bb &lt;- vglm(cbind(Survive, Die) ~ Elev, data=silver.dat, family=betabinomial)
 
 summary(model.bb)
@@ -967,6 +987,35 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
+<!--- https://www.garrickadenbuie.com/blog/xaringan-tip-logo-all-slides/ -->
+
+<style>
+  .logo {
+    background-image: url(CWS_logo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    width: 85px;
+    height: 85px;
+    z-index: 0;
+  }
+</style>
+  
+  <script>
+  document
+.querySelectorAll(
+  '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+  // ':not(.inverse)' +
+    ':not(.hide-logo)'
+)
+.forEach(el => {
+  el.innerHTML += '<div class="logo"></div>';
+});
+</script>
 
 <script>
 (function() {
