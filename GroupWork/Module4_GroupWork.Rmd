@@ -25,7 +25,14 @@ We'll look at two ways to calculate a paired t-test. In the first, I calculated 
 
 ```{r}
 #code here
+butt.dat <- read.csv(file="../Data/ButterflyFishDiffs.csv")
+ggplot(data=butt.dat) + geom_histogram(aes(x=Difference), bins=10, col="white")
+
+t.test(butt.dat$Difference)
+
 ```
+
+### Based on the test output we fail to reject the null hypothesis that there is a difference in the length between male and female butterfly fish.
 
 Now read in the file `ButterflyFish.csv`. This has the same data as the file above but it is formatted differently. 
 
@@ -33,6 +40,20 @@ Now read in the file `ButterflyFish.csv`. This has the same data as the file abo
 2. Plot the data using a boxplot (`geom_boxplot`)
 3. Now conduct a paired two-sample t-test. Does the t-statistic and p-value match what you got above?
 4. What if you had not recognized that this should be a paired test, what would your p-value have been?
+
+```{r}
+#code here
+
+butt.dat2 <- read.csv(file="../Data/ButterflyFish.csv")
+ggplot(data=butt.dat2) + geom_boxplot(aes(x=Sex, y=Length))
+
+t.test(Length ~ Sex, data=butt.dat2, paired=TRUE)
+
+t.test(Length ~ Sex, data=butt.dat2, paired=FALSE)
+
+```
+
+### The paired t-test here gives the same answer as for the one-sample test. This is what we would expect as they are just two ways of doing the same thing. If we remove the pairing in the data, we get a very different p-value (0.53) due to the lower power in our ability to detect differences with this test.
 
 **********************************
 
@@ -52,6 +73,35 @@ For the following datasets determine if you should conduct a one- or two-sample 
 
 ```{r}
 #code here
+#1. 
+range.dat <- read.csv(file="../Data/RangeShift.csv")
+ggplot(data=range.dat) +
+  geom_histogram(aes(x=elevationalRangeShift), col="white", bins=10)
+t.test(range.dat$elevationalRangeShift)
+
+#2. 
+bird.dat <- read.csv(file="../Data/Blackbird.csv")
+ggplot(data=bird.dat) +
+  geom_boxplot(aes(x=Treatment, y=Antibody))
+t.test(Antibody ~ Treatment, dat=bird.dat, paired=TRUE)
+
+#3. 
+ataxia.dat <- read.csv(file="../Data/SpinocerebellarAtaxia.csv")
+ggplot(data=ataxia.dat) +
+  geom_boxplot(aes(x=treatment, y=lifespan))
+t.test(lifespan ~ treatment, dat=ataxia.dat)
+
+#4. 
+bear.dat <- read.csv(file="../Data/BlackBears.csv")
+ggplot(data=bear.dat) +
+  geom_boxplot(aes(x=SEX, y=LBS))
+t.test(LBS ~ SEX, dat=bear.dat)
+
+#5. 
+ggplot(data=bear.dat) +
+  geom_boxplot(aes(x=AGE, y=LBS))
+bearnocub.dat <- subset(bear.dat, AGE != "Cub")
+t.test(LBS ~ AGE, dat=bearnocub.dat)
 
 ```
 
@@ -70,4 +120,24 @@ We can simulate data from a normal distribution using `rnorm(n, mean, sd)`, wher
 
 ```{r}
 #code here
+samp <- rnorm(n=10, mean=0, sd=1)
+
+mean(samp)
+sd(samp)
 ```
+
+### These estimates are similar to the population parameters but not identical.
+
+```{r}
+mean.vec <- sd.vec <- numeric(1000)
+for(i in 1:length(mean.vec)) {
+  samp <- rnorm(n=10, mean=0, sd=1)
+  mean.vec[i] <- mean(samp)
+  sd.vec[i] <- sd(samp)
+}
+
+hist(mean.vec)
+hist(sd.vec)
+```
+
+### The distributions of the estimates look centered over the true population parameters. 

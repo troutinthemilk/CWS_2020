@@ -6,34 +6,60 @@ output: html_notebook
 ```{r}
 library(ggplot2) #loads the ggplot functions
 library(ggthemes) #themes to apply to a plot
+
+theme_set(theme_tufte()) # a theme I like.
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+
 ```
 
 
 Load the dataset called WolvesYNP.csv using the function `read.csv` and look at it's structure. Plot the number of wolf packs against the number of wolves with a scatterplot (`geom_point`). Is this pattern what you expected to see?
 
 ```{r}
-wolves.dat <- read.csv(file="FileNameHere")
+wolves.dat <- read.csv(file="../Data/WolvesYNP.csv")
 #code here
+str(wolves.dat)
+
+ggplot(wolves.dat) +
+  geom_point(aes(x=Wolves, y=Packs), size=3)
 ```
+
+### I expected the number of packs to increase with the number of wolves, and this is what we see in the above figure.
 
 Now let's polish the above plot by changin the x-axis to be "Wolves in Yellowstone National Park" and the y-axis to be "Packs in Yellowstone National Park". Another useful argument to `geom_point` is size. Try letting the aesthetic `size=Elk` and see if any patterns emerge. Finally explore adding a theme to the plot. These links have examples of default themes (https://ggplot2.tidyverse.org/reference/ggtheme.html) and themes from the ggthemes package (https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/). For example if I wanted to use the `theme_linedraw` I would add `theme_linedraw()` to the existing plot. Find one you like. Based on this figure do you see any trends associated with Wolves and Packs? How about Elk and Packs?
 
 Finally, add a smoothing lines to illustrate trends in the data using `geom_smooth()`. You can use the default smoother or a linear regression. 
 ```{r}
 #code here
+ggplot(wolves.dat) +
+  geom_point(aes(x=Wolves, y=Packs, size=Elk)) + ylab("Packs in Yellowstone National Park") + xlab("Wolves in Yellowstone National Park")
 ```
+
+### I see the same relationship between wolves and packs as discussed above. Elk appear to be negatively associated with the number of packs, thought it is a bit unclear from this figure.
 
 ----------------
 
 Categorical data can be broken up into categories, where categories have no inherent numerical values relative to others. Examples include colors (red, green, blue) or survival (yes, no). Below we read in a dataset that describes each passenger on the Titanic and included the categorical variable `survive` and the numerical variable `age`. We will use the (somewhat macabre) dataset to build a boxplot. Read in the dataset, then build a boxplot using `geom_boxplot`. Do you see any potential differences in age between those that survived and those that didn't?
 
 ```{r}
+titanic.dat <- read.csv(file="../Data/titanic.csv")
 #code here
+
+ggplot(titanic.dat) +
+  geom_boxplot(aes(x=survive, y=age))
 ```
+### Those that survived tend to be a bit younger than those that didn't but the evidence for women and children first is weak. 
 
 Histograms are univariate plots (`geom_histogram`) used to illustrate numerical variables and barcharts (`geom_bar`) are univariate plots used to illustrate categorical variables. In both plots we only specify the aesthetic `x` and no `y` aesthetic. Use the appropriate plots to build a figure of Elk counts in Yellowstone National Park, `Elk`, and where passengers embarked from, `embarked`, in the titanic dataset. Bonus points if you can figure out how to also get survival on the embarked plot.
 
 ```{r}
 #code here
+
+ggplot(wolves.dat) +
+  geom_histogram(aes(x=Wolves, y=Packs, size=Elk)) + ylab("Packs in Yellowstone National Park") + xlab("Wolves in Yellowstone National Park")
 ```
 
