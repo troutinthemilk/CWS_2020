@@ -1,0 +1,73 @@
+---
+title: 'Module 4 exercises'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+We'll look at two ways to calculate a paired t-test. In the first, I calculated the difference between each male and female in a pair and saved that to a file.
+
+1. Read in the dataset `ButterflyFishDiffs.csv`. Plot the data using a histogram.
+2. Use the function `t-test` to calculate a one-sample t-test on these data. 
+3. Use the output to report the confidence interval for the estimate of the mean differences.
+4. State your conclusions at $\alpha = 0.05$.
+
+```{r}
+#code here
+```
+
+Now read in the file `ButterflyFish.csv`. This has the same data as the file above but it is formatted differently. 
+
+1. Use `str` to look at the structure of the data. Explain what each column of the dataset means. 
+2. Plot the data using a boxplot (`geom_boxplot`)
+3. Now conduct a paired two-sample t-test. Does the t-statistic and p-value match what you got above?
+4. What if you had not recognized that this should be a paired test, what would your p-value have been?
+
+**********************************
+
+For the following datasets determine if you should conduct a one- or two-sample test. Plot the data using an appropriate figure (histogram or boxplot), then conduct the appropriate test using `t.test()`. Note to conduct a paired t-test using the formula you can use `t.test(response ~ predictor, paired=TRUE)`.
+
+
+1. Chen et al. (2011) studied recent range shifts in 31 taxa. This dataset (`RangeShift.csv`) has changes in highest detected elevation for these species from the late 1900's to the early 2000's. Postive numbers indicate upward shifts in elevation and negative numbers indicate shifts to lower elevations. Measurements are in meters.
+
+2. In many species males are more likely to attract females if the males have high testosterone, one hypothesis is that the cost associated with high testosterone is a weakend ability to fight disease. Hasselquist et al. (1999) experimentally increased the amount of testosterone in 13 male red-winged blackbirds and measured their ability to produce antibodies to an antigen before and after implantation (`Blackbird.csv`). 
+
+3. The neurodegenerative disease *Spinocerebellar Ataxia* type 1  is a disease marked by the gradual loss of motor skills and culminates in early death. Fryer et al. (2011) investigated the benefits of exercise in affecting the lifespan in a mouse model (`SpinocerebellarAtaxia.csv`).
+
+4. Weights of male and female black bears are givem in `BlackBears.csv`. Test whether there are differences in the average weight between these the sexes. 
+
+5. This same dataset has bear age. Build at boxplot of age. Why can't we conduct a t-test with this predictor? Use the subset command to extract Adults and yearlings, then conduct a t-test between these groups. Hint you can use the not equal (`!=`) command to extract all the groups except one (e.g., `AGE != "Cub"`)
+
+
+```{r}
+#code here
+
+```
+
+
+
+-------------------------
+
+## Bonus problem
+
+We can simulate data from a normal distribution using `rnorm(n, mean, sd)`, where `n` is the number of samples to draw, `mean` is the mean of the distribution and `sd` is the standard deviation of the distribution. 
+
+1. Generate a sample of size 10 from a distribution with mean 0 and standard deviation of 10.
+2. Estimate the mean and standard deviation from the sample. Do these estimates agree with the population parameters?
+3. Use a `for` loop to repeat this estimation procedure a thousand times. Plot the results. Are the distributions centered where you expected? What do the widths of the distribution describe? 
+4. Repeat the above procedure but increase your sample size to 100. How do the sampling distributions change?
+
+```{r}
+#code here
+```

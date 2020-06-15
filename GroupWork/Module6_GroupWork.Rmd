@@ -1,0 +1,75 @@
+---
+title: 'Module 6 group work'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+
+This example uses data from the Maryland Biological Stream Survey, downloaded from: http://udel.edu/~mcdonald/statmultreg.html. We are interested in predicting the abundance of longnose dace using chemical and biological characteristics of a stream.
+
+The dependent variable is the number of longnose dace, **longnosedace**, per 75-meter section of stream. The independent variables are the **acreage** drained by the stream; the dissolved oxygen, **do2**, in mg/liter; the maximum depth, **maxdepth**, in cm of the 75-meter segment of stream; nitrate concentration,  **no3**, in mg/liter; sulfate concentration, **so4**, in mg/liter; water temperature, **temp**, on the sampling date in degrees C, and the stream conductivity, **conduct**, in uS/cm.
+
+1. Read in `longnosedace.csv` and create a linear model of longnosedace with all the above covariates in the model. 
+2. load the `car` library and calculate the variance inflation factors using the function `vif`. 
+
+```{r}
+#code here
+```
+
+
+
+Create two models of the longose dace, the full model and a model  with just the predictors `acreage` and `maxdepth`. 
+1. Report the adjusted $R^2$ values for these models. Based on this criterion, which is the better model?
+2. Now run an F-test with the `anova` function. What does the p-value tell you?
+
+```{r}
+# code here
+```
+
+
+-----------------
+
+
+In 1981 bluegills (`bluegills.csv`) were randomly sampled from Lake Mary in Minnesota. The researchers (Cook and Weisberg, 1999) measured and recorded the length (in mm) of the fish and the age (in years) of the fish. The researchers wanted to know how to predict fish length just from knowledge of the fish age. 
+
+1. Fit two models to the dataset. In the first use just age as the predictor, in the second model fit age + age^2. In order to incorporate this quadratic term, you need to use the 'as is' command `I(age^2)` as your predictor variable. Otherwise R doesn't understand you are using a quadratic term. 
+2. Plot the model predictions using the command `plot_model` in the `sjPlot` package. Which model looks like a better fit?
+3. Calculate the adjusted $R^2$ and perform an F-test to determine which model is a better fit to the data.
+
+```{r}
+#code here
+```
+
+Perform model selection using AIC on the bluegill models using the `MuMIn` package. Does AICc agree with your conclusions from the F-test and with the adjusted $R^2$?
+
+```{r}
+#code here
+```
+
+Now use AIC to select from the three models defined in model 6D. Does this agree with the results from LOOCV?
+
+```{r}
+#code here
+```
+
+--------------
+
+For the mammal-sleep dataset (`MammalSleep.csv`), the best entry in our prediction completion discussed briefly in the lecture came from a student who built three models. Model 1 included `LifeSpan` and `Exposure`. Model 2 included `Danger` and `Predation`. Model 3 included just `Exposure`. Fit these three models to the data, then use LOOCV (adapting the code from lecture) to determine which model has the best predictive properties.
+
+```{r}
+#code here
+```
+
+

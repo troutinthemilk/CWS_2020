@@ -44,8 +44,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 3. Introduce sampling with and without replacement
 
-.footnote[[Computer Age Statistical Inference:
-Algorithms, Evidence and Data Science. Efron and Hastie](https://web.stanford.edu/~hastie/CASI/order.html)]
+.footnote[[Fieberg JR, Vitense K, Johnson DH. 2020. Resampling-based methods for biologists. PeerJ 8:e9089](https://peerj.com/articles/9089/)]
 
 ---
 # Links for Module 3
@@ -223,7 +222,6 @@ for(val in sequence)
 A simple example: 
 
 ```{r}
-x <- numeric(10) #an empty vector
 for(i in 1:5) {
   print(i)
 }
@@ -261,7 +259,7 @@ ggplot(data=data.frame(null.vec)) +
 ---
 # The p-value
 
-A null hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? <sup>1</sup>
+A null hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? 
 
 <br>
 

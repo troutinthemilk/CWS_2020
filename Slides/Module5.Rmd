@@ -16,7 +16,7 @@ header-includes :
   - \usepackage {amsmath}
   - \usepackage{mathrsfs}
 ---
-
+class: inverse
 ```{r, echo=F, message=F, warning=F, eval=T}
 #setting up my ggplot defaults. Update with your own preferences
 library(ggplot2)#plotting functions

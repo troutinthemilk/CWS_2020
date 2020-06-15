@@ -1,0 +1,103 @@
+---
+title: 'Module 5 working group'
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+Load the dataset `BeaverDensities.csv`. This dataset is the counts of beaver colonies of different populations throughout Northern Minnesota (Johnson-Bice et al. 2020). Ecologists are often interested in the degree of synchrony (correlation) in populations over space. 
+
+1. Calcuate the correlations between populations.
+
+2. Use the `corrplot` library to plot these correlations.
+
+
+```{r}
+#code here
+```
+
+
+Now load a datast that has these correlations and the distances between each population (`CorrDistance.csv`). Test to see whether correlation between populations varies by distance in a predictable manner. What information from the regression output did you use to draw your conclusions?
+
+```{r}
+#code here
+```
+
+**********************
+
+The data set contained in `LionNoses.csv` contains the age of male lions and the proportion of their nose that is black (from Whitman et al. 2004). The proportional amount of black on a lions nose tends to change as an individual ages, a pattern that can be used to identify individual lions (http://livingwithlions.org/mara/how-to/identify-lions/). 
+
+Load this dataset and create a linear model to relate the proportion blackness in a lions nose to it's age. Interpret the slope, intercept, any significance tests, and the $R^2$ value.
+
+```{r}
+#code here
+```
+
+
+****************************
+
+Sometimes when our model diagnostics suggest that assumptions of the model are not being met, transforming the data will improve these properties. 
+
+1. Read in the dataset, `monet.csv`. Build a model that includes SIGNED (whether the painting was signed) and SIZE. Does the diagnostic plot of predicted values versus the residuals suggest that the variance changes with the predicted mean?
+
+```{r}
+#code here
+monet.dat <- read.csv(file="monet.csv")
+monet.dat <- subset(monet.dat, SIZE <2000 ) #super large paintings seem to behave differently than the rest so we will only look at a subset of them
+monet.lm <- lm(PRICE ~ SIZE + SIGNED, data=monet.dat)
+summary(monet.lm)
+plot(monet.lm, which=1)
+```
+
+Now try log-transforming PRICE in your model. Does this lead to a residual plot that looks consistent with the assumptions of linear regression?
+
+```{r}
+monet.lm <- lm(log(PRICE) ~ SIZE + SIGNED, data=monet.dat)
+summary(monet.lm)
+plot(monet.lm, which=1)
+
+```
+
+Based on your model does a centimeter increase in WIDTH or HEIGHT differently affect the log(PRICE)? Does having a signed painting increase it's value? Load the `sjPlot` library and plot log(PRICE) predictions against WIDTH and HEIGHT for both signed and unsigned paintings. Does the plot agree with your interepretation of the parameter estimates?
+
+```{r}
+library(sjPlot)
+plot_model(monet.lm, type="pred", terms=c("WIDTH", "HEIGHT", "SIGNED"))
+```
+
+Finally, build a model to test whether log(PRICE) increases faster in signed paintings than unsigned paintings using an interaction term in your model. What information from the model output did you use to obtain your decision?
+
+```{r}
+#code here
+```
+
+
+**********************
+
+
+Load the `BlackBears.csv` dataset and build a boxplot of AGE against LBS. Does it look like the assumptions of ANOVA will be met with these data? Now try log-transforming the data. Does this improve the consistency of the data with ANOVA assumptions? Now run an ANOVA on the response data you think best fit the assumptions of the ANOVA. Do at least one of these groups differ from the others?
+
+```{r}
+#code here
+```
+
+
+Now do a post-test to determine which (if any) of the stage classes differs from the others. 
+
+```{r}
+#code here
+```
+

@@ -313,7 +313,7 @@ ggplot(data=Tdat, aes(x=T, y=Density)) +
 ```
 
 ```{r}
-pnorm(q=0.48, lower.tail=F)
+2*pnorm(q=0.48, lower.tail=F)
 ```
 
 ---
@@ -321,7 +321,7 @@ class: inverse, middle
 
 # Exercise 4B
 ------------
-## Calculating confidence intervals, z-scores, and p-values 
+## Calculating z-scores and p-values 
 
 ---
 # Inference when $\sigma$ is unknown
@@ -478,7 +478,7 @@ class: inverse, middle
 
 # Exercise 4D
 --------------
-## One- and two-sample t-tests
+## Two-sample t-tests
 
 ---
 #Summary

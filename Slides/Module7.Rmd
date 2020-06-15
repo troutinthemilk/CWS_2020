@@ -16,7 +16,7 @@ header-includes :
   - \usepackage {amsmath}
   - \usepackage{mathrsfs}
 ---
-
+class: inverse
 ```{r, echo=F, message=F, warning=F, eval=T}
 #setting up my ggplot defaults. Update with your own preferences
 library(ggplot2)#plotting functions
@@ -138,7 +138,7 @@ ggplot() +
 set.seed(1)
 x<-seq(0,100,1) 
 mus<-exp(0.01+0.03*x) # mean at each x
-y<-rpois(length(x),lambda= mus) # 1 observation per x
+y<-rpois(length(x), lambda= mus) # 1 observation per x
 
 ggplot(data=data.frame(x, y), aes(x=x, y=y)) + geom_point(size=2) + xlab("% Cover Grass") + ylab("Number of pheasants") + geom_rangeframe()
 ```

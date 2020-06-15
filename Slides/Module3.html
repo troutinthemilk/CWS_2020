@@ -31,8 +31,7 @@ class: inverse
 
 3. Introduce sampling with and without replacement
 
-.footnote[[Computer Age Statistical Inference:
-Algorithms, Evidence and Data Science. Efron and Hastie](https://web.stanford.edu/~hastie/CASI/order.html)]
+.footnote[[Fieberg JR, Vitense K, Johnson DH. 2020. Resampling-based methods for biologists. PeerJ 8:e9089](https://peerj.com/articles/9089/)]
 
 ---
 # Links for Module 3
@@ -166,7 +165,7 @@ sample(x=c(-1,1), size=10, replace=T) #randomly sample 10 values from -1 and 1 w
 ```
 
 ```
-##  [1]  1 -1  1  1  1  1  1  1  1 -1
+##  [1]  1  1  1  1 -1  1 -1  1 -1 -1
 ```
 
 Sampling with replacement means that once a value is drawn from the original set, it can be drawn again.
@@ -207,7 +206,6 @@ A simple example:
 
 
 ```r
-x &lt;- numeric(10) #an empty vector
 for(i in 1:5) {
   print(i)
 }
@@ -250,7 +248,7 @@ for(i in 1:length(null.vec)) {
 ---
 # The p-value
 
-A null hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? &lt;sup&gt;1&lt;/sup&gt;
+A null hypothesis test asks: what is the probability in future studies of observing a result as extreme or more, if the null hypothesis is true? 
 
 &lt;br&gt;
 
@@ -269,7 +267,7 @@ print(2*p.val) #double this for a two-sided test
 ```
 
 ```
-## [1] 0.249
+## [1] 0.2432
 ```
 
 &lt;img src="Module3_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
@@ -362,7 +360,7 @@ print(p.val)
 ```
 
 ```
-## [1] 0.002
+## [1] 0.001
 ```
 ]
 

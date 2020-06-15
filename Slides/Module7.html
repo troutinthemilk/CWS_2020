@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 
 ---
 
-
+class: inverse
 
 
 
@@ -421,13 +421,6 @@ The true variance is often higher (**overdispersion**) than the Poisson distribu
 ```r
 library(MASS)
 library(MuMIn)
-```
-
-```
-## Warning: package 'MuMIn' was built under R version 3.6.3
-```
-
-```r
 beaver.pois &lt;- glm(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat, family=poisson(link="log"))
 beaver.nb &lt;- glm.nb(num.col ~ rte.name + offset(log(rte.km)), data=beav.dat)
 
@@ -922,7 +915,7 @@ class: inverse, middle
 - Standard distributions in `glm` cannot handle overdisperison.
 
 - Overdispersion can have strong influences on SE's and p-values
-  - Not accounting for overdispersion can lead to overconfidence in estimates and model.
+  - Not accounting for overdispersion can lead to overconfidence in estimates and model fit.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

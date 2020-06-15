@@ -1,0 +1,87 @@
+---
+title: 'Module 3 group work'
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+
+We can use the function `sample` to randomly draw numbers from a set. We can draw with replacement (`replace=TRUE`) or without (`replace=FALSE`). 
+1. create a vector of values from 1 to 25.
+2. randomly sample 10 values with replacement from this vector. Calculate the mean and standard deviation.
+3. randomly sample 10 values without replacement from this vector. Calculate the mean and standard deviation.
+4. Repeat 2 but sample 1000 values with replacement. Calculate the mean and standard deviation. Are they similar?
+
+```{r}
+#code here
+```
+
+
+***********************
+
+
+Here is another example of using for loops. We will loop through some of the columns of a dataset on silverswords and calculate the mean of each column. We will explore what each of these columns mean in a future module.
+
+```{r}
+silver.dat <- read.csv(file="Silversword.csv")
+for(i in 1:6) {
+  print(mean(silver.dat[,i], na.rm=TRUE))
+}
+```
+
+**Excercise** Update the below for-loop from above to store the mean value for each column in the dataset. I've given you most of the code but you will need to store each mean value in the vector `mean.silver`.
+
+```{r}
+# Update this code
+silver.dat <- read.csv(file="Silversword.csv")
+mean.silver <- numeric(6)
+for(i in 1:6) {
+  mean(silver.dat[,i], na.rm=TRUE)
+}
+```
+
+
+************************
+
+
+Now lets take the code from the first exercise (e.g., `sample(x=1:25, size=10, replace=TRUE)`) and put it inside the following `for` loop. 
+Once the code is pasted in there take the mean of the sample and assign that value to the `i`ith value of mean.vec.
+```{r}
+
+mean.vec <- numeric(1e4)
+for (i in 1:length(mean.vec)) {
+#code here
+} #basic for loop
+
+
+#plots the resulting mean estimates
+ggplot(data=mean.vec) +
+  geom_histogram(aes(x=mean.vec), col="white") + xlab("Estimated mean") 
+```
+
+
+
+
+************************
+
+Attwood et al. (2012) explored the effect that glass shape has on the speed of drinking a beer. They looked at two types of glasses, curved and straight. 
+1. Read in `BeerGlassShape` and create a boxplot of the glass type vs drinking minutes.
+2. Copy and update the code from the two-sample randomization test slides to run a two-sample test on these data. Be sure to report the p-value. 
+3. Based on this test, is there a difference in the mean drinking time for different glasses?
+
+```{r}
+#code here
+```

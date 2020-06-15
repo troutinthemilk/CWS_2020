@@ -16,7 +16,7 @@ header-includes :
   - \usepackage {amsmath}
   - \usepackage{mathrsfs}
 ---
-  
+class: inverse
 ```{r, echo=F, message=F, warning=F, eval=T}
 #setting up my ggplot defaults. Update with your own preferences
 library(ggplot2)#plotting functions
@@ -87,7 +87,7 @@ Examples from your study systems?
 ---
 # Type of collinearity
 
-- Variables that are collinear and each have their own separate “effect” on the response variable, Y
+- Variables that are collinear and each have their own separate “effect” on the response variable
   - Tigers avoid areas near human settlements and also areas
 with domestic animals
   - Domestic animals tend to be found near human settlements
@@ -407,7 +407,7 @@ class: inverse, middle
 
 # Exercise 6B
 -----
-## F-tests and adjusted $R^2$
+## Adjusted $R^2$
 
 ---
 # Trade-offs in model fit and complexity 
