@@ -1,0 +1,96 @@
+---
+title: 'Module 2 excercises'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #loads the ggplot functions
+library(ggthemes) #themes to apply to a plot
+```
+
+Scientists use plots to present their results to others and to explore potential relationships among variables in their data. Both activities are critical for enhancing the viewers comprehension of your scientific questions and results.
+
+
+---------------
+# Exercise 2A #
+---------------
+
+## Build a scatterplot
+
+Plot the city mileage in the `mpg` dataset against engine size `displ` using a scatterplot.
+
+```{r}
+#code here
+ggplot(data=mpg) +
+  geom_point(mapping=aes(x=displ, y=cty))
+```
+
+---------------
+# Exercise 2B #
+---------------
+
+## Polishing your scatterplot
+
+Color your points by `manufacturer` and update the x- and y-axis labels to make sense for a reader. 
+
+```{r}
+#code here
+ggplot(data=mpg) +
+  geom_point(mapping=aes(x=displ, y=cty, col=manufacturer)) + 
+  xlab("Engine size") + ylab("Miles per gallon [city]")
+```
+
+---------------
+# Exercise 2C #
+---------------
+
+## Combining geometries
+
+Add a `geom_smooth` with `lm` to your above plot. How well does this trendline fit the data? 
+```{r}
+#code here
+ggplot(data=mpg) +
+  geom_point(mapping=aes(x=displ, y=cty, col=manufacturer)) + 
+  xlab("Engine size") + ylab("Miles per gallon [city]") +
+  geom_smooth(mapping=aes(x=displ, y=cty), method=lm, col="black")
+```
+
+### The above plot shows an approximate linear relationship between engine size and miles per gallon, though the relationship breaks down for low at high engine sizes.
+
+---------------
+# Excercise 2D #
+---------------
+
+## Build a boxplot
+
+Using the `mpg` dataset, build a boxplot of the city mileage by car manufacturer. Are there any manufacturers that appear to significantly lower than the average? How about higher than the average?
+```{r}
+#code here
+ggplot(data=mpg) +
+  geom_boxplot(mapping=aes(x=manufacturer, y=cty, fill=manufacturer)) +
+  theme(axis.text.x = element_text(angle = 90)) #rotates axes for readability
+```
+
+### Based on the above boxplot, the manufacturers with the lowest mpg are land Rover and Lincoln, the highest average mpg (by far) is Honda.
+
+
+----------------
+# Excercise 2E #
+----------------
+
+## Univariate plots
+
+Build a histogram of the city mileage. Try filling by manufacturer. Now try using faceting using `facet_wrap` with `manufacturer` to illustrate difference among manufacturers. Which plot more clearly distinguishes difference among the manufacturers?
+
+```{r}
+#code here
+ggplot(data=mpg) +
+  geom_histogram(mapping=aes(x=cty, fill=manufacturer), col="white", bins=10)
+
+ggplot(data=mpg) +
+  geom_histogram(mapping=aes(x=cty, fill=manufacturer), col="white", bins=10) + 
+  facet_wrap(~manufacturer)
+```
+
+### Patterns are very difficult to discern using the stacked histogram The faceted histogram looks better, though I still prefer the boxplot for illustrating differences among manufacturers.
+

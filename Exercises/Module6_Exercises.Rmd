@@ -1,0 +1,75 @@
+---
+title: 'Module 6 exercises'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+---------------
+# Exercise 6A #
+---------------
+
+## Examining multicollinearity
+
+Reproduce the monet VIF analysis from lecture. Compare the VIF's from the full model ('WIDTH + HEGHT + SIZE') against a model with `WIDTH + SIZE`. Did removing `HEIGHT` improve the multicollinearity? Does this match what you would expect?
+
+```{r}
+#code here
+```
+
+
+---------------
+# Exercise 6B #
+---------------
+
+## Adjusted $R^2$
+
+Add an additional model to the analyses from class using a model with just the `Danger` predictor variable. Does this model perform better or worse than the models from class when using adjusted $R^2$
+to assess model fit?
+
+```{r}
+sleep.dat <- read.csv(file="MammalSleep.csv")
+sleep.dat <- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
+
+# code here
+```
+
+
+----------------
+# Excercise 6C #
+----------------
+
+## LOOCV
+
+Apply LOOCV to the Danger model from 6B. How does it perform relative to the models in class?
+
+```{r}
+library(caret)
+#code here
+```
+
+
+----------------
+# Excercise 6D #
+----------------
+
+## Model selection with AIC
+
+Calculate the AICc value for the Danger model  using the `MuMIn` package from problem 6C. Does this agree with your assessments using the adjusted $R^2$ and LOOCV?
+
+```{r}
+library(MuMIn)
+#code here
+```
+

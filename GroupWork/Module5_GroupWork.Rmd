@@ -1,5 +1,5 @@
 ---
-title: 'Module 5 working group'
+title: 'Module 5 group work'
 output: html_notebook
 editor_options: 
   chunk_output_type: inline
@@ -20,21 +20,29 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 Load the dataset `BeaverDensities.csv`. This dataset is the counts of beaver colonies of different populations throughout Northern Minnesota (Johnson-Bice et al. 2020). Ecologists are often interested in the degree of synchrony (correlation) in populations over space. 
 
-1. Calcuate the correlations between populations.
+1. Calculate the correlations between populations.
 
-2. Use the `corrplot` library to plot these correlations.
+2. Use the `corrplot` library to plot these correlations. Do the correlations between populations tend to be positive, negative, or both?
 
 
 ```{r}
 #code here
+beaver.dat <- read.csv(file="../Data/BeaverDensities.csv")
+M <- cor(beaver.dat[,-1], use="pairwise.complete")
+library(corrplot)
+corrplot.mixed(M)
 ```
-
+### Populations tend to be positively correlated. This is as we would expect for synchronous populations.
 
 Now load a datast that has these correlations and the distances between each population (`CorrDistance.csv`). Test to see whether correlation between populations varies by distance in a predictable manner. What information from the regression output did you use to draw your conclusions?
 
 ```{r}
 #code here
+corrdist.dat <- read.csv(file="../Data/CorrDistance.csv")
+
+confint(lm(correlation ~ distance, data=corrdist.dat))
 ```
+### Based on the 95% confidence interval, a slope of 0 for the distance effect is plausible. Thus, we do not see that population correlations increase or decrease with distance.
 
 **********************
 
@@ -44,8 +52,11 @@ Load this dataset and create a linear model to relate the proportion blackness i
 
 ```{r}
 #code here
-```
+nose.dat <- read.csv(file="../Data/LionNoses.csv")
 
+summary(lm(ageInYears ~ proportionBlack, data=nose.dat))
+```
+### The slope indicates that a unit increase (here a 100% increase in black) corresponds to an increase in 10 years of a lion. The intercept indicates that a lion with no black on their nose is 0.87 years old. The significance tests indicate that we cannot reject the possibility that the intercept is 0, but the slope does differ from 0. The $R^2$ value tells us that we are explaining 62% of the variation in our data.
 
 ****************************
 
@@ -54,13 +65,15 @@ Sometimes when our model diagnostics suggest that assumptions of the model are n
 1. Read in the dataset, `monet.csv`. Build a model that includes SIGNED (whether the painting was signed) and SIZE. Does the diagnostic plot of predicted values versus the residuals suggest that the variance changes with the predicted mean?
 
 ```{r}
+monet.dat <- read.csv(file="../Data/monet.csv")
+monet.dat <- subset(monet.dat, SIZE <1500 ) #super large paintings seem to behave differently than the rest so we will only look at a subset of them
 #code here
-monet.dat <- read.csv(file="monet.csv")
-monet.dat <- subset(monet.dat, SIZE <2000 ) #super large paintings seem to behave differently than the rest so we will only look at a subset of them
 monet.lm <- lm(PRICE ~ SIZE + SIGNED, data=monet.dat)
 summary(monet.lm)
 plot(monet.lm, which=1)
 ```
+
+### There is definitely an increase in the variance with the fitted means.
 
 Now try log-transforming PRICE in your model. Does this lead to a residual plot that looks consistent with the assumptions of linear regression?
 
@@ -71,19 +84,25 @@ plot(monet.lm, which=1)
 
 ```
 
-Based on your model does a centimeter increase in WIDTH or HEIGHT differently affect the log(PRICE)? Does having a signed painting increase it's value? Load the `sjPlot` library and plot log(PRICE) predictions against WIDTH and HEIGHT for both signed and unsigned paintings. Does the plot agree with your interepretation of the parameter estimates?
+### The log-transformed data look like a much better fit than the original data.
+
+Based on your model does having a signed painting increase it's value? Load the `sjPlot` library and plot log(PRICE) predictions against SIZE and SIGNED predictors. Does the plot agree with your interepretation of the parameter estimates?
 
 ```{r}
 library(sjPlot)
-plot_model(monet.lm, type="pred", terms=c("WIDTH", "HEIGHT", "SIGNED"))
+plot_model(monet.lm, type="pred", terms=c("SIZE", "SIGNED"), show.data=TRUE)
 ```
+### Based on the above plot, signed paintings are more valuable than unsigned paitings of the same size. Our model captures this, though the prices of large unsigned paintings appear to be too high.
 
 Finally, build a model to test whether log(PRICE) increases faster in signed paintings than unsigned paintings using an interaction term in your model. What information from the model output did you use to obtain your decision?
 
 ```{r}
 #code here
+monet.lm <- lm(log(PRICE) ~ SIZE * SIGNED, data=monet.dat)
+confint(monet.lm)
 ```
 
+### Based on the confidence interval of the interaction term, hte data are consistent with having no difference in the slope of signed and unsigned paintings on log-price.
 
 **********************
 
@@ -92,6 +111,22 @@ Load the `BlackBears.csv` dataset and build a boxplot of AGE against LBS. Does i
 
 ```{r}
 #code here
+bear.dat <- read.csv(file="../Data/BlackBears.csv")
+
+ggplot(data=bear.dat) +
+  geom_boxplot(aes(x=AGE, y=LBS))
+```
+
+### These groups do not have equal variance so an ANOVA would be problematic.
+
+```{r}
+ggplot(data=bear.dat) +
+  geom_boxplot(aes(x=AGE, y=log(LBS)))
+```
+### The log-transformed data look much better so we will run the ANOVA on these. We find that there is a difference among the groups (at $\alpha=0.05$). 
+
+```{r}
+summary(aov(log(LBS) ~ AGE, data=bear.dat))
 ```
 
 

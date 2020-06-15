@@ -1,0 +1,80 @@
+---
+title: 'Module 5 exercises'
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+###############
+# Exercise 5A #
+###############
+
+## Calculating and plotting correlations
+
+Below is the correlation plot of the sleep dataset from lecture:
+```{r}
+sleep.dat <- read.csv(file="MammalSleep.csv")
+
+library(corrplot)
+M <- cor(sleep.dat[,3:10], use="pairwise.complete") #extract numeric responses
+corrplot.mixed(M)
+```
+
+In lecture we discussed strong correlations between response and predictor. What are the top 3 strongest correlations among the predictor variables in this dataset?
+
+###############
+# Exercise 5B #
+###############
+
+
+## Simple linear regression
+
+We are going to repeat the analysis produced in class but instead of using the predictor of `BrainWt` we will transform it and use `log(BrainWt)`. Plug in `log(BrainWt)` to the call in `lm`. What is the R-squared value of this model and how does it compare to the model I presented in class? How about the diagnositic plots, do they look different than the model I presented in class?
+```{r}
+#code here
+```
+
+###############
+# Exercise 5C #
+###############
+
+## Multiple linear regression
+
+1. Read in the dataset, `monet.csv`. Build a model that includes the effects of SIGNED (whether the painting was signed) and painting SIZE. Based on this, are signed paintings more or less valuable than unsigned paintings?
+
+```{r}
+#code here
+```
+
+Load the `sjPlot` library and use the function `plot_model` to plot PRICE predictions against SIZE and SIGNED. Does the plot agree with your interpretation of the parameter estimates?
+
+```{r}
+#code here
+```
+
+
+###############
+# Exercise 5D #
+###############
+
+## Run an ANOVA model 
+
+Run an ANOVA on the model you defined above. What does this F-test tell you about the ability of SIGNED to explain variation in the data?
+```{r}
+#code here
+```
+
+

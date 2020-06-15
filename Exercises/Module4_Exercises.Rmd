@@ -1,0 +1,79 @@
+---
+title: 'Module 4 exercises'
+output: html_notebook
+---
+
+```{r}
+library(ggplot2) #load ggplot
+library(ggthemes) #load themes package for ggplot
+theme_set(theme_tufte()) # a theme I like.
+
+#set some options that I like
+theme_update(plot.title = element_text(hjust = 0.5), 
+             axis.line.x = element_line(color="black", size = 1),
+             axis.line.y = element_line(color="black", size = 1),
+             text=element_text(size=20),
+             axis.text=element_text(size=15)) #center all titles and and axis lines
+```
+
+---------------
+# Exercise 4A #
+---------------
+
+## Estimating means and standard deviations
+
+Estimate the mean (`mean()`) and standard deviation (`sd()`) for the following data vectors:
+```{r}
+x <- 0:10
+y <- rep(5, 10)
+z <- sample(0:10, size=10, replace=TRUE) 
+```
+
+Rerun the analysis a couple of times do the estimates from `z` change or stay the same? Does this make sense?
+
+
+
+---------------
+# Exercise 4B #
+---------------
+
+## Calculating z-scores, and p-values 
+
+The example in class on a sample of 80 baby weights in the United States found a mean of $\bar{x}=3370$ with variance of  $\sigma=573$. Calculate the 95% confidence interval for this estimate.
+
+```{r}
+#code here
+```
+
+In this example the population mean was $\mu=3339$.  Repeat the z-test conducted in class but let the sample size be 160 instead of 80. Does this change the p-value? What if the sample size had been 8000 instead of 80? Would your conclusions about whether this sampled population is the same as the general population change?
+
+```{r}
+#code here
+```
+
+
+---------------
+# Exercise 4C #
+---------------
+
+## Calculating Wald confidence intervals 
+
+Update the 95% confidence interval you calculated above to account for uncertainty in $\sigma$ with the t-distribution.
+
+```{r}
+#code here
+```
+
+
+---------------
+# Exercise 4D #
+---------------
+
+## Two-sample t-test
+
+Repeat the in-class example by reading in the csv file `BeerGlassShape.csv` and conduding a t-test using the `response ~ predictor` formula.
+
+```{r}
+#code here
+```
+

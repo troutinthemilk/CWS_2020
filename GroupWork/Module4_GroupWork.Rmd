@@ -140,4 +140,5 @@ hist(mean.vec)
 hist(sd.vec)
 ```
 
-### The distributions of the estimates look centered over the true population parameters. 
+### The distributions of the estimates look centered over the true population parameters. Increasing the sample size to 100 leads to histograms that look the same but have much less variation.
+
