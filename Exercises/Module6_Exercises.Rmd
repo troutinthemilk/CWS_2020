@@ -26,8 +26,14 @@ Reproduce the monet VIF analysis from lecture. Compare the VIF's from the full m
 
 ```{r}
 #code here
-```
+library(car)
+monet.dat <- read.csv(file="../Data/monet.csv")
 
+full.mod <- lm(log(PRICE) ~ HEIGHT + WIDTH + SIZE, data=monet.dat)
+red.mod <- lm(log(PRICE) ~ WIDTH + SIZE, data=monet.dat)
+vif(red.mod)
+```
+# Removing height improved multicollinearity but not as much as removing SIZE.
 
 ---------------
 # Exercise 6B #
@@ -35,16 +41,18 @@ Reproduce the monet VIF analysis from lecture. Compare the VIF's from the full m
 
 ## Adjusted $R^2$
 
-Add an additional model to the analyses from class using a model with just the `Danger` predictor variable. Does this model perform better or worse than the models from class when using adjusted $R^2$
-to assess model fit?
+Add an additional model to the analyses from class using a model with just the `Danger` predictor variable. Does this model perform better or worse than the models from class when using adjusted $R^2$ to assess model fit?
 
 ```{r}
-sleep.dat <- read.csv(file="MammalSleep.csv")
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
 sleep.dat <- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
 
 # code here
+mod4 <- lm(TotalSleep ~ Danger, data=sleep.dat)
+summary(mod4)
 ```
 
+### This model performs worse than the models explored in class in terms of the adjusted $R^2$.
 
 ----------------
 # Excercise 6C #
@@ -57,8 +65,11 @@ Apply LOOCV to the Danger model from 6B. How does it perform relative to the mod
 ```{r}
 library(caret)
 #code here
+sleep.control <- trainControl(method = "LOOCV") #tell the function we want to do leave one out cross validation
+mod4.xv <- train(TotalSleep ~ Danger, data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+mod4.xv$results
 ```
-
+### This model performs worse than the ones explored in lecture.
 
 ----------------
 # Excercise 6D #
@@ -71,5 +82,7 @@ Calculate the AICc value for the Danger model  using the `MuMIn` package from pr
 ```{r}
 library(MuMIn)
 #code here
+model.sel(mod4)
 ```
 
+### This model performs worse than all other models explored in lecture in terms of AICc.

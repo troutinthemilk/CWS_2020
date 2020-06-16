@@ -27,11 +27,21 @@ Estimate the mean (`mean()`) and standard deviation (`sd()`) for the following d
 x <- 0:10
 y <- rep(5, 10)
 z <- sample(0:10, size=10, replace=TRUE) 
+
+mean(x)
+sd(x)
+
+mean(y)
+sd(y)
+
+mean(z)
+sd(z)
+
 ```
 
 Rerun the analysis a couple of times do the estimates from `z` change or stay the same? Does this make sense?
 
-
+### The mean and standard deviation of `z` changes a bit each time it is run due to the random nature of the sample.
 
 ---------------
 # Exercise 4B #
@@ -43,12 +53,21 @@ The example in class on a sample of 80 baby weights in the United States found a
 
 ```{r}
 #code here
+se <- 573/sqrt(80)
+xbar <- 3370
+
+xbar + 1.96*c(-1,1)*se
 ```
 
 In this example the population mean was $\mu=3339$.  Repeat the z-test conducted in class but let the sample size be 160 instead of 80. Does this change the p-value? What if the sample size had been 8000 instead of 80? Would your conclusions about whether this sampled population is the same as the general population change?
 
 ```{r}
 #code here
+z <- (xbar - 3339)/(573/sqrt(160))
+2*pnorm(q=z, lower.tail=F)
+
+z <- (xbar - 3339)/(573/sqrt(8000))
+2*pnorm(q=z, lower.tail=F)
 ```
 
 
@@ -62,8 +81,14 @@ Update the 95% confidence interval you calculated above to account for uncertain
 
 ```{r}
 #code here
-```
+se <- 573/sqrt(80)
+xbar <- 3370
 
+xbar + qt(p=0.975, df=80-1)*se
+xbar + qt(p=0.025, df=80-1)*se
+
+```
+### This interval is slightly wider than the z-interval, but not much.
 
 ---------------
 # Exercise 4D #
@@ -75,5 +100,7 @@ Repeat the in-class example by reading in the csv file `BeerGlassShape.csv` and 
 
 ```{r}
 #code here
+glass.dat <- read.csv(file="../Data/BeerGlassShape.csv")
+t.test(drinkingMinutes ~ glassShape, data=glass.dat)
 ```
 

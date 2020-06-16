@@ -26,7 +26,7 @@ theme_update(plot.title = element_text(hjust = 0.5),
 
 Below is the correlation plot of the sleep dataset from lecture:
 ```{r}
-sleep.dat <- read.csv(file="MammalSleep.csv")
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
 
 library(corrplot)
 M <- cor(sleep.dat[,3:10], use="pairwise.complete") #extract numeric responses
@@ -35,17 +35,24 @@ corrplot.mixed(M)
 
 In lecture we discussed strong correlations between response and predictor. What are the top 3 strongest correlations among the predictor variables in this dataset?
 
+### The strongest correlations cmong predictors are Danger-Predation, Lifespan-Brainweight, and Danger-Exposure
+
 ###############
 # Exercise 5B #
 ###############
-
 
 ## Simple linear regression
 
 We are going to repeat the analysis produced in class but instead of using the predictor of `BrainWt` we will transform it and use `log(BrainWt)`. Plug in `log(BrainWt)` to the call in `lm`. What is the R-squared value of this model and how does it compare to the model I presented in class? How about the diagnositic plots, do they look different than the model I presented in class?
 ```{r}
 #code here
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv")
+sleep.lm  <- lm(TotalSleep ~ log(BrainWt), data=sleep.dat)
+summary(sleep.lm)
+plot(sleep.lm, which=1)
 ```
+
+### The R-squared value of this model is 0.26, over twice the original model. The diagnostic figures look better as well.
 
 ###############
 # Exercise 5C #
@@ -57,12 +64,20 @@ We are going to repeat the analysis produced in class but instead of using the p
 
 ```{r}
 #code here
+monet.dat <- read.csv(file="../Data/monet.csv")
+monet.mod  <- lm(PRICE ~ SIZE + SIGNED, data=monet.dat)
+
+summary(monet.mod)
 ```
+
+### This model predicts that signed paintings are more expensive than unsigned paintings. 
 
 Load the `sjPlot` library and use the function `plot_model` to plot PRICE predictions against SIZE and SIGNED. Does the plot agree with your interpretation of the parameter estimates?
 
 ```{r}
 #code here
+library(sjPlot)
+plot_model(monet.mod, type="pred", terms=c("SIZE", "SIGNED"), show.data=TRUE)
 ```
 
 
@@ -72,9 +87,11 @@ Load the `sjPlot` library and use the function `plot_model` to plot PRICE predic
 
 ## Run an ANOVA model 
 
-Run an ANOVA on the model you defined above. What does this F-test tell you about the ability of SIGNED to explain variation in the data?
+Run an ANOVA on the model you defined above. What does this F-test tell you about whether there is a difference between signed and unsigned paintings?
+
 ```{r}
 #code here
+summary(aov(monet.mod))
 ```
-
+### The p-value suggests that there is a difference between the signed and unsigned paintings. Because this factor only has two levels it is identical to the t-test.
 

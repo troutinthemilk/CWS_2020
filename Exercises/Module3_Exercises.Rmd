@@ -27,8 +27,17 @@ theme_update(plot.title = element_text(hjust = 0.5),
 Sample with replacement from -1, 1 as in lecture. First try a sample size of 5 and get the mean and standard deviation. Run this code a couple of times. Do these statistics change? Now do the same thing with a sample size of 1000. Do these statistics change?
 ```{r}
 #code here
-```
 
+x <- sample(x=c(-1,1), size=5, replace=TRUE)
+mean(x)
+sd(x)
+
+x <- sample(x=c(-1,1), size=1000, replace=TRUE)
+mean(x)
+sd(x)
+
+```
+### The sample size of 1000 leads to much more stable estimates than the sample size of 5.
 
 ---------------
 # Exercise 3B #
@@ -66,8 +75,8 @@ Below is the loop illustrated  in class.
 
 ```{r}
 #update this code
-for(i in 1:5) {
-  print(i)
+for(x in 101:105) {
+  print(x)
 }
 ```
 
@@ -87,18 +96,18 @@ Now run this a couple of times and see how much the p-value varies.
 
 ```{r}
 #update this code
-
+diff.dat <- read.csv(file="../Data/ButterflyFishDiffs.csv")
 obs.stat <- mean(diff.dat$Difference) 
-null.vec <-numeric(1e4)
+null.vec <-numeric(1e6)
 
 for(i in 1:length(null.vec)) {
   multiplier <- sample(x=c(-1,1), size=length(diff.dat$Difference), replace=TRUE)
   null.vec[i] <- mean(diff.dat$Difference*multiplier)
 }
 
-geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") +
+ggplot() + geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") +
   geom_vline(aes(xintercept=obs.stat), col='red')
-``
+
 ```
 
 
@@ -112,5 +121,17 @@ geom_histogram(aes(x=null.vec), col="white") + xlab("Null hypothesis") +
 Rerun the hotwings example from lecture (using `hotwings.csv`). Update the code to make a million draws from the null distribution. Does the p-value change from the one I reported?
 ```{r}
 #code here.
-```
+hotwings.dat <- read.csv(file="../Data/hotwings.csv")
 
+obs.val <- mean(hotwings.dat$Hotwings[1:14]) - mean(hotwings.dat$Hotwings[15:28])
+print(obs.val)
+
+null.vec <- numeric(1e6) #scientific notation for 10000
+for(i in 1:1e4) {
+  index       <- sample(1:28, 14, replace=F)
+  null.vec[i] <- mean(hotwings.dat$Hotwings[index]) - mean(hotwings.dat$Hotwings[-index])
+}
+p.val <- 2*sum(null.vec < obs.val)/length(null.vec)
+print(p.val)
+```
+### The p-value is smaller than the one I reported in class by about an order of magnitude. This is more accurate than the one run in class. 
