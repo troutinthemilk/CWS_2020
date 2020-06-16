@@ -64,32 +64,59 @@ In 1981 bluegills (`bluegills.csv`) were randomly sampled from Lake Mary in Minn
 3. Calculate the adjusted $R^2$ and perform an F-test to determine which model is a better fit to the data.
 
 ```{r}
+library(sjPlot)
+library(gridExtra)
 #code here
 blue.dat <- read.csv(file="../Data/bluegills.csv")
 
 mod1 <- lm(length ~ age, data=blue.dat)
+summary(mod1)
 mod2 <- lm(length ~ age + I(age^2), data=blue.dat)
+summary(mod2)
+
+anova(mod1, mod2)
+plot_model(mod1, type="pred", show.data=TRUE)
+plot_model(mod2, type="pred", show.data=TRUE)
 
 ```
+### The linear model does well for intermediate ages but not at low or high ages. The quadratic term does a better job overall of fitting the data. The adjusted $R^2$ is higher for the model with the quadratic term and the p-value for the F-test is significant, indicating that the quadratic model significantly differs from the linear model.
 
 Perform model selection using AIC on the bluegill models using the `MuMIn` package. Does AICc agree with your conclusions from the F-test and with the adjusted $R^2$?
 
 ```{r}
 #code here
+library(MuMIn)
+model.sel(list(mod1, mod2))
 ```
-
-Now use AIC to select from the three models defined in model 6D. Does this agree with the results from LOOCV?
-
-```{r}
-#code here
-```
+### AICc selects the quadratic model. This is consistent with the F-test and adjusted $R^2$. 
 
 --------------
 
 For the mammal-sleep dataset (`MammalSleep.csv`), the best entry in our prediction completion discussed briefly in the lecture came from a student who built three models. Model 1 included `LifeSpan` and `Exposure`. Model 2 included `Danger` and `Predation`. Model 3 included just `Exposure`. Fit these three models to the data, then use LOOCV (adapting the code from lecture) to determine which model has the best predictive properties.
 
-```{r}
-#code here
-```
+Follow this by performing model selection using AICc. Is the model ranking the same as cross-validation?
 
+```{r}
+library(caret)
+library(MuMIn)
+#code here
+sleep.dat <- read.csv(file="../Data/MammalSleep.csv") 
+sleep.dat <- sleep.dat[complete.cases(sleep.dat), ] #remove NA's
+
+sleep.control <- trainControl(method = "LOOCV") #tell the function we want to do leave one out cross validation
+mod1.xv <- train(TotalSleep ~ LifeSpan + Exposure, data=sleep.dat, method = "lm", trControl=sleep.control)
+mod2.xv <- train(TotalSleep ~ Danger + Predation, data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+mod3.xv <- train(TotalSleep ~ Exposure, data=sleep.dat, method = "lm", na.action=na.omit, trControl=sleep.control)
+
+print(mod1.xv$results)
+print(mod2.xv$results)
+print(mod3.xv$results)
+
+mod1 <- lm(TotalSleep ~ LifeSpan + Exposure, data=sleep.dat)
+mod2 <- lm(TotalSleep ~ Danger + Predation, data=sleep.dat)
+mod3 <- lm(TotalSleep ~ Exposure, data=sleep.dat)
+
+model.sel(list(mod1, mod2, mod3))
+```
+### Based on the cross-validation we would select model 2, with Danger and Predation as predictors, as the best predictive model followed by the model with Exposure and then by Expression and Lifespan. The AICc rankings follow the same as the LOOCV ranking.
 
