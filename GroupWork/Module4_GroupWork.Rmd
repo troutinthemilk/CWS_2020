@@ -1,6 +1,8 @@
 ---
-title: 'Module 4 exercises'
+title: 'Module 4 group work'
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}

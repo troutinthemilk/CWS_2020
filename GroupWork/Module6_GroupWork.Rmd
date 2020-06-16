@@ -1,6 +1,8 @@
 ---
 title: 'Module 6 group work'
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}
@@ -22,21 +24,34 @@ This example uses data from the Maryland Biological Stream Survey, downloaded fr
 The dependent variable is the number of longnose dace, **longnosedace**, per 75-meter section of stream. The independent variables are the **acreage** drained by the stream; the dissolved oxygen, **do2**, in mg/liter; the maximum depth, **maxdepth**, in cm of the 75-meter segment of stream; nitrate concentration,  **no3**, in mg/liter; sulfate concentration, **so4**, in mg/liter; water temperature, **temp**, on the sampling date in degrees C, and the stream conductivity, **conduct**, in uS/cm.
 
 1. Read in `longnosedace.csv` and create a linear model of longnosedace with all the above covariates in the model. 
-2. load the `car` library and calculate the variance inflation factors using the function `vif`. 
+2. load the `car` library and calculate the variance inflation factors using the function `vif`. Based on this diagnostic, which predictor would you remove from the model to increase estimate interpretability?
 
 ```{r}
 #code here
+library(car)
+dace.dat <- read.csv(file="../Data/longnosedace.csv")
+full.mod <- lm(longnosedace ~ acreage + do2 + maxdepth + no3 + so4 + temp + conduct, data=dace.dat)
+vif(full.mod)
+summary(full.mod)
+
 ```
 
-
+### Based on the vif I would reduce the conduct variable to improve parameter interpretability.
 
 Create two models of the longose dace, the full model and a model  with just the predictors `acreage` and `maxdepth`. 
 1. Report the adjusted $R^2$ values for these models. Based on this criterion, which is the better model?
+
 2. Now run an F-test with the `anova` function. What does the p-value tell you?
 
 ```{r}
 # code here
+red.mod <- lm(longnosedace ~ acreage + maxdepth, data=dace.dat)
+summary(red.mod)
+
+anova(full.mod, red.mod)
 ```
+
+### The p-value in the F-test indicates that the full model explains a significant more amount of variation than the reduced model. This is consistent with conclusions from the adjusted $R^2$.
 
 
 -----------------
@@ -50,6 +65,11 @@ In 1981 bluegills (`bluegills.csv`) were randomly sampled from Lake Mary in Minn
 
 ```{r}
 #code here
+blue.dat <- read.csv(file="../Data/bluegills.csv")
+
+mod1 <- lm(length ~ age, data=blue.dat)
+mod2 <- lm(length ~ age + I(age^2), data=blue.dat)
+
 ```
 
 Perform model selection using AIC on the bluegill models using the `MuMIn` package. Does AICc agree with your conclusions from the F-test and with the adjusted $R^2$?
