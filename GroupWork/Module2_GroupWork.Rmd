@@ -60,6 +60,9 @@ Histograms are univariate plots (`geom_histogram`) used to illustrate numerical 
 #code here
 
 ggplot(wolves.dat) +
-  geom_histogram(aes(x=Wolves, y=Packs, size=Elk)) + ylab("Packs in Yellowstone National Park") + xlab("Wolves in Yellowstone National Park")
+  geom_histogram(mapping=aes(x=Elk), bins=10, color="white")
+
+ggplot(titanic.dat) + 
+  geom_bar(mapping=aes(x=embarked, fill=survive), position="dodge2") #dodge puts the bars next to each other, for easier comparison.
 ```
 
