@@ -25,12 +25,14 @@ Load the dataset `BeaverDensities.csv`. This dataset is the counts of beaver col
 2. Use the `corrplot` library to plot these correlations. Do the correlations between populations tend to be positive, negative, or both?
 
 
-```{r}
+```{r, fig.asp=1, out.width="10%"}
+
 #code here
 beaver.dat <- read.csv(file="../Data/BeaverDensities.csv")
 M <- cor(beaver.dat[,-1], use="pairwise.complete")
 library(corrplot)
 corrplot.mixed(M)
+
 ```
 ### Populations tend to be positively correlated. This is as we would expect for synchronous populations.
 
@@ -134,5 +136,7 @@ Now do a post-test to determine which (if any) of the stage classes differs from
 
 ```{r}
 #code here
+TukeyHSD(aov(log(LBS) ~ AGE, data=bear.dat))
 ```
 
+### This test shows us that there are signficant differences between each pair. The p-value is being rounded here to 0 from a value that is around `1e-10`.
