@@ -30,20 +30,39 @@ Dodd and Silvertown [1999](https://doi.org/10.1086/303238) explored the relation
 
 ```{r}
 #code here
+fir.dat <- read.csv(file="../Data/Firs.csv")
+head(fir.dat)
+
+ggplot(data=fir.dat, aes(x=DBH, y=fecundity, col=pop)) + 
+  geom_point()
+
 ```
 
-2. Now fit a Poisson regression to `fecundity` using `pop` and `DBH` as predictor variables. Report model estimates and confidence intervals, and plot the model fits using the function `plot_model`.
+2. Now fit a Poisson regression to `fecundity` using `pop` and `DBH` as predictor variables. Report model estimates and confidence intervals, and plot the model fits using the function `plot_model` in the `sjPlot` library.
 
 ```{r}
 #code here
+firs.pois <- glm(fecundity ~ DBH + pop, data=fir.dat, family=poisson)
+confint(firs.pois)
+summary(firs.pois)
+plot_model(firs.pois, type="pred", terms=c("DBH", "pop"), show.data=TRUE)
 ```
-
 
 3. Repeat this analysis but use a negative binomial model. Use AICc to determine which fit is better. Do the parameter estimates or confidence intervals differ much between the results of the Poisson and negative binomial distributions? Plot the model predictions from your best model using the `sjPlot` library.
 
 ```{r}
 #code here
+library(MASS)
+library(MuMIn)
+firs.nb <- glm.nb(fecundity ~ DBH + pop, data=fir.dat)
+summary(firs.nb)
+confint(firs.nb)
+model.sel(list(firs.nb, firs.pois))
+
+plot_model(firs.nb, type="pred", terms=c("DBH", "pop"), show.data=TRUE)
 ```
+
+### The negative binomial model is much better than the Poisson, as measured by AICc. The predicted means of the two models look very similar, however the error around the predictions is much dwider in the negative binomial model. The coefficeint  for the popwave predictor changes nad the parameter confidence interval widens by an order of magnitude. Thus, the Poisson regression led us to be overconfident about our conclusions that there were differences between these populations. 
 
 
 ----------------------
@@ -57,8 +76,18 @@ Let's look at the silversword data from the lecture in more detail.
 
 ```{r}
 #code here
+silver.dat <- read.csv(file="../Data/Silversword.csv")
+ggplot(data=silver.dat) +
+  geom_point(mapping=aes(x=Elev, y=Survive/Pop_size)) + xlab("Elevation") + ylab("Survival probability")
+
+full.mod <- glm(cbind(Survive, Die) ~ Elev + Precip + veg_cover + Pop_size, family=binomial, data=silver.dat)
+library(car)
+vif(full.mod)
+summary(full.mod)
+
 ```
 
+### We see that most of these effects are statistically significant. No obvious indications of problems such as collinearity or overdispersion. 
 
 
 4 Use the `VGAM` package to fit the model you used above to fit the same mean function as above but use a betabinomial model. 
@@ -68,7 +97,16 @@ Let's look at the silversword data from the lecture in more detail.
 
 ```{r}
 #code here
+library(VGAM) #contains beta-binomial regression
+model.bb <- vglm(cbind(Survive, Die) ~ Elev + Precip + veg_cover + Pop_size, data=silver.dat, family=betabinomial)
+
+coef(full.mod)
+summary(model.bb)
+
+AIC(model.bb)
+AIC(full.mod)
 ```
+### The beta-binomial is a better fitting model. There are some slight differences in the estimates and precip has gone from having a negative and significant impact on survival to becoming non-signficant. 
 
 
 

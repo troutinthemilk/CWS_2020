@@ -1,5 +1,5 @@
 ---
-title: 'Module 3 group work'
+title: 'Module 3 exercises'
 output: html_notebook
 editor_options: 
   chunk_output_type: inline

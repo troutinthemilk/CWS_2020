@@ -36,12 +36,13 @@ summary(full.mod)
 
 ```
 
-### Based on the vif I would reduce the conduct variable to improve parameter interpretability.
+### Based on the vif I would remove the conduct variable to improve interpretability of the model parameters.
 
-Create two models of the longose dace, the full model and a model  with just the predictors `acreage` and `maxdepth`. 
-1. Report the adjusted $R^2$ values for these models. Based on this criterion, which is the better model?
+Now create another model of the longose dace, onw with just the predictors `acreage` and `maxdepth`. 
 
-2. Now run an F-test with the `anova` function. What does the p-value tell you?
+1. Report the adjusted $R^2$ values for this model and the full model from above. Based on this criterion, which is the better model?
+
+2. Now run an F-test on the two models with the `anova` function. What does the p-value tell you?
 
 ```{r}
 # code here
@@ -51,7 +52,7 @@ summary(red.mod)
 anova(full.mod, red.mod)
 ```
 
-### The p-value in the F-test indicates that the full model explains a significant more amount of variation than the reduced model. This is consistent with conclusions from the adjusted $R^2$.
+### The p-value in the F-test indicates that the full model explains a significantly different amount of variation than the reduced model. This is consistent with conclusions from the adjusted $R^2$.
 
 
 -----------------
@@ -62,6 +63,7 @@ In 1981 bluegills (`bluegills.csv`) were randomly sampled from Lake Mary in Minn
 1. Fit two models to the dataset. In the first use just age as the predictor, in the second model fit age + age^2. In order to incorporate this quadratic term, you need to use the 'as is' command `I(age^2)` as your predictor variable. Otherwise R doesn't understand you are using a quadratic term. 
 2. Plot the model predictions using the command `plot_model` in the `sjPlot` package. Which model looks like a better fit?
 3. Calculate the adjusted $R^2$ and perform an F-test to determine which model is a better fit to the data.
+4. Report the confidence intervals from the model with the quadratic term. Do the confidence intervals overlap 0?
 
 ```{r}
 library(sjPlot)
@@ -78,8 +80,9 @@ anova(mod1, mod2)
 plot_model(mod1, type="pred", show.data=TRUE)
 plot_model(mod2, type="pred", show.data=TRUE)
 
+confint(mod2)
 ```
-### The linear model does well for intermediate ages but not at low or high ages. The quadratic term does a better job overall of fitting the data. The adjusted $R^2$ is higher for the model with the quadratic term and the p-value for the F-test is significant, indicating that the quadratic model significantly differs from the linear model.
+### The linear model does well for intermediate ages but not at low or high ages. The quadratic term does a better job overall of fitting the data. The adjusted $R^2$ is higher for the model with the quadratic term and the p-value for the F-test is significant, indicating that the quadratic model significantly differs from the linear model. The confidence intervals on the quadratic model show that the likely coefficient values for the quadratic term does not overlap 0, indicating it differs from 0.
 
 Perform model selection using AIC on the bluegill models using the `MuMIn` package. Does AICc agree with your conclusions from the F-test and with the adjusted $R^2$?
 
@@ -118,5 +121,5 @@ mod3 <- lm(TotalSleep ~ Exposure, data=sleep.dat)
 
 model.sel(list(mod1, mod2, mod3))
 ```
-### Based on the cross-validation we would select model 2, with Danger and Predation as predictors, as the best predictive model followed by the model with Exposure and then by Expression and Lifespan. The AICc rankings follow the same as the LOOCV ranking.
+### Based on the cross-validation we would select model 2, with Danger and Predation as predictors, as the best predictive model followed by the model with Exposure and then by Expression and Lifespan. The AICc rankings are identical to the LOOCV ranking.
 
