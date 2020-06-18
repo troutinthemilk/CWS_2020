@@ -210,10 +210,15 @@ vif(nosize.mod)
 
 - Structural equation modeling 
 
-```{r, echo=F, fig.cap="http://jarrettbyrnes.info", fig.align="center"}
+```{r, echo=F, fig.align="center", out.width="20%"}
 knitr::include_graphics("http://jarrettbyrnes.info/pics/simple_path.png")
 ```
 
+.footnote[
+image source: http://jarrettbyrnes.info
+
+Online textbook: [Structural Equation Modeling in R for Ecology and Evolution](https://jslefche.github.io/sem_book/), Lefcheck, J.
+]
 
 ---
 class: inverse, middle
