@@ -92,7 +92,7 @@ Run an ANOVA on the model you defined above. What does this F-test tell you abou
 
 ```{r}
 #code here
-summary(aov(monet.dat$SIGNED))
+summary(aov(monet.mod))
 ```
 ### The p-value suggests that there is a difference between the signed and unsigned paintings. Because this factor only has two levels it is identical to the t-test.
 
